@@ -1,0 +1,782 @@
+<!-- ==================== PART 8 DIVIDER ==================== -->
+<section class="partdiv" id="part8">
+  <div class="plabel">Part 8</div>
+  <div class="prule"></div>
+  <h1>Revision and<br>Examination</h1>
+  <div class="psub">Consolidated comparison tables and a formula sheet · a full question bank with answers ·
+  MCQ with an answer key · viva questions · the last-minute revision sheet · source coverage and references</div>
+  <div class="pfoot">Everything in this part is drawn from the examples and definitions of Parts 1–7, which are
+  themselves drawn from the supplied UNIT 2 material.</div>
+</section>
+
+<!-- ==================== CHAPTER 31 ==================== -->
+<section>
+<h1 class="chap" id="c31">31. Consolidated Comparison Tables and Formula Sheet</h1>
+<div class="chapmeta">Part 8 &nbsp;•&nbsp; everything that is easier to compare than to remember</div>
+<div class="chaprule"></div>
+
+<p>This chapter gathers the comparisons that appear scattered through the notes into single tables. It is the
+chapter to read first when revising, because most examination questions are ultimately a comparison of two
+similar things.</p>
+
+<h2 id="c31-1">31.1 Key Comparison Tables</h2>
+
+<table>
+<caption>Table 31.1 — The ten keys, one line each, with the single fact that distinguishes each.</caption>
+<thead><tr><th>Key</th><th>Definition in one line</th><th>The distinguishing fact</th></tr></thead>
+<tbody>
+<tr><td><b>Super key</b></td><td>Any set of attributes that identifies each tuple uniquely</td><td>May contain attributes that are not needed</td></tr>
+<tr><td><b>Candidate key</b></td><td>A minimal super key</td><td>No attribute can be removed without losing uniqueness</td></tr>
+<tr><td><b>Primary key</b></td><td>The candidate key the designer implements</td><td>Exactly one per table; never NULL</td></tr>
+<tr><td><b>Alternate key</b></td><td>A candidate key not chosen as primary</td><td>Still a valid minimal identifier</td></tr>
+<tr><td><b>Foreign key</b></td><td>An attribute whose values must exist as a key elsewhere</td><td>May repeat and may be NULL; creates the relationship</td></tr>
+<tr><td><b>Partial key</b></td><td>Identifies a group of related tuples, not one tuple</td><td>Cannot identify a single tuple</td></tr>
+<tr><td><b>Composite key</b></td><td>A primary key of two or more attributes</td><td>Uniqueness comes from the combination</td></tr>
+<tr><td><b>Unique key</b></td><td>Unique and non-updatable, but may be NULL</td><td>NULL is permitted; several per table</td></tr>
+<tr><td><b>Surrogate key</b></td><td>A generated artificial identifier</td><td>Carries no meaning; updatable; never NULL</td></tr>
+<tr><td><b>Secondary key</b></td><td>An attribute used for indexing</td><td>About search speed, not identity</td></tr>
+</tbody>
+</table>
+
+<table>
+<caption>Table 31.2 — Super key vs candidate key vs primary key.</caption>
+<thead><tr><th>Question</th><th>Super key</th><th>Candidate key</th><th>Primary key</th></tr></thead>
+<tbody>
+<tr><td>Unique?</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>Minimal?</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>How many per table?</td><td>Many</td><td>One or more</td><td>Exactly one</td></tr>
+<tr><td>NULL allowed?</td><td>Not meaningful</td><td>No</td><td>No</td></tr>
+<tr><td>Chosen by designer?</td><td>No — it simply exists</td><td>No — it simply exists</td><td class="ok">Yes</td></tr>
+</tbody>
+</table>
+
+<table>
+<caption>Table 31.3 — Composite vs compound vs surrogate.</caption>
+<thead><tr><th>Question</th><th>Composite key</th><th>Compound key</th><th>Surrogate key</th></tr></thead>
+<tbody>
+<tr><td>Number of attributes</td><td>Two or more</td><td>Two or more</td><td>One</td></tr>
+<tr><td>Made of real data attributes?</td><td>Yes</td><td>Yes</td><td class="no">No — artificial</td></tr>
+<tr><td>Are the parts foreign keys?</td><td>May or may not be</td><td class="ok">Yes, all of them</td><td>No</td></tr>
+<tr><td>Carries meaning?</td><td>Yes</td><td>Yes</td><td class="no">No</td></tr>
+</tbody>
+</table>
+
+<h2 id="c31-2">31.2 Normal-Form Summary Table</h2>
+
+<table>
+<caption>Table 31.4 — The six normal forms: the rule, the dependency removed, and the test.</caption>
+<thead><tr><th>Form</th><th>Rule</th><th>Removes</th><th>Test to apply</th></tr></thead>
+<tbody>
+<tr><td><b>1NF</b></td><td>Every attribute holds an atomic value</td><td>Multi-valued attributes, repeating groups</td><td>Can any cell need to hold two values?</td></tr>
+<tr><td><b>2NF</b></td><td>1NF + every non-prime attribute is fully functionally dependent on the key</td><td>Partial dependencies</td><td>Does a non-prime attribute depend on only part of a composite key?</td></tr>
+<tr><td><b>3NF</b></td><td>2NF + no non-prime attribute is transitively dependent on a key. For every non-trivial X → A: X is a super key <b>or</b> A is prime</td><td>Transitive dependencies</td><td>Is the determinant a super key, or is the dependent prime?</td></tr>
+<tr><td><b>BCNF</b></td><td>3NF + for every non-trivial X → A, X is a super key</td><td>Non-super-key determinants</td><td>Is every determinant a super key?</td></tr>
+<tr><td><b>4NF</b></td><td>BCNF + no multivalued dependency</td><td>Multivalued dependencies</td><td>Are two independent multi-valued facts sharing one table?</td></tr>
+<tr><td><b>5NF</b></td><td>4NF + every join dependency is implied by the candidate keys</td><td>Join dependencies not implied by keys</td><td>Can the table be losslessly split further on a rule, not a key?</td></tr>
+</tbody>
+</table>
+
+<table>
+<caption>Table 31.5 — What each form guarantees, and what it costs.</caption>
+<thead><tr><th>Form</th><th>Guarantee</th><th>Cost or caveat</th></tr></thead>
+<tbody>
+<tr><td>1NF</td><td>No lists inside cells; every value queryable</td><td>Introduces repetition of the other columns</td></tr>
+<tr><td>2NF</td><td>No non-prime attribute depends on part of a key</td><td>More tables, so more joins</td></tr>
+<tr><td>3NF</td><td>No indirect dependencies; always achievable dependency-preserving</td><td>Some redundancy can remain in rare cases</td></tr>
+<tr><td>BCNF</td><td>Every determinant is a super key; always lossless</td><td>Not always dependency-preserving</td></tr>
+<tr><td>4NF</td><td>No cross-product redundancy from independent facts</td><td>More tables</td></tr>
+<tr><td>5NF</td><td>No join dependency beyond those implied by keys</td><td>Detecting join dependencies is very hard in practice</td></tr>
+</tbody>
+</table>
+
+<h2 id="c31-3">31.3 Dependency Rules and Axioms</h2>
+
+<table>
+<caption>Table 31.6 — Armstrong's axioms and the derived rules.</caption>
+<thead><tr><th>Rule</th><th>Statement</th><th>Kind</th></tr></thead>
+<tbody>
+<tr><td>Reflexivity</td><td>If Y ⊆ X then X → Y</td><td>Axiom</td></tr>
+<tr><td>Augmentation</td><td>If X → Y then XZ → YZ</td><td>Axiom</td></tr>
+<tr><td>Transitivity</td><td>If X → Y and Y → Z then X → Z</td><td>Axiom</td></tr>
+<tr><td>Union</td><td>If X → Y and X → Z then X → YZ</td><td>Derived</td></tr>
+<tr><td>Decomposition</td><td>If X → YZ then X → Y and X → Z</td><td>Derived (right side only)</td></tr>
+<tr><td>Pseudotransitivity</td><td>If X → Y and WY → Z then WX → Z</td><td>Derived</td></tr>
+</tbody>
+</table>
+
+<table>
+<caption>Table 31.7 — The dependency types and the form that removes each.</caption>
+<thead><tr><th>Dependency</th><th>Notation</th><th>Meaning</th><th>Removed by</th></tr></thead>
+<tbody>
+<tr><td>Trivial FD</td><td class="mono">X → Y, Y ⊆ X</td><td>Always true; no information</td><td>—</td></tr>
+<tr><td>Non-trivial FD</td><td class="mono">X → Y, Y ⊄ X</td><td>Genuinely constrains the data</td><td>—</td></tr>
+<tr><td>Partial dependency</td><td class="mono">part of key → non-prime</td><td>Non-prime depends on part of a composite key</td><td>2NF</td></tr>
+<tr><td>Transitive dependency</td><td class="mono">X → Y → Z, Y ⇏ X</td><td>Indirect dependency through a non-prime attribute</td><td>3NF</td></tr>
+<tr><td>Multivalued dependency</td><td class="mono">P →→ Q, P →→ R</td><td>Two independent multi-valued facts</td><td>4NF</td></tr>
+<tr><td>Join dependency</td><td class="mono">*(A, B, C)</td><td>Table reconstructible from projections</td><td>5NF</td></tr>
+</tbody>
+</table>
+
+<h2 id="c31-4">31.4 PL/SQL Control-Structure Summary</h2>
+
+<table>
+<caption>Table 31.8 — The IF forms and what each is for.</caption>
+<thead><tr><th>Form</th><th>When to use</th><th>Branches</th></tr></thead>
+<tbody>
+<tr><td class="mono">IF-THEN</td><td>Act only when the condition is true</td><td>1</td></tr>
+<tr><td class="mono">IF-THEN-ELSE</td><td>Two mutually exclusive outcomes</td><td>2</td></tr>
+<tr><td class="mono">IF-THEN-ELSIF</td><td>Several conditions, no default needed</td><td>2 or more</td></tr>
+<tr><td class="mono">IF-THEN-ELSIF-ELSE</td><td>Several conditions plus a default</td><td>3 or more</td></tr>
+<tr><td class="mono">CASE</td><td>One selector tested against a list of values</td><td>One per WHEN, plus optional ELSE</td></tr>
+</tbody>
+</table>
+
+<table>
+<caption>Table 31.9 — The loop forms compared. This table answers most loop questions on its own.</caption>
+<thead><tr><th>Question</th><th>Basic LOOP</th><th>WHILE-LOOP</th><th>FOR-LOOP</th></tr></thead>
+<tbody>
+<tr><td>Where is the condition tested?</td><td>Nowhere — you exit explicitly</td><td>At the <b>top</b></td><td>Range is fixed before entry</td></tr>
+<tr><td>Can the body run zero times?</td><td class="no">No — always at least once</td><td class="ok">Yes</td><td class="ok">Yes, if the range is empty</td></tr>
+<tr><td>Is the iteration count known in advance?</td><td>No</td><td>No</td><td class="ok">Yes</td></tr>
+<tr><td>How does it terminate?</td><td><code>EXIT</code> or <code>EXIT WHEN</code></td><td>Condition becomes false or null</td><td>Counter passes the bound</td></tr>
+<tr><td>Is there a loop counter?</td><td>No</td><td>No</td><td>Yes — cannot be assigned</td></tr>
+</tbody>
+</table>
+
+<table>
+<caption>Table 31.10 — GOTO restrictions and the NULL statement.</caption>
+<thead><tr><th>Item</th><th>Rule</th></tr></thead>
+<tbody>
+<tr><td>GOTO target</td><td>Label must be unique in scope and precede an executable statement or block</td></tr>
+<tr><td>Direction</td><td>May go up or down, but only within the same block</td></tr>
+<tr><td>Into a construct</td><td class="no">Not allowed into IF, CASE, LOOP or a sub-block</td></tr>
+<tr><td>Between clauses</td><td class="no">Not allowed from one IF clause or CASE WHEN to another</td></tr>
+<tr><td>Out of a subprogram</td><td class="no">Not allowed; use RETURN, or jump to just before the end</td></tr>
+<tr><td>Exception handler</td><td class="no">Cannot jump back into the current block; <span class="ok">can</span> jump out to an enclosing block</td></tr>
+<tr><td>NULL</td><td>A no-op; used to document that a branch is deliberately empty</td></tr>
+</tbody>
+</table>
+
+<h2 id="c31-5">31.5 Cursor and View Summary</h2>
+
+<table>
+<caption>Table 31.11 — Implicit vs explicit cursors (condensed).</caption>
+<thead><tr><th>Question</th><th>Implicit</th><th>Explicit</th></tr></thead>
+<tbody>
+<tr><td>Declared by</td><td>Oracle</td><td>The programmer</td></tr>
+<tr><td>Open / close</td><td>Oracle does both automatically</td><td>You do both</td></tr>
+<tr><td>Attributes</td><td class="mono">SQL%FOUND, SQL%NOTFOUND, SQL%ISOPEN, SQL%ROWCOUNT</td><td class="mono">c%FOUND, c%NOTFOUND, c%ISOPEN, c%ROWCOUNT</td></tr>
+<tr><td><code>%ISOPEN</code> value</td><td class="no">Always FALSE</td><td class="ok">TRUE between OPEN and CLOSE</td></tr>
+<tr><td>Used for</td><td>Single-row queries, DML row counts</td><td>Multi-row queries processed row by row</td></tr>
+</tbody>
+</table>
+
+<table>
+<caption>Table 31.12 — View operations and the five conditions for updatability.</caption>
+<thead><tr><th>Operation</th><th>Statement</th></tr></thead>
+<tbody>
+<tr><td>Create</td><td class="mono">CREATE VIEW v AS SELECT … FROM … WHERE …;</td></tr>
+<tr><td>Query</td><td class="mono">SELECT * FROM v;</td></tr>
+<tr><td>Redefine</td><td class="mono">CREATE OR REPLACE VIEW v AS …;</td></tr>
+<tr><td>Drop</td><td class="mono">DROP VIEW v;</td></tr>
+<tr><td>Insert through</td><td class="mono">INSERT INTO v(col, …) VALUES(…);</td></tr>
+<tr><td>Delete through</td><td class="mono">DELETE FROM v WHERE …;</td></tr>
+<tr><td>Guard writes</td><td class="mono">CREATE VIEW v AS … WHERE … WITH CHECK OPTION;</td></tr>
+</tbody>
+</table>
+
+<table>
+<caption>Table 31.13 — The five conditions a view must satisfy to be updatable.</caption>
+<thead><tr><th>#</th><th>Condition</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>No <code>GROUP BY</code> or <code>ORDER BY</code></td><td>Grouped rows do not map to base rows; ordering is presentation only</td></tr>
+<tr><td>2</td><td>No <code>DISTINCT</code></td><td>Duplicate elimination loses the row identity</td></tr>
+<tr><td>3</td><td>All <code>NOT NULL</code> values</td><td>Every view row must be a complete, insertable row</td></tr>
+<tr><td>4</td><td>No nested or complex queries</td><td>The DBMS cannot derive a single base-table row</td></tr>
+<tr><td>5</td><td>Created from a single table</td><td>A join has no single row to update</td></tr>
+</tbody>
+</table>
+
+<h2 id="c31-6">31.6 Security Summary</h2>
+
+<table>
+<caption>Table 31.14 — The security material in one table.</caption>
+<thead><tr><th>Concept</th><th>Definition in one line</th></tr></thead>
+<tbody>
+<tr><td>Database security</td><td>Protection from malicious attempts to steal or modify data</td></tr>
+<tr><td>Confidentiality</td><td>Protection of data from unauthorized disclosure</td></tr>
+<tr><td>Integrity</td><td>Protection from improper modification</td></tr>
+<tr><td>Availability</td><td>Making objects available to a user or program with a legitimate right</td></tr>
+<tr><td>Threat</td><td>Any intentional or accidental event that may adversely affect the system</td></tr>
+<tr><td>Authentication</td><td>Who are you? Prove it!</td></tr>
+<tr><td>Authorization</td><td>What you are allowed to do</td></tr>
+<tr><td>DAC</td><td>Owner-controlled access via grants, revokes and ACLs</td></tr>
+<tr><td>MAC</td><td>Central authority assigns security labels and clearance levels</td></tr>
+<tr><td>RBAC</td><td>Permissions attach to predefined roles based on job responsibilities</td></tr>
+<tr><td>Inference control</td><td>Prevents indirect disclosure via inference channels</td></tr>
+<tr><td>Flow control</td><td>Prevents information reaching unauthorized users; illicit paths are covert channels</td></tr>
+<tr><td>Statistical DB security</td><td>Permits aggregate information, not individual values</td></tr>
+<tr><td>Encryption</td><td>Encodes sensitive data; main issue is key management</td></tr>
+<tr><td>DBA</td><td>Central authority responsible for the overall security of the database system</td></tr>
+</tbody>
+</table>
+
+<table>
+<caption>Table 31.15 — The six control measures and the threat each addresses.</caption>
+<thead><tr><th>Control</th><th>Addresses</th></tr></thead>
+<tbody>
+<tr><td>Authentication</td><td>Impersonation; unauthorized entry</td></tr>
+<tr><td>Access control</td><td>Reading or modifying beyond one's privilege; also tracks operations</td></tr>
+<tr><td>Inference control</td><td>Deducing sensitive facts from legitimate answers</td></tr>
+<tr><td>Flow control</td><td>Information reaching unauthorized users</td></tr>
+<tr><td>Statistical database security</td><td>Individual values exposed through statistics</td></tr>
+<tr><td>Encryption</td><td>Loss or theft of the storage medium</td></tr>
+</tbody>
+</table>
+</section>
+
+<!-- ==================== CHAPTER 32 ==================== -->
+<section>
+<h1 class="chap" id="c32">32. Question Bank with Answers</h1>
+<div class="chapmeta">Part 8 &nbsp;•&nbsp; two-mark, five-mark, descriptive, output-prediction, debugging and normalization problems</div>
+<div class="chaprule"></div>
+
+<p>Every question below is answerable from the material in Parts 1–7, and the answers are written in the form an
+examiner expects: the key term first, then the supporting detail. Answers to output-prediction and normalization
+questions show the reasoning, not merely the result.</p>
+
+<h2 id="c32-1">32.1 Two-Mark Questions</h2>
+
+<table class="qbank">
+<caption>Table 32.1 — Two-mark questions with direct answers.</caption>
+<thead><tr><th>#</th><th>Question</th><th>Answer</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Define a super key.</td><td>A set of attributes that identifies each tuple uniquely in a relation; it may contain attributes that are not needed for uniqueness.</td></tr>
+<tr><td>2</td><td>What is a candidate key?</td><td>A minimal super key — a super key from which no attribute can be removed without losing uniqueness.</td></tr>
+<tr><td>3</td><td>What is a primary key?</td><td>The candidate key that the database designer selects and implements; one per table, never NULL, never updated while referenced.</td></tr>
+<tr><td>4</td><td>What is an alternate key?</td><td>A candidate key that is not the primary key.</td></tr>
+<tr><td>5</td><td>Define a foreign key.</td><td>An attribute whose values must exist as values of a key in another (or the same) relation; it creates the relationship and enforces referential integrity.</td></tr>
+<tr><td>6</td><td>What is a partial key?</td><td>A key that cannot identify a tuple uniquely but can select a group of related tuples.</td></tr>
+<tr><td>7</td><td>What is a composite key?</td><td>A primary key made up of two or more attributes, where the combination guarantees uniqueness.</td></tr>
+<tr><td>8</td><td>What is a surrogate key?</td><td>An artificial key, usually an integer, generated to identify each record uniquely when no natural primary key exists; it carries no meaning.</td></tr>
+<tr><td>9</td><td>What is a secondary key?</td><td>A key required for indexing, so that searching is faster.</td></tr>
+<tr><td>10</td><td>Define functional dependency.</td><td>A constraint X → Y meaning that any two tuples agreeing on X must also agree on Y.</td></tr>
+<tr><td>11</td><td>What is a trivial functional dependency?</td><td>A dependency A → B in which B is a subset of A; it is always true and carries no information.</td></tr>
+<tr><td>12</td><td>What is a transitive dependency?</td><td>X → Z formed indirectly, where X → Y and Y → Z and Y does not determine X.</td></tr>
+<tr><td>13</td><td>What is a multivalued dependency?</td><td>A situation where the existence of rows for one value of P implies further rows, with two independent multi-valued facts about P.</td></tr>
+<tr><td>14</td><td>What is a join dependency?</td><td>A condition where a table can be recreated by joining multiple tables each holding a subset of its attributes; a generalisation of the multivalued dependency.</td></tr>
+<tr><td>15</td><td>State the purpose of normalization.</td><td>To design a consistent database by minimising redundancy and ensuring data integrity through lossless decomposition.</td></tr>
+<tr><td>16</td><td>Name the three anomalies.</td><td>Update anomaly, insertion anomaly and deletion anomaly.</td></tr>
+<tr><td>17</td><td>State the 1NF rule.</td><td>Every attribute must contain an atomic value; multi-valued attributes, composite attributes and repeating groups are disallowed.</td></tr>
+<tr><td>18</td><td>State the 2NF rule.</td><td>The relation is in 1NF and every non-prime attribute is fully functionally dependent on the key — no proper subset of the key determines it.</td></tr>
+<tr><td>19</td><td>State the 3NF rule.</td><td>The relation is in 2NF and no non-prime attribute is transitively dependent on a key; equivalently, for every non-trivial X → A, X is a super key or A is prime.</td></tr>
+<tr><td>20</td><td>State the BCNF rule.</td><td>For every non-trivial functional dependency X → A, X must be a super key.</td></tr>
+<tr><td>21</td><td>State the 4NF rule.</td><td>The relation is in BCNF and has no multivalued dependency.</td></tr>
+<tr><td>22</td><td>State the 5NF rule.</td><td>Every join dependency in the relation is implied by the candidate keys.</td></tr>
+<tr><td>23</td><td>Define denormalization.</td><td>An optimization technique that adds redundant data to one or more tables to avoid costly joins; applied after normalization.</td></tr>
+<tr><td>24</td><td>What is a lossless decomposition?</td><td>A decomposition whose relations, when joined back, reproduce exactly the original relation with no rows lost and no spurious rows created.</td></tr>
+<tr><td>25</td><td>What is dependency preservation?</td><td>A property of a decomposition whereby every functional dependency of the original relation can be checked on the resulting relations.</td></tr>
+<tr><td>26</td><td>Define database security.</td><td>Protection from malicious attempts to steal (view) or modify data.</td></tr>
+<tr><td>27</td><td>Name the three properties of the CIA triad.</td><td>Confidentiality, integrity and availability.</td></tr>
+<tr><td>28</td><td>What is a threat?</td><td>Any intentional or accidental event that may adversely affect the system.</td></tr>
+<tr><td>29</td><td>Distinguish authentication from authorization.</td><td>Authentication establishes who the user is; authorization decides what that user is allowed to do. Authentication comes first.</td></tr>
+<tr><td>30</td><td>What is DAC?</td><td>Discretionary access control — users control their own data and permissions are granted using access control lists.</td></tr>
+<tr><td>31</td><td>What is MAC?</td><td>Mandatory access control — a central authority assigns security labels to data and users so that users access only data within their clearance.</td></tr>
+<tr><td>32</td><td>What is RBAC?</td><td>Role-based access control — permissions are attached to predefined roles, and access is assigned by job responsibility.</td></tr>
+<tr><td>33</td><td>What is inference control?</td><td>The countermeasure to the statistical-database security problem; it prevents indirect disclosure through inference channels.</td></tr>
+<tr><td>34</td><td>What is flow control?</td><td>A control that prevents information from flowing in a way that reaches unauthorized users; the illicit paths are covert channels.</td></tr>
+<tr><td>35</td><td>What is statistical database security?</td><td>Protection of confidential individual values while permitting aggregate or summary information to be retrieved.</td></tr>
+<tr><td>36</td><td>What are the DBA's responsibilities?</td><td>Granting privileges to users who need them, and classifying users and data according to organizational policy; overall security of the system.</td></tr>
+<tr><td>37</td><td>Name the three categories of PL/SQL control structure.</td><td>Conditional control, iterative control and sequential control.</td></tr>
+<tr><td>38</td><td>What does EXIT WHEN do?</td><td>It completes a loop conditionally: if the WHEN condition is true, the loop ends and control passes to the next statement after the loop.</td></tr>
+<tr><td>39</td><td>What does the NULL statement do?</td><td>Nothing — it is a no-op that passes control to the next statement; it documents that a branch is deliberately empty.</td></tr>
+<tr><td>40</td><td>Define a cursor.</td><td>A pointer to the result set of a SQL query against database tables.</td></tr>
+<tr><td>41</td><td>What is the active set?</td><td>The rows held in the context area — those meeting the condition; its size equals the number of such rows.</td></tr>
+<tr><td>42</td><td>Name the four implicit cursor attributes.</td><td><code>%FOUND</code>, <code>%NOTFOUND</code>, <code>%ISOPEN</code> and <code>%ROWCOUNT</code>.</td></tr>
+<tr><td>43</td><td>Why is <code>SQL%ISOPEN</code> always FALSE?</td><td>Because Oracle closes the SQL cursor automatically after executing its associated SQL statement.</td></tr>
+<tr><td>44</td><td>Name the four steps of an explicit cursor.</td><td>Declare, open, fetch and close.</td></tr>
+<tr><td>45</td><td>Define an SQL view.</td><td>A specific representation of data from one or more tables; the tables it refers to are its base tables.</td></tr>
+<tr><td>46</td><td>Does creating a view take storage space?</td><td>No — only the query is stored in the data dictionary; the actual data is not stored anywhere.</td></tr>
+<tr><td>47</td><td>What is the maximum number of columns in a view?</td><td>1000, as in tables.</td></tr>
+<tr><td>48</td><td>What does WITH CHECK OPTION do?</td><td>It prevents an INSERT or UPDATE through the view that would not satisfy the WHERE condition of the CREATE VIEW statement, returning an error instead.</td></tr>
+<tr><td>49</td><td>Does dropping a view delete data?</td><td>No — it removes the view definition; the base-table data is untouched because the view stored no data.</td></tr>
+<tr><td>50</td><td>Name three benefits of views.</td><td>Reducing complexity, improving security, and renaming the table columns.</td></tr>
+</tbody>
+</table>
+
+<h2 id="c32-2">32.2 Five-Mark Questions</h2>
+
+<div class="qa">
+<p class="q">Q1. Explain the difference between a super key, a candidate key and a primary key, with an example.</p>
+<p class="a"><b>Answer.</b> A <b>super key</b> is any set of attributes that identifies each tuple uniquely; it may
+contain attributes that are not needed for uniqueness. A <b>candidate key</b> is a minimal super key: removing any
+attribute destroys uniqueness. The <b>primary key</b> is the candidate key the designer chooses to implement.</p>
+<p>Consider <span class="kv">Student ( roll, name, sex, age, address, class, section )</span>, assuming names are
+unique. The whole tuple is a super key. <span class="kv">( class, section, roll, sex )</span> is also a super key,
+but it is not minimal because <em>sex</em> is removable. <span class="kv">( class, section, roll )</span> and
+<span class="kv">( name, address )</span> are candidate keys. If the designer implements
+<span class="kv">( class, section, roll )</span> as the primary key, then <span class="kv">( name, address
+)</span> becomes the alternate key. A table may have several candidate keys but exactly one primary key.</p>
+</div>
+
+<div class="qa">
+<p class="q">Q2. Explain the three anomalies that normalization removes, with an example of each.</p>
+<p class="a"><b>Answer.</b> Take an unnormalized relation
+<span class="kv">( Stu_ID, Stu_Name, Dept, Course, Instructor )</span> with key (Stu_ID, Course).</p>
+<p><b>Update anomaly.</b> A student's department is stored once per course the student takes. Updating the
+department in one row leaves the other row unchanged, so the database now contains two different answers to the
+same question — an inconsistent state.</p>
+<p><b>Insertion anomaly.</b> A new course with its instructor cannot be recorded until a student enrols in it,
+because the primary key requires a Stu_ID. Recording the fact would need an invented or NULL key value.</p>
+<p><b>Deletion anomaly.</b> If one student is the only person taking a course, deleting that student also deletes
+the fact that the course is taught by that instructor — information that belonged to the course, not the
+student.</p>
+<p>All three arise from the same cause: facts about different things (students, courses, instructors) sharing one
+relation. Normalization separates them.</p>
+</div>
+
+<div class="qa">
+<p class="q">Q3. State and explain the five conditions required to update a view.</p>
+<p class="a"><b>Answer.</b> A view is updatable only if all five hold:</p>
+<ol>
+<li>The defining SELECT must not contain <code>GROUP BY</code> or <code>ORDER BY</code>. Grouped rows do not
+correspond to base rows, and ordering is a presentation concern.</li>
+<li>It must not contain <code>DISTINCT</code>. Eliminating duplicates loses the identity of the underlying
+rows.</li>
+<li>All view values must be NOT NULL, so that each view row is a complete, insertable row.</li>
+<li>The view must not be built from nested or complex queries, which hide the mapping to the base table.</li>
+<li>The view must be built from a <b>single</b> table. A view over multiple tables (a join) has no single row to
+update.</li>
+</ol>
+<p>The five conditions share one underlying requirement: the DBMS must be able to map each view row back to
+exactly one base-table row, and each view column back to a base column.</p>
+</div>
+
+<div class="qa">
+<p class="q">Q4. Explain the six control measures of database security and the threat each addresses.</p>
+<p class="a"><b>Answer.</b> The source lists six:</p>
+<ol>
+<li><b>Authentication</b> — confirms that a user is who they claim to be, using passwords or biometrics such as
+retina and fingerprints; addresses impersonation and unauthorized entry.</li>
+<li><b>Access control</b> — creates user accounts and restricts access so that sensitive data is reachable only
+by authorized users; the DBMS must also track all operations a user performs during the login. Addresses reading
+or modifying data beyond one's privilege.</li>
+<li><b>Inference control</b> — the countermeasure to the statistical-database problem; prevents indirect
+disclosure through inference channels. Inferences are identity disclosure or attribute disclosure.</li>
+<li><b>Flow control</b> — prevents information from flowing to unauthorized users; the illicit pathways are
+called covert channels.</li>
+<li><b>Statistical database security</b> — permits summary information such as the number of employees, but not
+the confidential individual values.</li>
+<li><b>Encryption</b> — encodes sensitive data such as credit card and OTP numbers, protecting it when the
+storage medium itself is lost.</li>
+</ol>
+<p>Each control addresses a different threat, which is why all six are needed.</p>
+</div>
+
+<div class="qa">
+<p class="q">Q5. Explain the three forms of LOOP statement in PL/SQL, and state how many times each body can execute.</p>
+<p class="a"><b>Answer.</b></p>
+<ol>
+<li><b>Basic LOOP.</b> Statements are enclosed between <code>LOOP</code> and <code>END LOOP</code> with no built-in
+condition; termination requires <code>EXIT</code> or <code>EXIT WHEN</code> inside the body. Because there is no
+test before the first execution, the body runs <b>at least once</b>.</li>
+<li><b>WHILE-LOOP.</b> <code>WHILE condition LOOP … END LOOP;</code>. The condition is evaluated before each
+iteration; if it is false or null the loop is bypassed. The body may therefore run <b>zero times</b>, and the
+number of iterations is unknown until the loop completes.</li>
+<li><b>FOR-LOOP.</b> <code>FOR counter IN [REVERSE] lower..higher LOOP … END LOOP;</code>. The range is evaluated
+once when the loop is first entered and is never re-evaluated. The body runs <b>once per integer</b> in the
+range — exactly once if the bounds are equal, and zero times only if the range is empty. The counter can be read
+but not assigned.</li>
+</ol>
+</div>
+
+<div class="qa">
+<p class="q">Q6. Explain the restrictions on the GOTO statement in PL/SQL.</p>
+<p class="a"><b>Answer.</b> A GOTO branches unconditionally to a label, which must be unique within its scope and
+must precede an executable statement or a PL/SQL block. The restrictions are:</p>
+<ul>
+<li>It cannot branch <b>into</b> an IF statement, CASE statement, LOOP statement or sub-block.</li>
+<li>It cannot branch from one IF statement clause to another, or from one CASE WHEN clause to another.</li>
+<li>It cannot branch from an outer block into a sub-block (an inner BEGIN-END block).</li>
+<li>It cannot branch out of a subprogram. To end a subprogram early, use <code>RETURN</code>, or have GOTO branch
+to a place just before the end of the subprogram.</li>
+<li>It cannot branch from an exception handler back into the current BEGIN-END block — but it <b>can</b> branch
+from an exception handler into an enclosing block.</li>
+</ul>
+<p>The source adds that GOTO is seldom needed and should be used sparingly, because overuse makes control flow
+hard to follow; an exception handler is usually preferable to branching out of deeply nested structure.</p>
+</div>
+
+<h2 id="c32-3">32.3 Ten-Mark / Descriptive Questions</h2>
+
+<div class="qa">
+<p class="q">Q1. Explain the complete normalization ladder from 1NF to 5NF, stating the rule and the problem
+addressed at each level. Illustrate with the Student_Project and Employee examples.</p>
+<p class="a"><b>Answer structure.</b> Define normalization and its purpose. Then, for each form, state the rule,
+name the dependency removed, and give the source's example:</p>
+<ul>
+<li><b>1NF</b> — atomic values only. Example: the EMPLOYEE table whose EMP_PHONE column holds several numbers in
+one cell; splitting them into separate rows reaches 1NF and makes the key composite.</li>
+<li><b>2NF</b> — no partial dependency. Example: <span class="kv">Student_Project ( Stu_ID, Proj_ID, Stu_Name,
+Proj_Name )</span>, where Stu_Name depends only on Stu_ID and Proj_Name only on Proj_ID. Decomposing into a
+Student relation and a Project relation removes the partial dependencies; a junction relation preserves the
+many-to-many fact.</li>
+<li><b>3NF</b> — no transitive dependency. Example: <span class="kv">Employee ( Emp_ID, Emp_Name, Emp_Zip,
+Emp_State, Emp_City, Emp_District )</span>, where Emp_Zip determines the location attributes. Splitting into
+Employee_ID and Employee_Zip stores each location fact once.</li>
+<li><b>BCNF</b> — every determinant a super key. Example: the Employee relation with candidate key
+{Emp_ID, Emp_Dept}, where Emp_ID → Emp_Nationality and Emp_Dept → Dept_Type, No_of_Employees have determinants
+that are only part of the key. Three relations — Employee_Nationality, Employee_Department and Employee_ID_Dept —
+make every determinant a key.</li>
+<li><b>4NF</b> — no multivalued dependency. Example: <span class="kv">Students ( Stud_ID, Stud_Course,
+Stud_Hobby )</span>, where course and hobby are independent facts, producing a cross product. Splitting into
+StudentCourse and StudentHobby removes it.</li>
+<li><b>5NF</b> — every join dependency implied by the candidate keys. Example: the agent/company/product table,
+where a tuple-formation rule makes the join dependency real; the source notes that detecting such dependencies
+is very hard, so 5NF is largely of academic interest.</li>
+</ul>
+<p>Conclude with the cumulative nature of the ladder and the note that 3NF is usually sufficient in practice,
+with denormalization applied afterwards only when measurement justifies it.</p>
+</div>
+
+<div class="qa">
+<p class="q">Q2. Discuss database security in full: definition, importance, the levels of security, threats, and
+the control measures.</p>
+<p class="a"><b>Answer structure.</b></p>
+<ol>
+<li><b>Definition and scope.</b> Protection from malicious attempts to steal or modify data; formally the array
+of controls, tools and procedures safeguarding confidentiality, integrity and accessibility. Security must cover
+the data, the DBMS, associated applications, the physical/virtual server and its hardware, and the
+computing/network infrastructure.</li>
+<li><b>Importance.</b> Loss of intellectual property, damage to brand reputation, loss of business continuity,
+and the cost of investigation, repair and customer notification.</li>
+<li><b>Threats and the three losses.</b> Loss of integrity (improper modification, leading to inaccuracy, fraud
+or erroneous decisions); loss of availability (objects withheld from legitimate users); loss of confidentiality
+(unauthorized disclosure, from violation of the Data Privacy Act to jeopardised national security).</li>
+<li><b>Levels.</b> Human, network/user interface, database application program, database system, operating system
+and physical. Physical security uses lock-and-key, disaster protection and backup; OS security is critical
+against viruses and worms.</li>
+<li><b>Network and human level.</b> Eavesdropping, masquerading and person-in-the-middle attacks, handled by
+https://; passwords fail because they are guessable and shared; smartcards require the card plus a PIN.</li>
+<li><b>Control measures.</b> Authentication, access control, inference control, flow control, statistical
+database security and encryption, each tied to the threat it addresses.</li>
+<li><b>DBA.</b> The central authority: grants privileges, classifies users and data, and holds the superuser
+account with account creation, privilege granting, privilege revocation and security level assignment.</li>
+</ol>
+</div>
+
+<h2 id="c32-4">32.4 Output-Prediction Questions</h2>
+
+<div class="box amber"><span class="tag">Q1 — a basic LOOP with EXIT</span>
+<p>Predict the output.</p>
+<pre>DECLARE
+   n NUMBER := 0;
+BEGIN
+   LOOP
+      DBMS_OUTPUT.PUT_LINE ('inside: ' || n);
+      n := n + 1;
+      IF n &gt; 3 THEN
+         EXIT;
+      END IF;
+   END LOOP;
+   DBMS_OUTPUT.PUT_LINE ('outside: ' || n);
+END;
+/</pre>
+<p><b>Reasoning.</b> This is a basic LOOP, so the body runs at least once. <em>n</em> is printed <em>before</em>
+the increment, and the exit test comes after the increment, so the printed sequence is 0, 1, 2, 3 while the
+value at exit is 4.</p>
+<pre class="output">inside: 0
+inside: 1
+inside: 2
+inside: 3
+outside: 4</pre>
+</div>
+
+<div class="box amber"><span class="tag">Q2 — a WHILE that never runs</span>
+<p>Predict the output.</p>
+<pre>DECLARE
+   total NUMBER := 30000;
+BEGIN
+   WHILE total &lt;= 25000 LOOP
+      DBMS_OUTPUT.PUT_LINE ('in loop');
+      total := total + 1000;
+   END LOOP;
+   DBMS_OUTPUT.PUT_LINE ('after loop, total = ' || total);
+END;
+/</pre>
+<p><b>Reasoning.</b> The WHILE condition is tested at the top. <em>total</em> starts at 30000, which is greater
+than 25000, so the condition is false on the first test and the loop body never executes. This is exactly the
+case the source describes: the loop is bypassed.</p>
+<pre class="output">after loop, total = 30000</pre>
+</div>
+
+<div class="box amber"><span class="tag">Q3 — a FOR loop with REVERSE</span>
+<p>Predict the output.</p>
+<pre>BEGIN
+   FOR i IN REVERSE 1..4 LOOP
+      DBMS_OUTPUT.PUT (i || ' ');
+   END LOOP;
+   DBMS_OUTPUT.NEW_LINE;
+END;
+/</pre>
+<p><b>Reasoning.</b> REVERSE counts downward from the higher bound to the lower, so the counter takes the values
+4, 3, 2, 1. The bounds are still written in ascending order (1..4), as the source requires.</p>
+<pre class="output">4 3 2 1</pre>
+</div>
+
+<div class="box amber"><span class="tag">Q4 — CASE with no matching WHEN and no ELSE</span>
+<p>What happens?</p>
+<pre>DECLARE
+   grade CHAR(1) := 'E';
+BEGIN
+   CASE grade
+      WHEN 'A' THEN DBMS_OUTPUT.PUT_LINE('Distinction');
+      WHEN 'B' THEN DBMS_OUTPUT.PUT_LINE('First class');
+      WHEN 'C' THEN DBMS_OUTPUT.PUT_LINE('Second class');
+   END CASE;
+END;
+/</pre>
+<p><b>Reasoning.</b> The selector is 'E'. No WHEN matches, and this CASE has no ELSE branch. A CASE statement
+with no matching branch and no ELSE raises a run-time error (<code>CASE_NOT_FOUND</code>). The correct
+prediction is therefore an error, not empty output — which is the point of the question.</p>
+</div>
+
+<div class="box amber"><span class="tag">Q5 — cursor loop output</span>
+<p>Given the CUSTOMERS table (Table 27.3), predict the output.</p>
+<pre>DECLARE
+   CURSOR c IS SELECT name, salary FROM customers WHERE salary &gt; 4000;
+   n VARCHAR2(20);
+   s NUMBER;
+BEGIN
+   OPEN c;
+   LOOP
+      FETCH c INTO n, s;
+      EXIT WHEN c%NOTFOUND;
+      DBMS_OUTPUT.PUT_LINE(n || ' ' || s);
+   END LOOP;
+   CLOSE c;
+END;
+/</pre>
+<p><b>Reasoning.</b> The cursor selects only rows with salary greater than 4000. From Table 27.3 those are
+Chaitali (6500), Hardik (8500) and Komal (4500). Ramesh, Khilan and kaushik are excluded by the condition.</p>
+<pre class="output">Chaitali 6500
+Hardik 8500
+Komal 4500</pre>
+</div>
+
+<div class="box amber"><span class="tag">Q6 — SQL%ROWCOUNT after an UPDATE</span>
+<p>Predict the output.</p>
+<pre>DECLARE
+   r NUMBER;
+BEGIN
+   UPDATE customers SET salary = salary + 500 WHERE age &lt; 26;
+   r := sql%rowcount;
+   DBMS_OUTPUT.PUT_LINE(r || ' rows updated');
+END;
+/</pre>
+<p><b>Reasoning.</b> The WHERE clause restricts the update to customers aged under 26. From Table 27.3 those are
+Khilan (25), kaushik (23), Chaitali (25) and Komal (22) — four rows. So <code>sql%rowcount</code> is 4.</p>
+<pre class="output">4 rows updated</pre>
+</div>
+
+<h2 id="c32-5">32.5 Debugging Questions</h2>
+
+<div class="box warn"><span class="tag">Q1 — find the error</span>
+<pre>DECLARE
+   a NUMBER := 10;
+BEGIN
+   IF a &gt; 5
+      DBMS_OUTPUT.PUT_LINE('big');
+   END IF;
+END;
+/</pre>
+<p><b>Answer.</b> The <code>THEN</code> keyword is missing. The correct form is:</p>
+<pre>   IF a &gt; 5 THEN
+      DBMS_OUTPUT.PUT_LINE('big');
+   END IF;</pre>
+</div>
+
+<div class="box warn"><span class="tag">Q2 — find the error</span>
+<pre>DECLARE
+   n NUMBER := 0;
+BEGIN
+   WHILE n &lt; 5 LOOP
+      DBMS_OUTPUT.PUT_LINE(n);
+   END LOOP;
+END;
+/</pre>
+<p><b>Answer.</b> The loop is infinite. Nothing inside the body changes <em>n</em>, so the condition
+<code>n &lt; 5</code> remains true forever. The source states the rule directly: a statement inside the loop must
+change the value of the condition. Adding <code>n := n + 1;</code> inside the body fixes it.</p>
+</div>
+
+<div class="box warn"><span class="tag">Q3 — find the error</span>
+<pre>BEGIN
+   FOR i IN 1..3 LOOP
+      DBMS_OUTPUT.PUT_LINE(i);
+      i := i + 1;
+   END LOOP;
+END;
+/</pre>
+<p><b>Answer.</b> The loop counter cannot be assigned inside a FOR loop. The counter may be referenced like a
+constant but not modified, because the loop itself controls it. The statement <code>i := i + 1;</code> must be
+removed.</p>
+</div>
+
+<div class="box warn"><span class="tag">Q4 — find the error</span>
+<pre>DECLARE
+   CURSOR c IS SELECT id, name FROM customers;
+BEGIN
+   LOOP
+      FETCH c INTO v_id, v_name;
+      EXIT WHEN c%NOTFOUND;
+   END LOOP;
+END;
+/</pre>
+<p><b>Answer.</b> Three faults. First, the cursor is never <code>OPEN</code>ed, so the FETCH raises
+<code>ORA-01001: invalid cursor</code>. Second, the variables <code>v_id</code> and <code>v_name</code> are never
+declared. Third, the cursor is never <code>CLOSE</code>d. The corrected skeleton is:</p>
+<pre>DECLARE
+   v_id   customers.id%type;
+   v_name customers.name%type;
+   CURSOR c IS SELECT id, name FROM customers;
+BEGIN
+   OPEN c;
+   LOOP
+      FETCH c INTO v_id, v_name;
+      EXIT WHEN c%NOTFOUND;
+   END LOOP;
+   CLOSE c;
+END;
+/</pre>
+</div>
+
+<div class="box warn"><span class="tag">Q5 — find the error</span>
+<pre>CREATE VIEW HighMarks AS
+SELECT StudentDetails.NAME, StudentMarks.MARKS
+FROM   StudentDetails, StudentMarks
+WHERE  StudentDetails.NAME = StudentMarks.NAME
+ORDER BY StudentMarks.MARKS;
+
+INSERT INTO HighMarks(NAME, MARKS) VALUES('Test', 99);</pre>
+<p><b>Answer.</b> The INSERT will be refused. The view is built from <b>two</b> tables (it is a join) and it also
+contains an <code>ORDER BY</code> clause. Two of the five conditions for an updatable view are therefore
+violated: a view must be created from a single table, and its defining SELECT must not contain
+<code>ORDER BY</code>. The view is read-only.</p>
+</div>
+
+<div class="box warn"><span class="tag">Q6 — find the error</span>
+<pre>CREATE VIEW SampleView AS
+SELECT S_ID, NAME
+FROM   StudentDetails
+WHERE  NAME IS NOT NULL
+WITH CHECK OPTION;
+
+INSERT INTO SampleView(S_ID) VALUES (6);</pre>
+<p><b>Answer.</b> This is the source's own example, and it is a deliberate trap. The view <em>is</em> updatable,
+so the INSERT is attempted — but it supplies no NAME, and the default value of NAME is NULL. The new row would
+therefore violate the view's <code>WHERE NAME IS NOT NULL</code> condition. Because the view was created
+<code>WITH CHECK OPTION</code>, the DBMS refuses the insert and returns an error.</p>
+</div>
+
+<h2 id="c32-6">32.6 Normalization Problems with Step-by-Step Solutions</h2>
+
+<div class="box amber"><span class="tag">Problem 1 — drive a relation to 3NF</span>
+<p><b>Relation.</b> <span class="kv">R ( Stu_ID, Stu_Name, Zip, City, Course )</span>, with
+<span class="kv">Stu_ID → Stu_Name, Zip</span>, <span class="kv">Zip → City</span>, and the key being
+<span class="kv">( Stu_ID, Course )</span>.</p>
+<p><b>Step 1 — is it in 1NF?</b> Assume all values are atomic, so yes.</p>
+<p><b>Step 2 — is it in 2NF?</b> The key is (Stu_ID, Course). Test each non-prime attribute:</p>
+<table>
+<thead><tr><th>Attribute</th><th>Determined by</th><th>Whole key needed?</th></tr></thead>
+<tbody>
+<tr><td class="mono">Stu_Name</td><td class="mono">Stu_ID</td><td class="no">No — partial</td></tr>
+<tr><td class="mono">Zip</td><td class="mono">Stu_ID</td><td class="no">No — partial</td></tr>
+<tr><td class="mono">City</td><td class="mono">Zip</td><td class="no">No — not even on the key</td></tr>
+</tbody>
+</table>
+<p>Not in 2NF. <b>Fix:</b> split along the partial dependencies into
+<span class="kv">Student ( Stu_ID, Stu_Name, Zip )</span> and <span class="kv">Enrolment ( Stu_ID, Course
+)</span>.</p>
+<p><b>Step 3 — is the result in 3NF?</b> Student has key Stu_ID, and the dependency
+<span class="kv">Stu_ID → Zip</span> is fine. But where does <span class="kv">City</span> live? If City is placed
+in Student, then <span class="kv">Stu_ID → Zip → City</span> is a transitive dependency, so Student would not be
+in 3NF. <b>Fix:</b> move City into a relation keyed by Zip:
+<span class="kv">ZipInfo ( Zip, City )</span>.</p>
+<p><b>Final schema (all in 3NF):</b></p>
+<pre>Student   ( Stu_ID, Stu_Name, Zip )     key Stu_ID
+ZipInfo   ( Zip, City )                 key Zip
+Enrolment ( Stu_ID, Course )            key (Stu_ID, Course)</pre>
+<p><b>Check the decomposition is lossless.</b> Student ∩ ZipInfo = { Zip }, and Zip is a super key of ZipInfo,
+so the join Student ⨝ ZipInfo is lossless. Enrolment shares Stu_ID with Student, and Stu_ID is a super key of
+Student, so that join is lossless too.</p>
+</div>
+
+<div class="box amber"><span class="tag">Problem 2 — drive a relation to BCNF</span>
+<p><b>Relation.</b> <span class="kv">R ( Emp_ID, Emp_Nationality, Emp_Dept, Dept_Type, No_of_Employees
+)</span> — the source's own BCNF example.</p>
+<p><b>Step 1 — find the candidate key.</b> Neither Emp_ID alone nor Emp_Dept alone determines everything, so the
+candidate key is <span class="kv">{ Emp_ID, Emp_Dept }</span>.</p>
+<p><b>Step 2 — list the dependencies.</b></p>
+<pre>Emp_ID   → Emp_Nationality
+Emp_Dept → Dept_Type, No_of_Employees</pre>
+<p><b>Step 3 — test BCNF.</b> For each dependency, is the determinant a super key?</p>
+<table>
+<thead><tr><th>Dependency</th><th>Determinant</th><th>Super key?</th></tr></thead>
+<tbody>
+<tr><td class="mono">Emp_ID → Emp_Nationality</td><td class="mono">Emp_ID</td><td class="no">No — only part of the key</td></tr>
+<tr><td class="mono">Emp_Dept → Dept_Type, No_of_Employees</td><td class="mono">Emp_Dept</td><td class="no">No — only part of the key</td></tr>
+</tbody>
+</table>
+<p>Not in BCNF. <b>Step 4 — fix:</b> give each non-super-key determinant its own relation, and keep a junction for
+the original relationship.</p>
+<pre>Employee_Nationality ( Emp_ID, Emp_Nationality )              key Emp_ID
+Employee_Department  ( Emp_Dept, Dept_Type, No_of_Employees ) key Emp_Dept
+Employee_ID_Dept     ( Emp_ID, Emp_Dept )                     key (Emp_ID, Emp_Dept)</pre>
+<p><b>Step 5 — verify.</b> In each relation, every determinant is now the key, hence a super key. All three are in
+BCNF. The junction relation has no non-key attributes, so it is trivially in BCNF.</p>
+</div>
+
+<div class="box amber"><span class="tag">Problem 3 — drive a relation to 4NF</span>
+<p><b>Relation.</b> <span class="kv">Students ( Stud_ID, Stud_Course, Stud_Hobby )</span> — the source's own 4NF
+example. Suppose student S1 takes DBMS and OS, and has hobbies Cricket and Music.</p>
+<p><b>Step 1 — is there a multivalued dependency?</b> For a single Stud_ID, the set of courses and the set of
+hobbies are independent. So <span class="kv">Stud_ID →→ Stud_Course</span> and
+<span class="kv">Stud_ID →→ Stud_Hobby</span>.</p>
+<p><b>Step 2 — confirm the symptom.</b> The table holds the cross product: two courses × two hobbies = four rows.
+Every course is paired with every hobby, which is redundancy, not information.</p>
+<p><b>Step 3 — fix.</b> Split into one relation per multi-valued fact:</p>
+<pre>StudentCourse ( Stud_ID, Stud_Course )   key (Stud_ID, Stud_Course)
+StudentHobby  ( Stud_ID, Stud_Hobby )    key (Stud_ID, Stud_Hobby)</pre>
+<p><b>Step 4 — verify.</b> Each relation is in BCNF (the whole key determines the non-key attribute), and neither
+contains a multivalued dependency, so both are in 4NF. The two relations together carry exactly the same
+information as the original, with the cross-product rows removed.</p>
+</div>
+
+<div class="box amber"><span class="tag">Problem 4 — test a decomposition for losslessness</span>
+<p><b>Relation.</b> <span class="kv">R ( A, B, C, D )</span> with dependencies
+<span class="kv">A → B</span> and <span class="kv">C → D</span>, key <span class="kv">( A, C )</span>.</p>
+<p><b>Question.</b> Is the decomposition into <span class="kv">R1 ( A, B )</span> and
+<span class="kv">R2 ( A, C, D )</span> lossless?</p>
+<p><b>Test.</b> R1 ∩ R2 = { A }. Is A a super key of R1? Yes — A → B and R1 = { A, B }. So the decomposition is
+<b>lossless</b>.</p>
+<p><b>Question.</b> Is the alternative decomposition into <span class="kv">R1 ( A, B )</span> and
+<span class="kv">R2 ( C, D )</span> lossless?</p>
+<p><b>Test.</b> R1 ∩ R2 = ∅. The empty set is a super key of neither relation (it determines nothing). So this
+decomposition is <b>lossy</b> — joining the pieces would produce the full cross product A × B × C × D, which
+contains spurious tuples. The key <span class="kv">( A, C )</span> would be lost entirely.</p>
+</div>
+
+<div class="box tip"><span class="tag">The method to reuse in an examination</span>
+<ol>
+<li>Write down the functional dependencies. Nothing else is possible without them.</li>
+<li>Find the candidate key by computing closures.</li>
+<li>Test 2NF: does any non-prime attribute depend on part of a composite key?</li>
+<li>Test 3NF: does any non-prime attribute depend on another non-prime attribute?</li>
+<li>Test BCNF: is any determinant not a super key?</li>
+<li>Test 4NF: are two independent multi-valued facts in one table?</li>
+<li>Verify losslessness at the end using the R1 ∩ R2 super-key test.</li>
+</ol>
+</div>
+</section>
+

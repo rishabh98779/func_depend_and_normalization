@@ -1,0 +1,1259 @@
+<!-- ==================== PART 5 DIVIDER ==================== -->
+<section class="partdiv" id="part5">
+  <div class="plabel">Part 5</div>
+  <div class="prule"></div>
+  <h1>PL/SQL Control<br>Structures</h1>
+  <div class="psub">Conditional control: IF-THEN, IF-THEN-ELSE, ELSIF and CASE · iterative control: basic LOOP,
+  EXIT, EXIT-WHEN, WHILE, FOR and REVERSE · sequential control: GOTO, labels and NULL</div>
+  <div class="pfoot">Source: UNIT 2, Chapters 2.3.1 (Conditional Control), 2.3.2 (Iterative Control) and 2.3.3
+  (Sequential Control) — every program, output and restriction below is the source's own.</div>
+</section>
+
+<!-- ==================== CHAPTER 23 ==================== -->
+<section>
+<h1 class="chap" id="c23">23. PL/SQL Control Structures: Overview</h1>
+<div class="chapmeta">Part 5 &nbsp;•&nbsp; what control structures are for, and the block that holds them</div>
+<div class="chaprule"></div>
+
+<p>Up to this point the notes have dealt with the <em>structure</em> of data — keys, dependencies, normal forms
+— and with protecting it. This part turns to <em>programming</em> it. PL/SQL adds procedural statements to SQL so
+that a database can make decisions, repeat work and branch. The statements that do this are called
+<b>control structures</b>, and they are the subject of this part.</p>
+
+<h2 id="c23-1">23.1 What Control Structures Are For</h2>
+
+<div class="box def"><span class="tag">Definition (source)</span>
+<p><b>PL/SQL control structures</b> are used to control the flow of execution. PL/SQL provides different kinds of
+statements to provide such procedural capabilities. These statements are almost the same as those provided by
+other languages.</p>
+</div>
+
+<p>The last sentence is worth taking seriously. If you have written a conditional or a loop in any language, you
+already understand the concepts here. What is new is only the PL/SQL syntax and two Oracle-specific behaviours:
+the <code>EXIT WHEN</code> shortcut (Section 25.2) and the fact that a <code>FOR</code> loop's counter cannot be
+assigned (Section 25.6).</p>
+
+<h2 id="c23-2">23.2 The Three Categories</h2>
+
+<figure>
+<svg viewBox="0 0 540 210" width="540" height="210" role="img"
+     aria-label="The three categories of PL/SQL control structure and their statements">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">THE THREE CATEGORIES OF PL/SQL CONTROL STRUCTURE</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="20" y="34" width="160" height="26" rx="3" fill="#1f4fbf"/>
+  <text x="30" y="52" font-family="DejaVu Sans" font-size="9.4" fill="#fff" font-weight="bold">CONDITIONAL</text>
+  <rect x="20" y="60" width="160" height="140" rx="3" fill="#e8f1fb" stroke="#1f4fbf"/>
+  <text x="30" y="78" font-family="DejaVu Sans Mono" font-size="8.6" fill="#1c2833">IF-THEN</text>
+  <text x="30" y="95" font-family="DejaVu Sans Mono" font-size="8.6" fill="#1c2833">IF-THEN-ELSE</text>
+  <text x="30" y="112" font-family="DejaVu Sans Mono" font-size="8.6" fill="#1c2833">IF-THEN-ELSIF</text>
+  <text x="30" y="129" font-family="DejaVu Sans Mono" font-size="8.6" fill="#1c2833">IF-THEN-ELSIF-ELSE</text>
+  <text x="30" y="146" font-family="DejaVu Sans Mono" font-size="8.6" fill="#1c2833">CASE</text>
+  <text x="30" y="172" font-family="DejaVu Sans" font-size="7.8" fill="#1f4fbf">choose a path based</text>
+  <text x="30" y="184" font-family="DejaVu Sans" font-size="7.8" fill="#1f4fbf">on a condition</text>
+
+  <rect x="190" y="34" width="160" height="26" rx="3" fill="#0e7c86"/>
+  <text x="200" y="52" font-family="DejaVu Sans" font-size="9.4" fill="#fff" font-weight="bold">ITERATIVE</text>
+  <rect x="190" y="60" width="160" height="140" rx="3" fill="#eef7f8" stroke="#0e7c86"/>
+  <text x="200" y="78" font-family="DejaVu Sans Mono" font-size="8.6" fill="#1c2833">LOOP … END LOOP</text>
+  <text x="200" y="95" font-family="DejaVu Sans Mono" font-size="8.6" fill="#1c2833">EXIT</text>
+  <text x="200" y="112" font-family="DejaVu Sans Mono" font-size="8.6" fill="#1c2833">EXIT WHEN</text>
+  <text x="200" y="129" font-family="DejaVu Sans Mono" font-size="8.6" fill="#1c2833">WHILE … LOOP</text>
+  <text x="200" y="146" font-family="DejaVu Sans Mono" font-size="8.6" fill="#1c2833">FOR … LOOP</text>
+  <text x="200" y="163" font-family="DejaVu Sans Mono" font-size="8.6" fill="#1c2833">FOR … REVERSE</text>
+  <text x="200" y="184" font-family="DejaVu Sans" font-size="7.8" fill="#0e7c86">repeat work, with labels</text>
+
+  <rect x="360" y="34" width="160" height="26" rx="3" fill="#a0522d"/>
+  <text x="370" y="52" font-family="DejaVu Sans" font-size="9.4" fill="#fff" font-weight="bold">SEQUENTIAL</text>
+  <rect x="360" y="60" width="160" height="140" rx="3" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="370" y="78" font-family="DejaVu Sans Mono" font-size="8.6" fill="#1c2833">GOTO</text>
+  <text x="370" y="95" font-family="DejaVu Sans Mono" font-size="8.6" fill="#1c2833">&lt;&lt;label&gt;&gt;</text>
+  <text x="370" y="112" font-family="DejaVu Sans Mono" font-size="8.6" fill="#1c2833">NULL</text>
+  <text x="370" y="140" font-family="DejaVu Sans" font-size="7.8" fill="#a0522d">jump unconditionally,</text>
+  <text x="370" y="152" font-family="DejaVu Sans" font-size="7.8" fill="#a0522d">or explicitly do nothing</text>
+  <text x="370" y="176" font-family="DejaVu Sans" font-size="7.8" fill="#b5481b">GOTO is seldom needed</text>
+  <text x="370" y="188" font-family="DejaVu Sans" font-size="7.8" fill="#b5481b">and discouraged</text>
+</svg>
+<figcaption class="figcap"><b>Figure 23.1</b> — The three categories, exactly as the source classifies them, with the
+statements belonging to each.</figcaption>
+</figure>
+
+<table>
+<caption>Table 23.1 — The three categories at a glance.</caption>
+<thead><tr><th>Category</th><th>Question it answers</th><th>Statements</th></tr></thead>
+<tbody>
+<tr><td>Conditional control</td><td>Which path should run?</td><td><code>IF</code> in its four forms, <code>CASE</code></td></tr>
+<tr><td>Iterative control</td><td>How many times should this run?</td><td><code>LOOP</code>, <code>EXIT</code>, <code>EXIT WHEN</code>, <code>WHILE</code>, <code>FOR</code></td></tr>
+<tr><td>Sequential control</td><td>Where should control go next?</td><td><code>GOTO</code>, labels, <code>NULL</code></td></tr>
+</tbody>
+</table>
+
+<h2 id="c23-3">23.3 The Anonymous Block</h2>
+
+<p>Every PL/SQL program in this part has the same shape. It is worth naming the parts once, because every example
+below uses them and the source's programs assume them.</p>
+
+<pre>DECLARE
+   -- declarations: variables, constants, cursors
+BEGIN
+   -- executable statements: the control structures live here
+EXCEPTION
+   -- error handling (optional)
+END;
+/</pre>
+
+<table>
+<caption>Table 23.2 — The parts of an anonymous PL/SQL block.</caption>
+<thead><tr><th>Section</th><th>Purpose</th><th>Required?</th></tr></thead>
+<tbody>
+<tr><td><code>DECLARE</code></td><td>Declare variables, constants, cursors</td><td>Optional — omit if nothing to declare</td></tr>
+<tr><td><code>BEGIN … END;</code></td><td>The executable body</td><td>Required</td></tr>
+<tr><td><code>EXCEPTION</code></td><td>Handle run-time errors</td><td>Optional</td></tr>
+<tr><td><code>/</code></td><td>Tells SQL*Plus to execute the block</td><td>Required when submitted from SQL*Plus</td></tr>
+</tbody>
+</table>
+
+<h2 id="c23-4">23.4 SET SERVEROUTPUT and the Substitution Variable</h2>
+
+<p>Two SQL*Plus conveniences appear in almost every example in the source, and understanding them prevents a lot
+of confusion when you run the programs yourself.</p>
+
+<div class="box note"><span class="tag">SET SERVEROUTPUT ON</span>
+<p><code>DBMS_OUTPUT.PUT_LINE</code> writes to a buffer on the server. SQL*Plus will not display that buffer
+unless you first run:</p>
+<pre>SET SERVEROUTPUT ON</pre>
+<p>Without it, a program runs successfully and prints nothing — a classic first-day mistake.</p>
+</div>
+
+<div class="box note"><span class="tag">The substitution variable &amp;name</span>
+<p>A name prefixed with <code>&amp;</code> is a <b>substitution variable</b>. SQL*Plus prompts for a value and
+substitutes it into the text of the program <em>before</em> the program is compiled. That is why the transcripts
+in this part show lines such as:</p>
+<pre>Enter value for num1: 19
+old 2: n1 NUMBER := &amp;num1;
+new 2: n1 NUMBER := 19;</pre>
+<p>The <code>old</code> and <code>new</code> lines are SQL*Plus showing the substitution it made. They are not
+produced by your program, and they are not part of its output — but they appear in the transcript, so these notes
+reproduce them exactly as the source shows them.</p>
+</div>
+
+<div class="box warn"><span class="tag">Common mistake</span>
+<p>Forgetting the slash (<code>/</code>) at the end of a block, or the semicolon at the end of a statement. In
+SQL*Plus, the semicolon ends a statement and the slash <em>executes</em> the block. A block without a slash just
+sits there, unexecuted, and nothing appears to happen.</p>
+</div>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 23</span>
+<ul>
+<li>Control structures control the flow of execution; PL/SQL's are similar to those of other languages.</li>
+<li>Three categories: <b>conditional</b> (IF forms and CASE), <b>iterative</b> (LOOP, EXIT, EXIT WHEN, WHILE,
+FOR), and <b>sequential</b> (GOTO, labels, NULL).</li>
+<li>Programs are anonymous blocks: <code>DECLARE</code>, <code>BEGIN … END;</code>, optional
+<code>EXCEPTION</code>, and a terminating <code>/</code>.</li>
+<li><code>SET SERVEROUTPUT ON</code> is needed to see <code>DBMS_OUTPUT</code> text; <code>&amp;name</code> is a
+substitution variable typed at the prompt.</li>
+</ul>
+</div>
+</section>
+
+<!-- ==================== CHAPTER 24 ==================== -->
+<section>
+<h1 class="chap" id="c24">24. Conditional Control: IF and CASE</h1>
+<div class="chapmeta">Part 5 &nbsp;•&nbsp; choosing which statements run</div>
+<div class="chaprule"></div>
+
+<p>The source states the purpose in one sentence: <em>PL/SQL allows the use of an IF statement to control the
+execution of a block of code. The IF-THEN-ELSIF-ELSE-END IF construct allows specifying certain conditions under
+which a specific block of code should be executed.</em> This chapter covers the four IF forms and the CASE
+statement.</p>
+
+<h2 id="c24-1">24.1 IF-THEN</h2>
+
+<div class="box def"><span class="tag">Syntax</span>
+<pre>IF condition
+THEN
+   statement;
+END IF;</pre>
+<p><b>Use it when:</b> statements should execute only when the condition is true, and there is nothing to do
+otherwise.</p>
+</div>
+
+<h2 id="c24-2">24.2 IF-THEN-ELSE</h2>
+
+<div class="box def"><span class="tag">Syntax</span>
+<pre>IF condition
+THEN
+   [statements to execute when condition is TRUE]
+ELSE
+   [statements to execute when condition is FALSE]
+END IF;</pre>
+<p><b>Use it when:</b> one set of statements should execute when the condition is true, and a different set when
+it is false.</p>
+</div>
+
+<h2 id="c24-3">24.3 IF-THEN-ELSIF</h2>
+
+<div class="box def"><span class="tag">Syntax</span>
+<pre>IF condition1
+THEN
+   statements to execute when condition1 is TRUE
+ELSIF condition2
+THEN
+   statements to execute when condition2 is TRUE
+END IF;</pre>
+<p><b>Use it when:</b> one set of statements should execute when condition1 is true, or a different set when
+condition2 is true.</p>
+</div>
+
+<h2 id="c24-4">24.4 IF-THEN-ELSIF-ELSE</h2>
+
+<div class="box def"><span class="tag">Syntax</span>
+<pre>IF condition1
+THEN
+   statements to execute when condition1 is TRUE
+ELSIF condition2
+THEN
+   statements to execute when condition2 is TRUE
+ELSE
+   statements to execute when both condition1 and condition2 are FALSE
+END IF;</pre>
+<p><b>Use it when:</b> there are three or more outcomes — one for condition1, one for condition2, and one for
+neither.</p>
+</div>
+
+<figure>
+<svg viewBox="0 0 540 250" width="540" height="250" role="img"
+     aria-label="Flowchart of the IF-THEN-ELSIF-ELSE construct">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">EXECUTION FLOW — IF · ELSIF · ELSE · END IF</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <polygon points="270,32 366,56 270,80 174,56" fill="#e8f1fb" stroke="#1f4fbf" stroke-width="1.3"/>
+  <text x="248" y="60" font-family="DejaVu Sans Mono" font-size="8.6" fill="#1f4fbf" font-weight="bold">condition1?</text>
+
+  <path d="M366,56 L452,56" stroke="#4f8a37" stroke-width="1.4"/><path d="M448,52 L458,56 L448,60 z" fill="#4f8a37"/>
+  <text x="404" y="50" font-family="DejaVu Sans" font-size="7.6" fill="#4f8a37">TRUE</text>
+  <rect x="388" y="76" width="128" height="30" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="398" y="95" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">run IF block</text>
+
+  <path d="M270,80 L270,104" stroke="#b5481b" stroke-width="1.4"/><path d="M266,100 L270,110 L274,100 z" fill="#b5481b"/>
+  <text x="276" y="98" font-family="DejaVu Sans" font-size="7.6" fill="#b5481b">FALSE</text>
+
+  <polygon points="270,110 366,134 270,158 174,134" fill="#e8f1fb" stroke="#1f4fbf" stroke-width="1.3"/>
+  <text x="248" y="138" font-family="DejaVu Sans Mono" font-size="8.6" fill="#1f4fbf" font-weight="bold">condition2?</text>
+
+  <path d="M366,134 L452,134" stroke="#4f8a37" stroke-width="1.4"/><path d="M448,130 L458,134 L448,138 z" fill="#4f8a37"/>
+  <text x="404" y="128" font-family="DejaVu Sans" font-size="7.6" fill="#4f8a37">TRUE</text>
+  <rect x="388" y="154" width="128" height="30" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="398" y="173" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">run ELSIF block</text>
+
+  <path d="M270,158 L270,180" stroke="#b5481b" stroke-width="1.4"/><path d="M266,176 L270,186 L274,176 z" fill="#b5481b"/>
+  <text x="276" y="176" font-family="DejaVu Sans" font-size="7.6" fill="#b5481b">FALSE</text>
+
+  <rect x="206" y="186" width="128" height="30" rx="3" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="216" y="205" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">run ELSE block</text>
+
+  <path d="M334,201 L392,201 L392,110" stroke="#0e7c86" stroke-width="1.4"/>
+  <path d="M388,114 L392,104 L396,114 z" fill="#0e7c86"/>
+  <path d="M452,91 L470,91 L470,222 L270,222 L270,216" fill="none" stroke="#0e7c86" stroke-width="1.4"/>
+  <path d="M266,220 L270,230 L274,220 z" fill="#0e7c86"/>
+  <path d="M452,169 L490,169 L490,222 L270,222" fill="none" stroke="#0e7c86" stroke-width="1.4"/>
+  <rect x="206" y="228" width="128" height="20" rx="3" fill="#1b6e8a"/>
+  <text x="216" y="242" font-family="DejaVu Sans" font-size="8.2" fill="#fff" font-weight="bold">END IF — continue</text>
+</svg>
+<figcaption class="figcap"><b>Figure 24.1</b> — The IF ladder. Conditions are tested top to bottom; the first true
+one wins, and exactly one branch runs. If none is true, the ELSE branch runs.</figcaption>
+</figure>
+
+<div class="box warn"><span class="tag">Common mistake</span>
+<p>Writing <code>ELSE IF</code> (two words) instead of <code>ELSIF</code> (one word). <code>ELSE IF</code> opens
+a <em>nested</em> IF statement that then needs its own <code>END IF;</code>, and the block will not compile
+without it. In PL/SQL the multi-way branch keyword is <code>ELSIF</code>.</p>
+</div>
+
+<h2 id="c24-5">24.5 The CASE Statement</h2>
+
+<div class="box def"><span class="tag">Definition and syntax (source)</span>
+<p>The PL/SQL CASE statement provides the facility to execute a sequence of statements based on a
+<b>selector</b>. A selector may be a variable, a function, or an expression.</p>
+<pre>CASE [expression]
+   WHEN condition1 THEN result1
+   WHEN condition2 THEN result2
+   …
+   WHEN condition_n THEN result_n
+   ELSE result
+END;</pre>
+</div>
+
+<p>CASE and the IF ladder solve the same problem — choosing one branch from several — but they read differently.
+Use CASE when every branch tests <em>the same</em> value against a list of possibilities; use the IF ladder when
+the conditions are unrelated expressions.</p>
+
+<figure>
+<svg viewBox="0 0 540 180" width="540" height="180" role="img"
+     aria-label="CASE selection: the selector value chooses one branch">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">CASE SELECTION — ONE SELECTOR VALUE, ONE BRANCH</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="24" y="60" width="120" height="46" rx="4" fill="#1f4fbf"/>
+  <text x="38" y="80" font-family="DejaVu Sans" font-size="8.6" fill="#fff" font-weight="bold">SELECTOR</text>
+  <text x="38" y="96" font-family="DejaVu Sans Mono" font-size="8.4" fill="#dbe6f3">grade = 'C'</text>
+
+  <path d="M144,83 L176,83" stroke="#0e7c86" stroke-width="1.5"/><path d="M172,79 L182,83 L172,87 z" fill="#0e7c86"/>
+
+  <rect x="182" y="34" width="100" height="26" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="192" y="51" font-family="DejaVu Sans Mono" font-size="8.2" fill="#1c2833">WHEN 'A'</text>
+  <rect x="182" y="66" width="100" height="26" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="192" y="83" font-family="DejaVu Sans Mono" font-size="8.2" fill="#1c2833">WHEN 'B'</text>
+  <rect x="182" y="98" width="100" height="26" rx="3" fill="#1f4fbf"/>
+  <text x="192" y="115" font-family="DejaVu Sans Mono" font-size="8.2" fill="#fff" font-weight="bold">WHEN 'C' ←</text>
+  <rect x="182" y="130" width="100" height="26" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="192" y="147" font-family="DejaVu Sans Mono" font-size="8.2" fill="#1c2833">WHEN 'D'</text>
+
+  <path d="M282,111 L318,111" stroke="#1f4fbf" stroke-width="1.5"/><path d="M314,107 L324,111 L314,115 z" fill="#1f4fbf"/>
+  <rect x="324" y="96" width="192" height="30" rx="3" fill="#e8f1fb" stroke="#1f4fbf"/>
+  <text x="334" y="115" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">PUT_LINE('Second class')</text>
+
+  <text x="324" y="70" font-family="DejaVu Sans" font-size="7.8" fill="#5d6d7e">Only the matching branch runs;</text>
+  <text x="324" y="82" font-family="DejaVu Sans" font-size="7.8" fill="#5d6d7e">all others are skipped.</text>
+  <text x="24" y="170" font-family="DejaVu Sans" font-size="8" fill="#5d6d7e">If no WHEN matches and there is an ELSE, the ELSE runs. Without an ELSE, a no-match CASE raises an error.</text>
+</svg>
+<figcaption class="figcap"><b>Figure 24.2</b> — A CASE statement tests the selector against each WHEN in turn and
+executes the first match.</figcaption>
+</figure>
+
+<h2 id="c24-6">24.6 Worked Conditional Programs</h2>
+
+<div class="box amber"><span class="tag">Program 1 — IF-THEN-ELSE (source Example 1)</span>
+<p><b>Problem:</b> test whether <em>a</em> is less than 10 and print the appropriate message.</p>
+<pre>DECLARE
+   a number(3) := 200;
+BEGIN
+   -- check the boolean condition using if statement
+   IF( a &lt; 10 ) THEN
+      -- if condition is true then print the following
+      dbms_output.put_line('a is less than 10 ' );
+   ELSE
+      dbms_output.put_line('a is not less than 10 ' );
+   END IF;
+   dbms_output.put_line('value of a is : ' || a);
+END;</pre>
+<p><b>Dry run:</b> <em>a</em> is initialised to 200. The test <code>a &lt; 10</code> is false (200 is not less
+than 10), so the ELSE branch runs. Control then continues after <code>END IF</code> and the final
+<code>PUT_LINE</code> runs unconditionally.</p>
+<p><b>Output (source):</b></p>
+<pre class="output">a is not less than 10
+value of a is : 200
+PL/SQL procedure successfully completed.</pre>
+</div>
+
+<div class="box amber"><span class="tag">Program 2 — even or odd (source Example 2)</span>
+<p><b>Problem:</b> check whether a number supplied by the user is even or odd.</p>
+<pre>DECLARE
+   n1 NUMBER := &amp;num1;
+BEGIN
+   -- test if the number provided by the user is even
+   IF MOD(n1,2) = 0 THEN
+      DBMS_OUTPUT.PUT_LINE ('The number. '||n1||
+                            ' is even number');
+   ELSE
+      DBMS_OUTPUT.PUT_LINE ('The number '||n1||' is odd number.');
+   END IF;
+   DBMS_OUTPUT.PUT_LINE ('Done Successfully');
+END;
+/</pre>
+<p><b>Logic:</b> <code>MOD(n1,2)</code> is the remainder when <em>n1</em> is divided by 2. It is 0 for an even
+number and 1 for an odd one, so a single test separates the two cases.</p>
+<p><b>Dry run (num1 = 19):</b> 19 mod 2 = 1, which is not 0, so the ELSE branch runs and prints “is odd
+number”. Then <code>Done Successfully</code> prints unconditionally.</p>
+<p><b>Sample output (source):</b></p>
+<pre class="output">Enter value for num1: 19
+old 2: n1 NUMBER := &amp;num1;
+new 2: n1 NUMBER := 19;
+The number 19 is odd number.
+Done Successfully</pre>
+</div>
+
+<div class="box amber"><span class="tag">Program 3 — positive, negative or zero (source Example 3)</span>
+<p><b>Problem:</b> classify a number as positive, negative or zero.</p>
+<pre>DECLARE
+   num1 NUMBER := &amp;get_num;
+BEGIN
+   IF num1 &lt; 0 THEN
+      DBMS_OUTPUT.PUT_LINE ('The number '||num1||' is a negative number');
+   ELSIF num1 = 0 THEN
+      DBMS_OUTPUT.PUT_LINE ('The number '||num1||' is equal to zero');
+   ELSE
+      DBMS_OUTPUT.PUT_LINE ('The number '||num1||' is a positive number');
+   END IF;
+END;
+/</pre>
+<p><b>Logic:</b> three outcomes need the full IF-THEN-ELSIF-ELSE form. The order matters: testing
+<code>num1 &lt; 0</code> first means the ELSE branch automatically covers all remaining cases, which are the
+positive numbers.</p>
+<p><b>Sample outputs (source, three runs):</b></p>
+<pre class="output">Enter value for get_num: 45
+new 2: num1 NUMBER := 45;
+The number 45 is a positive number
+PL/SQL procedure successfully completed</pre>
+<pre class="output">Enter value for get_num: 0
+new 2: num1 NUMBER := 0;
+The number 0 is equal to zero
+PL/SQL procedure successfully completed.</pre>
+<pre class="output">Enter value for get_num: -15
+new 2: num1 NUMBER := -15;
+The number -15 is a negative number
+PL/SQL procedure successfully completed.</pre>
+</div>
+
+<div class="box amber"><span class="tag">Program 4 — CASE with a grade (source Example 1)</span>
+<p><b>Problem:</b> print the class obtained for a grade.</p>
+<pre>DECLARE
+   grade char(1) := 'C';
+BEGIN
+   CASE grade
+      when 'A' then dbms_output.put_line('Distinction');
+      when 'B' then dbms_output.put_line('First class');
+      when 'C' then dbms_output.put_line('Second class');
+      when 'D' then dbms_output.put_line('Pass class');
+      else dbms_output.put_line('Failed');
+   END CASE;
+END;
+/</pre>
+<p><b>Dry run:</b> the selector <em>grade</em> is 'C'. The CASE tests each WHEN in order: 'A' does not match,
+'B' does not match, 'C' matches. The statement after <code>when 'C' then</code> runs, and the remaining branches
+— including the ELSE — are skipped.</p>
+<p><b>Output (source):</b></p>
+<pre class="output">Second class</pre>
+</div>
+
+<div class="box amber"><span class="tag">Program 5 — CASE with a grade read from the prompt (source Example 2)</span>
+<pre>DECLARE
+   grd CHAR(1);
+BEGIN
+   -- Accept value for grade
+   grd := '&amp;new_grd';
+   CASE grd
+      WHEN 'A' THEN dbms_output.Put_line('Your Grade is: Outstanding');
+      WHEN 'B' THEN dbms_output.Put_line('Your Grade is: Excellent');
+      WHEN 'C' THEN dbms_output.Put_line('Your Grade is: Very Good');
+      WHEN 'D' THEN dbms_output. Put_line('Your Grade is: Average');
+      WHEN 'F' THEN dbms_output.Put_line('Your Grade is: Poor');
+      ELSE dbms_output.Put_line('No such grade in the list.');
+   END CASE;
+END;
+/</pre>
+<p><b>Sample output (source):</b></p>
+<pre class="output">Enter value for new_grd: D
+old 5: grd := '&amp;new_grd';
+new 5: grd := 'D';
+
+Your Grade is: Average
+PL/SQL procedure successfully completed.</pre>
+</div>
+
+<div class="box amber"><span class="tag">Program 6 — which day is a date (source Example 3)</span>
+<p><b>Problem:</b> given a date, print the name of the weekday.</p>
+<pre>SET serveroutput ON
+DECLARE
+   t_dt  DATE := To_date('&amp;input_a_date', 'DD-MON-YYYY');
+   t_day VARCHAR2(1);
+BEGIN
+   t_day := To_char(t_dt, 'D');
+   CASE t_day
+      WHEN '1' THEN dbms_output.Put_line ('The date you entered is Sunday.');
+      WHEN '2' THEN dbms_output.Put_line ('The date you entered is Monday.');
+      WHEN '3' THEN dbms_output.Put_line ('The date you entered is Tuesday.');
+      WHEN '4' THEN dbms_output.Put_line ('The date you entered is Wednesday.');
+      WHEN '5' THEN dbms_output.Put_line ('The date you entered is Thursday.');
+      WHEN '6' THEN dbms_output.Put_line ('The date you entered is Friday.');
+      WHEN '7' THEN dbms_output.Put_line ('The date you entered is Saturday.');
+   END CASE;
+END;
+/</pre>
+<p><b>Logic:</b> <code>TO_CHAR(t_dt,'D')</code> returns the day-of-week as a single character, '1' for Sunday
+through '7' for Saturday. The CASE then maps that character to a name. Note that this CASE has <b>no ELSE
+branch</b> — if the character were ever outside '1'…'7' the statement would raise an error, which is safe here
+because <code>TO_CHAR(…,'D')</code> cannot return anything else.</p>
+<p><b>Sample outputs (source, two runs):</b></p>
+<pre class="output">Enter value for input_a_date: 15-may-2018
+new 2: t_dt DATE := To_date('15-may-2018', 'DD-MON-YYYY');
+The date you entered is Tuesday.
+PL/SQL procedure successfully completed.</pre>
+<pre class="output">Enter value for input_a_date: 14-sep-2017
+new 2: t_dt DATE := To_date('14-sep-2017', 'DD-MON-YYYY');
+The date you entered is Thursday.
+PL/SQL procedure successfully completed.</pre>
+</div>
+
+<div class="box note"><span class="tag">Explanation — why 15-May-2018 was a Tuesday</span>
+<p>The output is worth verifying rather than trusting, because a date question in an exam may ask you to do
+exactly this. 15 May 2018 fell on a Tuesday, and 14 September 2017 fell on a Thursday. Both outputs in the source
+are therefore consistent with the calendar, which is a good sign that the program logic is right.</p>
+</div>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 24</span>
+<ul>
+<li>Four IF forms: <code>IF-THEN</code> (true only), <code>IF-THEN-ELSE</code> (two outcomes),
+<code>IF-THEN-ELSIF</code> (multiple conditions, no else), <code>IF-THEN-ELSIF-ELSE</code> (multiple conditions
+plus a default).</li>
+<li>Conditions are tested top to bottom; the first true branch runs and the rest are skipped.</li>
+<li><b>CASE</b> chooses one branch based on a selector, which may be a variable, function or expression. Without
+an ELSE, a CASE that matches nothing raises an error.</li>
+<li>Use the keyword <code>ELSIF</code>, never <code>ELSE IF</code>, for a multi-way branch.</li>
+</ul>
+</div>
+</section>
+
+<!-- ==================== CHAPTER 25 ==================== -->
+<section>
+<h1 class="chap" id="c25">25. Iterative Control: LOOP, WHILE and FOR</h1>
+<div class="chapmeta">Part 5 &nbsp;•&nbsp; repeating statements — and knowing when to stop</div>
+<div class="chaprule"></div>
+
+<p>The source introduces the topic precisely: <em>LOOP statements let you execute a sequence of statements
+multiple times. There are three forms of LOOP statements: LOOP, WHILE-LOOP, and FOR-LOOP.</em> The three forms
+differ in one crucial respect — <b>where the condition is tested</b>, and therefore whether the body can run zero
+times.</p>
+
+<figure>
+<svg viewBox="0 0 540 226" width="540" height="226" role="img"
+     aria-label="Where each loop form tests its condition">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">WHERE DOES EACH LOOP TEST ITS CONDITION?</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <!-- basic LOOP -->
+  <text x="30" y="42" font-family="DejaVu Sans" font-size="8.8" fill="#a0522d" font-weight="bold">BASIC LOOP</text>
+  <rect x="30" y="50" width="130" height="28" rx="3" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="40" y="68" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">run statements</text>
+  <path d="M95,78 L95,92" stroke="#0e7c86" stroke-width="1.3"/><path d="M91,88 L95,98 L99,88 z" fill="#0e7c86"/>
+  <polygon points="95,98 152,112 95,126 38,112" fill="#e8f1fb" stroke="#1f4fbf" stroke-width="1.2"/>
+  <text x="66" y="115" font-family="DejaVu Sans Mono" font-size="7.6" fill="#1f4fbf">EXIT WHEN?</text>
+  <path d="M38,112 L18,112 L18,64 L30,64" fill="none" stroke="#b5481b" stroke-width="1.3"/>
+  <path d="M34,60 L24,64 L34,68 z" fill="#b5481b"/>
+  <text x="20" y="90" font-family="DejaVu Sans" font-size="7.2" fill="#b5481b">no</text>
+  <path d="M152,112 L172,112" stroke="#4f8a37" stroke-width="1.3"/><path d="M168,108 L178,112 L168,116 z" fill="#4f8a37"/>
+  <text x="156" y="106" font-family="DejaVu Sans" font-size="7.2" fill="#4f8a37">yes</text>
+  <text x="30" y="148" font-family="DejaVu Sans" font-size="7.8" fill="#b5481b">Condition at the BOTTOM.</text>
+  <text x="30" y="160" font-family="DejaVu Sans" font-size="7.8" fill="#b5481b">Body always runs at least once.</text>
+  <text x="30" y="174" font-family="DejaVu Sans" font-size="7.8" fill="#5d6d7e">Termination: EXIT or EXIT WHEN</text>
+
+  <!-- WHILE -->
+  <text x="205" y="42" font-family="DejaVu Sans" font-size="8.8" fill="#0e7c86" font-weight="bold">WHILE-LOOP</text>
+  <polygon points="270,52 330,68 270,84 210,68" fill="#e8f1fb" stroke="#1f4fbf" stroke-width="1.2"/>
+  <text x="240" y="71" font-family="DejaVu Sans Mono" font-size="7.6" fill="#1f4fbf">condition?</text>
+  <path d="M270,84 L270,98" stroke="#4f8a37" stroke-width="1.3"/><path d="M266,94 L270,104 L274,94 z" fill="#4f8a37"/>
+  <text x="276" y="96" font-family="DejaVu Sans" font-size="7.2" fill="#4f8a37">true</text>
+  <rect x="210" y="104" width="120" height="26" rx="3" fill="#eef7f8" stroke="#0e7c86"/>
+  <text x="220" y="121" font-family="DejaVu Sans" font-size="8" fill="#1c2833">run statements</text>
+  <path d="M210,117 L188,117 L188,68 L210,68" fill="none" stroke="#b5481b" stroke-width="1.3"/>
+  <path d="M206,64 L196,68 L206,72 z" fill="#b5481b"/>
+  <text x="190" y="94" font-family="DejaVu Sans" font-size="7.2" fill="#b5481b">repeat</text>
+  <path d="M330,68 L350,68" stroke="#4f8a37" stroke-width="1.3"/><path d="M346,64 L356,68 L346,72 z" fill="#4f8a37"/>
+  <text x="334" y="62" font-family="DejaVu Sans" font-size="7.2" fill="#4f8a37">false</text>
+  <text x="205" y="148" font-family="DejaVu Sans" font-size="7.8" fill="#0e7c86">Condition at the TOP.</text>
+  <text x="205" y="160" font-family="DejaVu Sans" font-size="7.8" fill="#0e7c86">Body may run ZERO times.</text>
+  <text x="205" y="174" font-family="DejaVu Sans" font-size="7.8" fill="#5d6d7e">Termination: condition becomes false</text>
+
+  <!-- FOR -->
+  <text x="380" y="42" font-family="DejaVu Sans" font-size="8.8" fill="#4f8a37" font-weight="bold">FOR-LOOP</text>
+  <rect x="386" y="52" width="130" height="28" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="396" y="70" font-family="DejaVu Sans Mono" font-size="7.8" fill="#1c2833">counter in 1..n</text>
+  <path d="M451,80 L451,94" stroke="#0e7c86" stroke-width="1.3"/><path d="M447,90 L451,100 L455,90 z" fill="#0e7c86"/>
+  <rect x="386" y="100" width="130" height="26" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="396" y="117" font-family="DejaVu Sans" font-size="8" fill="#1c2833">run statements</text>
+  <path d="M386,113 L368,113 L368,66 L386,66" fill="none" stroke="#b5481b" stroke-width="1.3"/>
+  <path d="M382,62 L372,66 L382,70 z" fill="#b5481b"/>
+  <text x="370" y="92" font-family="DejaVu Sans" font-size="7.2" fill="#b5481b">next</text>
+  <text x="380" y="148" font-family="DejaVu Sans" font-size="7.8" fill="#4f8a37">Range known BEFORE the loop.</text>
+  <text x="380" y="160" font-family="DejaVu Sans" font-size="7.8" fill="#4f8a37">Runs once per integer in range.</text>
+  <text x="380" y="174" font-family="DejaVu Sans" font-size="7.8" fill="#5d6d7e">Termination: counter passes the bound</text>
+
+  <rect x="30" y="188" width="486" height="30" rx="3" fill="#eef7f8" stroke="#0e7c86"/>
+  <text x="40" y="202" font-family="DejaVu Sans" font-size="8.2" fill="#0e7c86" font-weight="bold">EXAM FAVOURITE:</text>
+  <text x="150" y="202" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">a basic LOOP body always runs at least once; a WHILE body may run zero times; a FOR body runs exactly once per integer in its range.</text>
+  <text x="40" y="214" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">If the lower bound equals the higher bound, the FOR body runs exactly once (Section 25.6).</text>
+</svg>
+<figcaption class="figcap"><b>Figure 25.1</b> — The decisive difference between the three loop forms is where the
+condition is tested, and therefore whether the body can be skipped entirely.</figcaption>
+</figure>
+
+<h2 id="c25-1">25.1 The Basic LOOP</h2>
+
+<div class="box def"><span class="tag">Syntax (source)</span>
+<pre>LOOP
+   sequence_of_statements
+END LOOP;</pre>
+<p>The simplest form of LOOP statement is the basic (or infinite) loop, which encloses a sequence of statements
+between the keywords <code>LOOP</code> and <code>END LOOP</code>. With each iteration the sequence is executed,
+then control resumes at the top of the loop.</p>
+</div>
+
+<p>Note the source's parenthetical: it calls this the “infinite” loop, and the label is fair — nothing in the
+syntax itself stops it. A basic LOOP terminates only when an <code>EXIT</code> statement executes inside it.</p>
+
+<h2 id="c25-2">25.2 EXIT and EXIT-WHEN</h2>
+
+<div class="box def"><span class="tag">EXIT (source)</span>
+<p>If further processing is undesirable or impossible, you can use an <code>EXIT</code> statement to complete the
+loop. You can place one or more EXIT statements anywhere inside a loop, but nowhere outside a loop.</p>
+<p><b>EXIT</b> forces a loop to complete <b>unconditionally</b>. When an EXIT statement is encountered, the loop
+completes immediately and control passes to the next statement.</p>
+<pre>LOOP
+   ...
+   IF credit_rating &lt; 3 THEN
+      ...
+      EXIT;   -- exit loop immediately
+   END IF;
+END LOOP;
+-- control resumes here</pre>
+</div>
+
+<div class="box def"><span class="tag">EXIT-WHEN (source)</span>
+<p><b>EXIT-WHEN</b> lets a loop complete <b>conditionally</b>. When the EXIT statement is encountered, the
+condition in the WHEN clause is evaluated. If the condition is true, the loop completes and control passes to the
+next statement after the loop.</p>
+<pre>LOOP
+   FETCH c1 INTO ...;
+   EXIT WHEN c1%NOTFOUND;   -- exit loop if condition is true
+   ...
+END LOOP;
+CLOSE c1;</pre>
+</div>
+
+<p>The source adds an essential observation about termination: <em>until the condition is true, the loop cannot
+complete. So, a statement inside the loop must change the value of the condition.</em> In the FETCH example, if
+the FETCH returns a row the condition is false; when the FETCH fails to return a row the condition becomes true,
+the loop completes, and control passes to the CLOSE statement.</p>
+
+<div class="box note"><span class="tag">EXIT-WHEN replaces a simple IF — the source's own comparison</span>
+<p>These two fragments are logically equivalent, but the second is easier to read:</p>
+<table>
+<thead><tr><th>Using IF</th><th>Using EXIT-WHEN</th></tr></thead>
+<tbody>
+<tr><td class="mono">IF count &gt; 100 THEN<br>&nbsp;&nbsp;&nbsp;EXIT;<br>END IF;</td><td class="mono">EXIT WHEN count &gt; 100;</td></tr>
+</tbody>
+</table>
+<p>This is a good example of a PL/SQL idiom worth adopting: when a loop's only purpose for an IF is to exit, use
+<code>EXIT WHEN</code> instead.</p>
+</div>
+
+<div class="box warn"><span class="tag">Common mistake — EXIT outside a loop</span>
+<p>The source makes the point with a deliberately wrong example:</p>
+<pre>BEGIN
+   ...
+   IF credit_rating &lt; 3 THEN
+      ...
+      EXIT;   -- NOT ALLOWED
+   END IF;
+END;</pre>
+<p><code>EXIT</code> must be placed inside a loop. To complete a PL/SQL <em>block</em> before its normal end is
+reached, use the <code>RETURN</code> statement instead. The distinction is: <code>EXIT</code> leaves a
+<b>loop</b>; <code>RETURN</code> leaves a <b>subprogram or block</b>.</p>
+</div>
+
+<h2 id="c25-3">25.3 Loop Labels and Nested Loops</h2>
+
+<div class="box def"><span class="tag">Labels (source)</span>
+<p>Like PL/SQL blocks, loops can be labelled. The label is an undeclared identifier enclosed by double angle
+brackets, and it must appear at the beginning of the LOOP statement:</p>
+<pre>&lt;&lt;label_name&gt;&gt;
+LOOP
+   sequence_of_statements
+END LOOP;</pre>
+<p>Optionally, the label name can also appear at the end of the LOOP statement:</p>
+<pre>&lt;&lt;my_loop&gt;&gt;
+LOOP
+   ...
+END LOOP my_loop;</pre>
+</div>
+
+<p>When you nest labelled loops, use ending label names to improve readability. More importantly, labels give you
+a way to exit <em>more than one</em> loop at once:</p>
+
+<pre>&lt;&lt;outer&gt;&gt;
+LOOP
+   ...
+   LOOP
+      ...
+      EXIT outer WHEN ...;   -- exit both loops
+   END LOOP;
+   ...
+END LOOP outer;</pre>
+
+<div class="box note"><span class="tag">Explanation — what EXIT outer does</span>
+<p>The source states the effect precisely: <em>every enclosing loop up to and including the labelled loop is
+exited.</em> So <code>EXIT outer</code> from the inner loop does not merely leave the inner loop — it leaves the
+inner loop <em>and</em> the outer loop in one step, landing on the statement after <code>END LOOP outer;</code>.
+This is the clean way to break out of deeply nested processing without setting and testing flag variables.</p>
+</div>
+
+<h2 id="c25-4">25.4 WHILE-LOOP</h2>
+
+<div class="box def"><span class="tag">Syntax (source)</span>
+<pre>WHILE condition LOOP
+   sequence_of_statements
+END LOOP;</pre>
+<p>Before each iteration of the loop the condition is evaluated. If the condition is true the sequence is
+executed, then control resumes at the top of the loop. If the condition is false or null, the loop is bypassed
+and control passes to the next statement.</p>
+</div>
+
+<p>The source gives a worked illustration and draws out the crucial consequence:</p>
+
+<pre>WHILE total &lt;= 25000 LOOP
+   ...
+   SELECT sal INTO salary FROM emp WHERE ...;
+   total := total + salary;
+END LOOP;</pre>
+
+<div class="box note"><span class="tag">Explanation — the number of iterations is unknown in advance</span>
+<p>The source's own words: <em>the number of iterations depends on the condition and is unknown until the loop
+completes. The condition is tested at the top of the loop, so the sequence might execute zero times. In the last
+example, if the initial value of total is larger than 25000, the condition is false and the loop is
+bypassed.</em></p>
+<p>This is the single most important fact about WHILE: <b>zero iterations is a legitimate outcome.</b></p>
+</div>
+
+<h2 id="c25-5">25.5 Building a Loop-That-Runs-At-Least-Once</h2>
+
+<p>The source notes that some languages have a <code>LOOP UNTIL</code> or <code>REPEAT UNTIL</code> structure
+which tests the condition at the bottom, so the body always executes at least once. <b>PL/SQL has no such
+structure</b> — but you can build one, and the source shows both ways.</p>
+
+<div class="box amber"><span class="tag">Method 1 — a basic LOOP with EXIT WHEN at the bottom</span>
+<pre>LOOP
+   sequence_of_statements
+   EXIT WHEN boolean_expression;
+END LOOP;</pre>
+<p>Because the EXIT WHEN is the last thing in the body, the body always runs at least once before the test is
+reached. This is the closest PL/SQL equivalent of <code>REPEAT UNTIL</code>.</p>
+</div>
+
+<div class="box amber"><span class="tag">Method 2 — a WHILE loop with an initialised Boolean flag</span>
+<pre>done := FALSE;
+WHILE NOT done LOOP
+   sequence_of_statements
+   done := boolean_expression;
+END LOOP;</pre>
+<p>The flag starts FALSE, so <code>NOT done</code> is true on the first test and the body runs. At the end of the
+body the flag is recomputed. The source's warning is important: <em>a statement inside the loop must assign a new
+value to the Boolean variable. Otherwise you have an infinite loop.</em></p>
+</div>
+
+<div class="box tip"><span class="tag">A fact worth remembering</span>
+<p>The source points out that these two loops are logically equivalent — a WHILE whose condition is always true
+is just a basic loop:</p>
+<table>
+<thead><tr><th>Always-true WHILE</th><th>Basic LOOP</th></tr></thead>
+<tbody>
+<tr><td class="mono">WHILE TRUE LOOP<br>&nbsp;&nbsp;...<br>END LOOP;</td><td class="mono">LOOP<br>&nbsp;&nbsp;...<br>END LOOP;</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="c25-6">25.6 FOR-LOOP and REVERSE</h2>
+
+<div class="box def"><span class="tag">Syntax (source)</span>
+<pre>FOR counter IN [REVERSE] lower_bound..higher_bound LOOP
+   sequence_of_statements
+END LOOP;</pre>
+<p>Whereas the number of iterations through a WHILE loop is unknown until the loop completes, the number of
+iterations through a FOR loop is <b>known before the loop is entered</b>. FOR loops iterate over a specified
+range of integers. The range is part of an iteration scheme enclosed by the keywords FOR and LOOP, and a double
+dot (<code>..</code>) serves as the range operator.</p>
+</div>
+
+<div class="box note"><span class="tag">The rule that catches people out</span>
+<p><b>The range is evaluated when the FOR loop is first entered and is never re-evaluated.</b> This means the
+bounds are computed once. If a variable used as a bound changes inside the loop, the number of iterations does
+not change.</p>
+</div>
+
+<h3>The three behaviours of a FOR loop</h3>
+
+<table>
+<caption>Table 25.1 — FOR loop behaviour in the three cases the source illustrates.</caption>
+<thead><tr><th>Case</th><th>Code</th><th>Values of the counter</th><th>Iterations</th></tr></thead>
+<tbody>
+<tr><td>Normal, ascending</td><td class="mono">FOR i IN 1..3 LOOP</td><td class="mono">1, 2, 3</td><td>3</td></tr>
+<tr><td>Lower = upper</td><td class="mono">FOR i IN 3..3 LOOP</td><td class="mono">3</td><td>1</td></tr>
+<tr><td>REVERSE</td><td class="mono">FOR i IN REVERSE 1..3 LOOP</td><td class="mono">3, 2, 1</td><td>3</td></tr>
+</tbody>
+</table>
+
+<div class="box warn"><span class="tag">Common mistake — writing REVERSE bounds backwards</span>
+<p>With <code>REVERSE</code>, iteration proceeds downward from the higher bound to the lower bound, and after each
+iteration the loop counter is <em>decremented</em>. But you still write the range bounds in <b>ascending</b>
+order, not descending. So <code>FOR i IN REVERSE 1..3</code> is correct and gives 3, 2, 1 — while
+<code>FOR i IN REVERSE 3..1</code> is <b>not</b> the way to write it. The source states this explicitly: “you
+write the range bounds in ascending (not descending) order.”</p>
+</div>
+
+<div class="box warn"><span class="tag">Common mistake — assigning the FOR counter</span>
+<p>Inside a FOR loop the loop counter can be <b>referenced like a constant</b> but <b>cannot be assigned
+values</b>. The source's example shows both what is legal and what is not:</p>
+<pre>FOR ctr IN 1..10 LOOP
+   IF NOT finished THEN
+      INSERT INTO ... VALUES (ctr, ...);   -- legal: reading ctr
+      factor := ctr * 2;                   -- legal: reading ctr
+   ELSE
+      ctr := 10;                           -- NOT ALLOWED: assigning ctr
+   END IF;
+END LOOP;</pre>
+<p>The reason is that the loop itself controls the counter. If your body could change it, the loop's iteration
+count would no longer match the range, and the guarantee that a FOR loop runs exactly once per integer in the
+range would be broken.</p>
+</div>
+
+<h2 id="c25-7">25.7 Worked Iterative Programs</h2>
+
+<div class="box amber"><span class="tag">Program 1 — reverse a number with WHILE (source Example 1)</span>
+<p><b>Problem:</b> find the reverse of a given number using a WHILE loop.</p>
+<pre>DECLARE
+   num Number(3) := 123;
+   ans Number(3) := 0;
+   i   Number(3) := 0;
+BEGIN
+   WHILE num != 0
+   LOOP
+      i   := mod(num,10);
+      ans := (ans * 10) + i;
+      num := floor(num/10);
+   END LOOP;
+   dbms_output.put_line('reverse of given number is: ' || ans);
+END;
+/</pre>
+<p><b>Logic:</b> on each pass, <code>MOD(num,10)</code> peels off the last digit, the accumulating answer is
+shifted one place left (<code>ans*10</code>) and the new digit is added, and <code>FLOOR(num/10)</code> removes
+the last digit from <em>num</em>. The loop stops when <em>num</em> reaches 0.</p>
+<p><b>Dry run (num = 123):</b></p>
+<table>
+<thead><tr><th>Iteration</th><th>num at test</th><th>i = MOD(num,10)</th><th>ans = ans*10 + i</th><th>num = FLOOR(num/10)</th></tr></thead>
+<tbody>
+<tr><td>1</td><td class="mono">123</td><td class="mono">3</td><td class="mono">0*10 + 3 = 3</td><td class="mono">12</td></tr>
+<tr><td>2</td><td class="mono">12</td><td class="mono">2</td><td class="mono">3*10 + 2 = 32</td><td class="mono">1</td></tr>
+<tr><td>3</td><td class="mono">1</td><td class="mono">1</td><td class="mono">32*10 + 1 = 321</td><td class="mono">0</td></tr>
+<tr><td>4</td><td class="mono">0</td><td colspan="3">condition <code>num != 0</code> is false → loop ends</td></tr>
+</tbody>
+</table>
+<p><b>Output (source):</b></p>
+<pre class="output">SQL&gt;set serveroutput on
+SQL&gt;start d://rev.sql
+reverse of given number is: 321
+PL/SQL successfully completed.</pre>
+</div>
+
+<div class="box amber"><span class="tag">Program 2 — inside and outside a loop with EXIT (source Example 2)</span>
+<p><b>Problem:</b> print the value of a variable inside and outside a loop using a LOOP with EXIT.</p>
+<pre>DECLARE
+   n NUMBER := 0;
+BEGIN
+   LOOP
+      DBMS_OUTPUT.PUT_LINE ('The value of n inside the loop is: ' || TO_CHAR(n));
+      n := n + 1;
+      IF n &gt; 5 THEN
+         EXIT;
+      END IF;
+   END LOOP;
+   DBMS_OUTPUT.PUT_LINE('The value of n outside the loop is: ' || TO_CHAR(n));
+END;
+/</pre>
+<p><b>Logic:</b> this is a basic LOOP, so the body always runs at least once. <em>n</em> starts at 0, is printed,
+then incremented, and the loop exits as soon as <em>n</em> exceeds 5. The final print happens <em>after</em> the
+loop, so it shows the value that caused the exit.</p>
+<p><b>Dry run:</b></p>
+<table>
+<thead><tr><th>Pass</th><th>Printed inside</th><th>n after increment</th><th>n &gt; 5?</th></tr></thead>
+<tbody>
+<tr><td>1</td><td class="mono">n = 0</td><td class="mono">1</td><td>no</td></tr>
+<tr><td>2</td><td class="mono">n = 1</td><td class="mono">2</td><td>no</td></tr>
+<tr><td>3</td><td class="mono">n = 2</td><td class="mono">3</td><td>no</td></tr>
+<tr><td>4</td><td class="mono">n = 3</td><td class="mono">4</td><td>no</td></tr>
+<tr><td>5</td><td class="mono">n = 4</td><td class="mono">5</td><td>no</td></tr>
+<tr><td>6</td><td class="mono">n = 5</td><td class="mono">6</td><td class="ok">yes → EXIT</td></tr>
+</tbody>
+</table>
+<p><b>Sample output (source):</b></p>
+<pre class="output">SQL&gt; /
+The value of n inside the loop is: 0
+The value of n inside the loop is: 1
+The value of n inside the loop is: 2
+The value of n inside the loop is: 3
+The value of n inside the loop is: 4
+The value of n inside the loop is: 5
+The value of n outside the loop is: 6
+PL/SQL procedure successfully completed.</pre>
+<p>Note the pattern the source is illustrating: <b>n is printed as 0…5 inside but as 6 outside</b>, because the
+increment happens before the exit test. Reading this output carefully is a good check that you understand the
+order of statements in a loop body.</p>
+</div>
+
+<div class="box amber"><span class="tag">Program 3 — computing pi with a FOR loop (source Example 1)</span>
+<p><b>Problem:</b> calculate pi with 500 terms of the Leibniz series using a simple FOR loop.</p>
+<pre>DECLARE
+   p NUMBER := 0;
+BEGIN
+   FOR k IN 1..500 LOOP           -- calculate pi with 500 terms
+      p := p + ( ( (-1) ** (k + 1) ) / ((2 * k) - 1) );
+   END LOOP;
+   p := 4 * p;
+   DBMS_OUTPUT.PUT_LINE( 'pi is approximately : ' || p );   -- print result
+END;
+/</pre>
+<p><b>Logic:</b> the series is 4 × (1 − 1/3 + 1/5 − 1/7 + …). The term <code>(-1)**(k+1)</code> supplies the
+alternating sign, and <code>(2*k - 1)</code> supplies the odd denominator. The loop runs exactly 500 times
+because the range is known before entry, and the final multiplication by 4 is done once, after the loop.</p>
+<p><b>Output (source):</b> the program prints <code>pi is approximately :</code> followed by the computed value.
+As with any finite truncation of this series, the value approaches π but is not exactly π — the source shows the
+approximation the program produced.</p>
+</div>
+
+<div class="box amber"><span class="tag">Program 4 — first n numbers with difference 3 (source Example 2)</span>
+<p><b>Problem:</b> print the first <em>n</em> numbers starting from 1 with a common difference of 3.</p>
+<pre>DECLARE
+   n number := &amp;first_n_number;
+   i number := 1;
+   m number := 1;
+BEGIN
+   DBMS_OUTPUT.PUT_LINE ('The first '||n||' numbers are: ');
+   DBMS_OUTPUT.PUT (i||' ');
+   for i in 1..n-1 loop
+      m := m + 3;
+      dbms_output.put(m||' ');
+   END LOOP;
+   dbms_output.new_line;
+END;
+/</pre>
+<p><b>Logic:</b> the first term (1) is printed before the loop. The loop then runs <code>n-1</code> times, each
+pass adding 3 to <em>m</em> and printing it, which produces the remaining <code>n-1</code> terms. Note that the
+loop variable <em>i</em> is not used inside the body at all — the series is carried by <em>m</em>. This is a
+deliberate illustration that a FOR loop can be used purely as a counter.</p>
+<p><b>Dry run (n = 10):</b> 1 is printed first. The loop runs 9 times, adding 3 each time, printing
+4, 7, 10, 13, 16, 19, 22, 25, 28. Total printed: ten numbers.</p>
+<p><b>Sample output (source):</b></p>
+<pre class="output">Enter value for first_n_number: 10
+old 2: n number:= &amp;first_n_number;
+new 2: n number:= 10;
+The first 10 numbers are:
+1 4 7 10 13 16 19 22 25 28
+PL/SQL procedure successfully completed.</pre>
+</div>
+
+<div class="box violet"><span class="tag">From the source — a scope note worth noticing</span>
+<p>In Program 4 the source declares <code>i number := 1;</code> in the DECLARE section, and then also writes
+<code>for i in 1..n-1 loop</code>. The FOR loop's counter is its <b>own</b> implicitly declared variable, scoped
+to the loop; it shadows the outer <em>i</em>. The program works correctly because the body never relies on the
+outer <em>i</em>. It is nonetheless a name reuse worth avoiding in your own code — and it is a fair viva question
+about PL/SQL scoping rules.</p>
+</div>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 25</span>
+<ul>
+<li>Three loop forms: <b>basic LOOP</b>, <b>WHILE-LOOP</b> and <b>FOR-LOOP</b>.</li>
+<li>A basic LOOP has no built-in termination; it ends via <code>EXIT</code> (unconditional) or
+<code>EXIT WHEN</code> (conditional). Its body always runs at least once.</li>
+<li><code>EXIT</code> must be inside a loop; use <code>RETURN</code> to leave a block or subprogram early.</li>
+<li>Loops can be labelled with <code>&lt;&lt;name&gt;&gt;</code>; <code>EXIT outer</code> exits all enclosing
+loops up to and including the labelled one.</li>
+<li>WHILE tests at the top, so its body may run <b>zero</b> times. The iteration count is unknown until the loop
+completes.</li>
+<li>PL/SQL has no LOOP UNTIL; build one with a basic LOOP plus <code>EXIT WHEN</code> at the bottom, or a WHILE
+on an initialised Boolean flag.</li>
+<li>FOR tests a range that is evaluated once, before entry. Lower = upper runs once; <code>REVERSE</code> counts
+down but is written with ascending bounds; the counter cannot be assigned.</li>
+</ul>
+</div>
+</section>
+
+<!-- ==================== CHAPTER 26 ==================== -->
+<section>
+<h1 class="chap" id="c26">26. Sequential Control: GOTO and NULL</h1>
+<div class="chapmeta">Part 5 &nbsp;•&nbsp; the two statements you should rarely need</div>
+<div class="chaprule"></div>
+
+<p>The source opens this topic with a candid assessment that is worth reading before the syntax: <em>the GOTO
+statement is seldom needed. Occasionally, it can simplify logic enough to warrant its use. The NULL statement can
+improve readability by making the meaning and action of conditional statements clear. Overuse of GOTO statements
+can result in code that is hard to understand and maintain. Use GOTO statements sparingly.</em></p>
+
+<p>That framing matters, because a student who only learns the syntax may conclude that GOTO is a normal tool. It
+is not: it is an escape hatch for unusual situations, and the source's own advice is to prefer an exception
+handler when branching out of deeply nested structure.</p>
+
+<h2 id="c26-1">26.1 The GOTO Statement</h2>
+
+<div class="box def"><span class="tag">Definition (source)</span>
+<p>The <b>GOTO</b> statement branches to a label <b>unconditionally</b>. The label must be unique within its
+scope and must precede an executable statement or a PL/SQL block. When executed, the GOTO statement transfers
+control to the labelled statement or block. The labelled statement or block can be <b>down or up</b> in the
+sequence of statements.</p>
+<pre>GOTO label;
+..
+..
+&lt;&lt; label &gt;&gt;
+statement;</pre>
+</div>
+
+<p>The source's description in the second paragraph is the same rule in plainer words: <em>a GOTO statement in
+PL/SQL provides an unconditional jump from the GOTO to a labelled statement in the same subprogram.</em> The
+phrase “in the same subprogram” is important — it is the first of the restrictions in Section 26.3.</p>
+
+<h2 id="c26-2">26.2 Worked GOTO Programs</h2>
+
+<div class="box amber"><span class="tag">Program 1 — primality test with GOTO (source)</span>
+<p><b>Problem:</b> test whether <em>n</em> is prime, using GOTO to skip the “is prime” message when a divisor is
+found.</p>
+<pre>DECLARE
+   p VARCHAR2(30);
+   n PLS_INTEGER := 37;   -- test any integer &gt; 2 for prime
+BEGIN
+   FOR j in 2..ROUND(SQRT(n)) LOOP
+      IF n MOD j = 0 THEN          -- test for prime
+         p := ' is not a prime number';   -- not a prime number
+         GOTO print_now;
+      END IF;
+   END LOOP;
+   p := ' is a prime number';
+
+   &lt;&lt;print_now&gt;&gt;
+   DBMS_OUTPUT.PUT_LINE(TO_CHAR(n) || p);
+END;
+/</pre>
+<p><b>Logic:</b> the loop tests every integer from 2 up to √n. If any of them divides <em>n</em> exactly, the
+message is set to “not prime” and control jumps straight to the label, skipping the loop's remaining iterations
+and the “is prime” assignment. If the loop finishes without finding a divisor, execution falls through to
+<code>p := ' is a prime number'</code> and then reaches the label naturally.</p>
+<p><b>Dry run (n = 37):</b> √37 ≈ 6.08, so <code>ROUND(SQRT(37))</code> = 6 and the loop tests j = 2, 3, 4, 5, 6.
+None divides 37 exactly (37 mod 2 = 1, mod 3 = 1, mod 4 = 1, mod 5 = 2, mod 6 = 1), so the IF never fires, the
+GOTO never executes, and <em>p</em> becomes “ is a prime number”.</p>
+<p><b>Output:</b> <code>37 is a prime number</code>. (The source shows the program; the output follows directly
+from the trace above, since 37 is prime.)</p>
+<div class="box note"><span class="tag">Why this use of GOTO is defensible</span>
+<p>This is the kind of case the source means by “occasionally it can simplify logic”. The alternative without GOTO
+would be a Boolean flag set in the loop and tested afterwards. The GOTO version is shorter, and the label sits
+immediately after the loop, so the jump distance is tiny and the control flow is easy to follow. Note also the
+detail that makes the program correct: the label must precede an <b>executable</b> statement, which is why it sits
+directly above <code>DBMS_OUTPUT.PUT_LINE</code> and not on a blank line.</p>
+</div>
+</div>
+
+<div class="box amber"><span class="tag">Program 2 — skipping a value with GOTO (source)</span>
+<p><b>Problem:</b> print the value of <em>a</em> from 10 upwards, skipping the value 15.</p>
+<pre>DECLARE
+   a number(2) := 10;
+BEGIN
+   &lt;&lt;loopstart&gt;&gt;
+   -- while loop execution
+   WHILE a &lt; 20 LOOP
+      dbms_output.put_line ('value of a: ' || a);
+      a := a + 1;
+      IF a = 15 THEN
+         a := a + 1;
+         GOTO loopstart;
+      END IF;
+   END LOOP;
+END;
+/</pre>
+<p><b>Logic:</b> the label sits immediately before the WHILE. Each pass prints <em>a</em>, increments it, and if
+the new value is 15 it is incremented again (to 16) and control jumps back to the label. Because the label is
+<em>above</em> the WHILE, the jump re-enters the loop — and the loop's condition is tested again.</p>
+<p><b>Dry run:</b></p>
+<table>
+<thead><tr><th>Printed</th><th>a after increment</th><th>a = 15?</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td class="mono">10</td><td class="mono">11</td><td>no</td><td>continue</td></tr>
+<tr><td class="mono">11</td><td class="mono">12</td><td>no</td><td>continue</td></tr>
+<tr><td class="mono">12</td><td class="mono">13</td><td>no</td><td>continue</td></tr>
+<tr><td class="mono">13</td><td class="mono">14</td><td>no</td><td>continue</td></tr>
+<tr><td class="mono">14</td><td class="mono">15</td><td class="ok">yes</td><td>a becomes 16, GOTO loopstart</td></tr>
+<tr><td class="mono">16</td><td class="mono">17</td><td>no</td><td>continue</td></tr>
+<tr><td class="mono">17</td><td class="mono">18</td><td>no</td><td>continue</td></tr>
+<tr><td class="mono">18</td><td class="mono">19</td><td>no</td><td>continue</td></tr>
+<tr><td class="mono">19</td><td class="mono">20</td><td>no</td><td>loop condition 20 &lt; 20 false → end</td></tr>
+</tbody>
+</table>
+<p>Notice that <b>15 is never printed</b> — that is the point of the program.</p>
+<p><b>Output (source):</b></p>
+<pre class="output">value of a: 10
+value of a: 11
+value of a: 12
+value of a: 13
+value of a: 14
+value of a: 16
+value of a: 17
+value of a: 18
+value of a: 19
+
+PL/SQL procedure successfully completed.</pre>
+</div>
+
+<div class="box violet"><span class="tag">From the source — a note on this example</span>
+<p>This example is a clear illustration of how GOTO <em>works</em>, but it is also a clear illustration of why
+the source advises against it. The same effect is achieved more readably without any jump at all — for example by
+incrementing <em>a</em> and testing <code>IF a &lt;&gt; 15 THEN PUT_LINE(...)</code>. The source presents it as a
+demonstration of the mechanism, and the surrounding text explicitly warns that overuse makes code hard to
+understand. Read it as a syntax lesson, not as a recommended style.</p>
+</div>
+
+<h2 id="c26-3">26.3 Restrictions on GOTO</h2>
+
+<p>The source lists the restrictions explicitly. They are a favourite examination question, and they all follow
+from one principle: <b>GOTO may not jump into the middle of a structured construct, nor out of a subprogram.</b></p>
+
+<div class="box def"><span class="tag">Restrictions (source)</span>
+<ul>
+<li>A GOTO statement cannot branch <b>into</b> an IF statement, CASE statement, LOOP statement or sub-block.</li>
+<li>A GOTO statement cannot branch from one IF statement clause to another, or from one CASE statement WHEN clause
+to another.</li>
+<li>A GOTO statement cannot branch from an outer block into a sub-block (that is, an inner BEGIN-END block).</li>
+<li>A GOTO statement cannot branch out of a subprogram. To end a subprogram early, either use the RETURN statement
+or have GOTO branch to a place right before the end of the subprogram.</li>
+<li>A GOTO statement cannot branch from an exception handler back into the current BEGIN-END block. However, a
+GOTO statement <b>can</b> branch from an exception handler into an enclosing block.</li>
+</ul>
+</div>
+
+<figure>
+<svg viewBox="0 0 540 226" width="540" height="226" role="img"
+     aria-label="GOTO restrictions: which jumps are legal and which are not">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">GOTO — WHAT IS ALLOWED AND WHAT IS NOT</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <!-- outer block -->
+  <rect x="20" y="34" width="240" height="180" rx="4" fill="#f7f9fc" stroke="#34495e"/>
+  <text x="30" y="50" font-family="DejaVu Sans" font-size="8.4" fill="#34495e" font-weight="bold">OUTER BLOCK</text>
+
+  <rect x="40" y="60" width="200" height="50" rx="3" fill="#eef7f8" stroke="#0e7c86"/>
+  <text x="50" y="76" font-family="DejaVu Sans" font-size="8" fill="#0e7c86" font-weight="bold">IF / CASE / LOOP</text>
+  <text x="50" y="90" font-family="DejaVu Sans" font-size="7.6" fill="#1c2833">a structured construct</text>
+  <text x="50" y="102" font-family="DejaVu Sans" font-size="7.6" fill="#b5481b">✘ cannot jump INTO it</text>
+
+  <rect x="40" y="122" width="200" height="46" rx="3" fill="#f6f0fa" stroke="#7a3e9d"/>
+  <text x="50" y="138" font-family="DejaVu Sans" font-size="8" fill="#7a3e9d" font-weight="bold">INNER BEGIN-END BLOCK</text>
+  <text x="50" y="152" font-family="DejaVu Sans" font-size="7.6" fill="#b5481b">✘ cannot jump into a sub-block</text>
+  <text x="50" y="163" font-family="DejaVu Sans" font-size="7.6" fill="#4f8a37">✔ may jump forward/back within</text>
+
+  <rect x="40" y="180" width="200" height="26" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="50" y="197" font-family="DejaVu Sans" font-size="8" fill="#4f8a37">✔ same block, up or down to a label</text>
+
+  <!-- allowed / forbidden summary -->
+  <rect x="276" y="34" width="240" height="86" rx="4" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="286" y="52" font-family="DejaVu Sans" font-size="9" fill="#4f8a37" font-weight="bold">ALLOWED</text>
+  <text x="286" y="70" font-family="DejaVu Sans" font-size="7.8" fill="#1c2833">• within one block, up or down to a label</text>
+  <text x="286" y="84" font-family="DejaVu Sans" font-size="7.8" fill="#1c2833">• from an exception handler OUT to an</text>
+  <text x="296" y="95" font-family="DejaVu Sans" font-size="7.8" fill="#1c2833">enclosing block</text>
+  <text x="286" y="110" font-family="DejaVu Sans" font-size="7.8" fill="#1c2833">• to a label just before the subprogram ends</text>
+
+  <rect x="276" y="128" width="240" height="86" rx="4" fill="#fdf1ec" stroke="#b5481b"/>
+  <text x="286" y="146" font-family="DejaVu Sans" font-size="9" fill="#b5481b" font-weight="bold">NOT ALLOWED</text>
+  <text x="286" y="164" font-family="DejaVu Sans" font-size="7.8" fill="#1c2833">• into an IF, CASE, LOOP or sub-block</text>
+  <text x="286" y="178" font-family="DejaVu Sans" font-size="7.8" fill="#1c2833">• from one IF clause to another</text>
+  <text x="286" y="192" font-family="DejaVu Sans" font-size="7.8" fill="#1c2833">• from one CASE WHEN to another</text>
+  <text x="286" y="206" font-family="DejaVu Sans" font-size="7.8" fill="#1c2833">• out of a subprogram; from a handler back in</text>
+</svg>
+<figcaption class="figcap"><b>Figure 26.1</b> — GOTO may jump within a block, but never into a structured construct
+and never out of a subprogram. The exception-handler rule is asymmetric: outward is allowed, inward is not.</figcaption>
+</figure>
+
+<div class="box warn"><span class="tag">Common mistake — the asymmetric exception-handler rule</span>
+<p>The last restriction is the one most often misremembered, because it is not symmetric. A GOTO <b>cannot</b>
+branch from an exception handler back into the current BEGIN-END block — but it <b>can</b> branch from an
+exception handler into an <em>enclosing</em> block. The logic is that jumping back in would re-enter a block whose
+execution had already failed, which is precisely the situation the exception handler exists to deal with.</p>
+</div>
+
+<h2 id="c26-4">26.4 The NULL Statement</h2>
+
+<div class="box def"><span class="tag">Definition (source)</span>
+<p>The <b>NULL</b> statement does nothing and passes control to the next statement. Some languages refer to such
+an instruction as a <b>no-op</b> (no operation).</p>
+</div>
+
+<p>The source's framing of its purpose is what makes it worth knowing: <em>the NULL statement can improve
+readability by making the meaning and action of conditional statements clear.</em> Its value is not that it does
+anything, but that it <b>says</b> that nothing should be done — which is different from forgetting to write
+anything.</p>
+
+<div class="box amber"><span class="tag">Program 3 — NULL to show no action (source)</span>
+<p><b>Problem:</b> give a commission increase only to sales representatives, and explicitly do nothing for
+everyone else.</p>
+<pre>DECLARE
+   v_job_id VARCHAR2(10);
+   v_emp_id NUMBER(6) := 110;
+BEGIN
+   SELECT job_id INTO v_job_id
+   FROM   employees
+   WHERE  employee_id = v_emp_id;
+
+   IF v_job_id = 'SA_REP' THEN
+      UPDATE employees
+      SET    commission_pct = commission_pct * 1.2;
+   ELSE
+      NULL;   -- do nothing if not a sales representative
+   END IF;
+END;
+/</pre>
+<p><b>Logic:</b> the SELECT reads the employee's job into a variable. If the job is <code>SA_REP</code>, the
+commission is increased by 20 per cent; otherwise the ELSE branch runs <code>NULL</code>, which does nothing at
+all and passes control to the next statement.</p>
+<div class="box note"><span class="tag">Why write NULL at all?</span>
+<p>Because the ELSE branch is <b>documented intent</b>. A reader of this block can see immediately that the case
+was considered and deliberately left alone, rather than overlooked. An empty ELSE (or no ELSE at all) leaves the
+reader wondering. This is exactly the readability benefit the source names.</p>
+</div>
+</div>
+
+<div class="box amber"><span class="tag">Program 4 — GOTO and NULL together (source)</span>
+<pre>DECLARE
+   v_count NUMBER;
+BEGIN
+   SELECT count(JOB_ID) INTO v_count
+   FROM   i_jobs
+   WHERE  job_name = 'DEVELOPER';
+
+   IF v_count = 0 THEN
+      GOTO insert_row;
+   ELSE
+      GOTO null_row;
+   END IF;
+
+   &lt;&lt;insert_row&gt;&gt;
+   INSERT INTO i_jobs VALUES (1,'DEVELOPER',10);
+
+   &lt;&lt;null_row&gt;&gt;
+   DBMS_OUTPUT.PUT_LINE('NULL statement example');
+   NULL;
+END;</pre>
+<p><b>Logic:</b> the SELECT counts how many rows in <em>i_jobs</em> have the job name 'DEVELOPER'. If the count is
+zero, control jumps to the <code>insert_row</code> label and inserts the row; then execution continues into the
+next label's statements. If the count is not zero, control jumps to <code>null_row</code>, skipping the INSERT
+entirely, and prints the message.</p>
+<div class="box warn"><span class="tag">Note the fall-through behaviour</span>
+<p>This example shows an important property of labels: they do not stop execution. After the INSERT at
+<code>insert_row</code>, control <b>falls through</b> into the <code>null_row</code> statements, so the message
+is printed in <em>both</em> paths. If the intention were to print only when nothing was inserted, the
+<code>insert_row</code> branch would need its own GOTO to skip the message. This is precisely the kind of
+subtlety the source's warning about GOTO refers to — and it is a good exam question about labels and control
+flow.</p>
+</div>
+</div>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 26</span>
+<ul>
+<li><b>GOTO</b> branches unconditionally to a label; the label must be unique in scope and precede an executable
+statement or block.</li>
+<li>The jump may be up or down within the same block. Use GOTO sparingly — the source recommends an exception
+handler instead of branching out of deeply nested structure.</li>
+<li><b>Restrictions:</b> no jumping into an IF, CASE, LOOP or sub-block; no jumping between IF clauses or CASE
+WHEN clauses; no jumping from an outer block into a sub-block; no jumping out of a subprogram; and from an
+exception handler you may branch out to an enclosing block but not back into the current block.</li>
+<li><b>NULL</b> is a no-op. Its value is readability: it documents that a branch is deliberately empty.</li>
+<li>Labels do not stop execution — control falls through from one label into the next.</li>
+</ul>
+</div>
+</section>
+

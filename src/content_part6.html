@@ -1,0 +1,529 @@
+<!-- ==================== PART 6 DIVIDER ==================== -->
+<section class="partdiv" id="part6">
+  <div class="plabel">Part 6</div>
+  <div class="prule"></div>
+  <h1>PL/SQL Cursors</h1>
+  <div class="psub">What a cursor is · the context area and the active set · implicit cursors and their four
+  attributes · explicit cursors and the declare–open–fetch–close life cycle · cursor loops and termination</div>
+  <div class="pfoot">Source: UNIT 2, Chapter 2.3.4 (Introduction to PL/SQL Cursor) — the CUSTOMERS table,
+  the SQL%ROWCOUNT program and the complete explicit-cursor program are the source's own.</div>
+</section>
+
+<!-- ==================== CHAPTER 27 ==================== -->
+<section>
+<h1 class="chap" id="c27">27. Cursors: Concept and Implicit Cursors</h1>
+<div class="chapmeta">Part 6 &nbsp;•&nbsp; working with a result set one row at a time</div>
+<div class="chaprule"></div>
+
+<p>A cursor exists to solve a mismatch. SQL is set-oriented: a query returns a whole set of rows at once. A
+procedural program is row-oriented: it does one thing at a time. Something must bridge the two, and in PL/SQL
+that something is the cursor.</p>
+
+<h2 id="c27-1">27.1 What a Cursor Is</h2>
+
+<div class="box def"><span class="tag">Definition (source)</span>
+<p>A <b>PL/SQL cursor is a pointer that points to the result set of an SQL query against database tables.</b></p>
+<p>The source explains why it is needed: when you work with an Oracle database, you work with a complete set of
+rows returned from a SELECT statement. However, the application in some cases cannot work effectively with the
+entire result set. Therefore the database server needs to provide a mechanism for the application to work with
+one row, or a subset of the result set, at a time. Oracle created the PL/SQL cursor to provide these
+extensions.</p>
+</div>
+
+<p>The single word to hold on to is <b>pointer</b>. A cursor is not the data; it is a position within the data.
+Each fetch moves the pointer forward one row, and the program acts on whatever row the pointer currently
+indicates.</p>
+
+<h2 id="c27-2">27.2 The Context Area and the Active Set</h2>
+
+<div class="box def"><span class="tag">The source's explanation</span>
+<p>Oracle has dedicated memory locations for executing SQL statements, and holds that processed information —
+for example, the total number of rows updated. A cursor in PL/SQL gives a name and acts as a pointer to the area
+of work called a <b>context area</b>, and then uses its information. It keeps the number of rows processed by
+the SQL statement. These rows are called the <b>active set</b>. The size of the active set is equal to the count
+of the rows that meet the condition.</p>
+</div>
+
+<figure>
+<svg viewBox="0 0 540 216" width="540" height="216" role="img"
+     aria-label="A cursor points into a context area holding the active set">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">THE CURSOR POINTS INTO THE CONTEXT AREA</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="24" y="36" width="180" height="40" rx="4" fill="#1f4fbf"/>
+  <text x="38" y="54" font-family="DejaVu Sans" font-size="8.8" fill="#fff" font-weight="bold">SQL STATEMENT</text>
+  <text x="38" y="68" font-family="DejaVu Sans Mono" font-size="7.8" fill="#dbe6f3">SELECT … FROM customers</text>
+
+  <path d="M114,76 L114,94" stroke="#0e7c86" stroke-width="1.5"/><path d="M110,90 L114,100 L118,90 z" fill="#0e7c86"/>
+  <text x="122" y="92" font-family="DejaVu Sans" font-size="7.6" fill="#0e7c86">Oracle allocates memory</text>
+
+  <rect x="24" y="100" width="300" height="100" rx="4" fill="#eef7f8" stroke="#0e7c86" stroke-width="1.4"/>
+  <text x="34" y="116" font-family="DejaVu Sans" font-size="8.6" fill="#0e7c86" font-weight="bold">CONTEXT AREA</text>
+  <text x="34" y="130" font-family="DejaVu Sans" font-size="7.6" fill="#5d6d7e">holds the processed information</text>
+
+  <rect x="38" y="138" width="272" height="22" rx="2" fill="#fff" stroke="#9fb6d4"/>
+  <text x="46" y="153" font-family="DejaVu Sans Mono" font-size="7.8" fill="#1c2833">1  Ramesh   Ahmedabad</text>
+  <rect x="38" y="162" width="272" height="22" rx="2" fill="#e8f1fb" stroke="#1f4fbf" stroke-width="1.2"/>
+  <text x="46" y="177" font-family="DejaVu Sans Mono" font-size="7.8" fill="#1f4fbf" font-weight="bold">2  Khilan   Delhi        ← cursor is here</text>
+  <rect x="38" y="186" width="272" height="0" rx="2" fill="#fff" stroke="#9fb6d4"/>
+
+  <text x="34" y="196" font-family="DejaVu Sans" font-size="7.6" fill="#5d6d7e">… 3 kaushik Kota · 4 Chaitali Mumbai · 5 Hardik Bhopal · 6 Komal MP</text>
+
+  <path d="M300,150 L340,150" stroke="#a0522d" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <path d="M336,146 L346,150 L336,154 z" fill="#a0522d"/>
+  <rect x="346" y="132" width="172" height="70" rx="3" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="356" y="148" font-family="DejaVu Sans" font-size="8.4" fill="#a0522d" font-weight="bold">CURSOR (a pointer)</text>
+  <text x="356" y="164" font-family="DejaVu Sans" font-size="7.8" fill="#1c2833">names the context area</text>
+  <text x="356" y="178" font-family="DejaVu Sans" font-size="7.8" fill="#1c2833">and points at the current row</text>
+  <text x="356" y="194" font-family="DejaVu Sans" font-size="7.8" fill="#4f8a37">knows the row count too</text>
+
+  <text x="24" y="212" font-family="DejaVu Sans" font-size="8" fill="#5d6d7e">The rows that meet the WHERE condition are the ACTIVE SET; its size is the number of rows returned.</text>
+</svg>
+<figcaption class="figcap"><b>Figure 27.1</b> — The DBMS allocates a context area for a SQL statement; the cursor is a
+named pointer into it, and the rows it can reach are the active set.</figcaption>
+</figure>
+
+<table>
+<caption>Table 27.1 — The four terms, defined.</caption>
+<thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>Cursor</td><td>A pointer to the result set of a SQL query against database tables</td></tr>
+<tr><td>Context area</td><td>The work area of memory Oracle allocates for executing a SQL statement</td></tr>
+<tr><td>Active set</td><td>The rows held in the context area — those that meet the condition</td></tr>
+<tr><td>Size of the active set</td><td>Equal to the count of rows that meet the condition</td></tr>
+</tbody>
+</table>
+
+<h2 id="c27-3">27.3 Implicit Cursors</h2>
+
+<div class="box def"><span class="tag">Definition (source)</span>
+<p><b>Implicit cursors</b> are automatically created by Oracle whenever an SQL statement is executed, when there
+is no explicit cursor for the statement. <b>Programmers cannot control the implicit cursors</b> and the
+information in them.</p>
+<p>Whenever a DML statement (INSERT, UPDATE and DELETE) is issued, an implicit cursor is associated with that
+statement. For INSERT operations, the cursor holds the data that needs to be inserted. For UPDATE and DELETE
+operations, the cursor identifies the rows that would be affected.</p>
+</div>
+
+<p>Three consequences follow, and they are worth stating separately because exam questions often probe them:</p>
+
+<ol>
+<li><b>You do not declare an implicit cursor.</b> Oracle creates it for you whenever you run a DML statement or a
+<code>SELECT … INTO</code>.</li>
+<li><b>You do not open or close it.</b> Oracle manages its whole life cycle, and closes it automatically after
+executing the associated statement.</li>
+<li><b>You <em>can</em> read its attributes.</b> This is the part that makes implicit cursors useful. The
+attributes tell you what the statement just did.</li>
+</ol>
+
+<h2 id="c27-4">27.4 Implicit Cursor Attributes</h2>
+
+<div class="box def"><span class="tag">The SQL cursor (source)</span>
+<p>In PL/SQL you can refer to the most recent implicit cursor as the <b>SQL cursor</b>, which always has
+attributes such as <code>%FOUND</code>, <code>%ISOPEN</code>, <code>%NOTFOUND</code> and
+<code>%ROWCOUNT</code>. The SQL cursor has additional attributes, <code>%BULK_ROWCOUNT</code> and
+<code>%BULK_EXCEPTIONS</code>, designed for use with the FORALL statement.</p>
+<p>Any SQL cursor attribute is accessed as <code>sql%attribute_name</code>.</p>
+</div>
+
+<table>
+<caption>Table 27.2 — The four most-used implicit cursor attributes, in the source's words.</caption>
+<thead><tr><th>Attribute</th><th>Returns TRUE / value when…</th></tr></thead>
+<tbody>
+<tr><td class="mono">SQL%FOUND</td><td>Returns TRUE if an INSERT, UPDATE or DELETE statement affected one or more rows, or a SELECT INTO statement returned one or more rows. Otherwise it returns FALSE.</td></tr>
+<tr><td class="mono">SQL%NOTFOUND</td><td>The logical opposite of <code>%FOUND</code>. Returns TRUE if an INSERT, UPDATE or DELETE statement affected no rows, or a SELECT INTO returned no rows. Otherwise it returns FALSE.</td></tr>
+<tr><td class="mono">SQL%ISOPEN</td><td><b>Always returns FALSE</b> for implicit cursors, because Oracle closes the SQL cursor automatically after executing its associated SQL statement.</td></tr>
+<tr><td class="mono">SQL%ROWCOUNT</td><td>Returns the number of rows affected by an INSERT, UPDATE or DELETE statement, or returned by a SELECT INTO statement.</td></tr>
+</tbody>
+</table>
+
+<figure>
+<svg viewBox="0 0 540 190" width="540" height="190" role="img"
+     aria-label="The four implicit cursor attributes and what each reports">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">THE FOUR IMPLICIT CURSOR ATTRIBUTES</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="20" y="34" width="120" height="60" rx="4" fill="#e8f1fb" stroke="#1f4fbf"/>
+  <text x="30" y="52" font-family="DejaVu Sans Mono" font-size="9" fill="#1f4fbf" font-weight="bold">%FOUND</text>
+  <text x="30" y="70" font-family="DejaVu Sans" font-size="7.6" fill="#1c2833">TRUE if ≥1 row was</text>
+  <text x="30" y="82" font-family="DejaVu Sans" font-size="7.6" fill="#1c2833">affected or returned</text>
+
+  <rect x="152" y="34" width="120" height="60" rx="4" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="162" y="52" font-family="DejaVu Sans Mono" font-size="9" fill="#a0522d" font-weight="bold">%NOTFOUND</text>
+  <text x="162" y="70" font-family="DejaVu Sans" font-size="7.6" fill="#1c2833">Logical opposite of</text>
+  <text x="162" y="82" font-family="DejaVu Sans" font-size="7.6" fill="#1c2833">%FOUND</text>
+
+  <rect x="284" y="34" width="120" height="60" rx="4" fill="#fdf1ec" stroke="#b5481b"/>
+  <text x="294" y="52" font-family="DejaVu Sans Mono" font-size="9" fill="#b5481b" font-weight="bold">%ISOPEN</text>
+  <text x="294" y="70" font-family="DejaVu Sans" font-size="7.6" fill="#b5481b">ALWAYS FALSE for an</text>
+  <text x="294" y="82" font-family="DejaVu Sans" font-size="7.6" fill="#b5481b">implicit cursor</text>
+
+  <rect x="416" y="34" width="104" height="60" rx="4" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="426" y="52" font-family="DejaVu Sans Mono" font-size="9" fill="#4f8a37" font-weight="bold">%ROWCOUNT</text>
+  <text x="426" y="70" font-family="DejaVu Sans" font-size="7.6" fill="#1c2833">the number of rows</text>
+  <text x="426" y="82" font-family="DejaVu Sans" font-size="7.6" fill="#1c2833">affected or returned</text>
+
+  <rect x="20" y="106" width="500" height="34" rx="3" fill="#eef7f8" stroke="#0e7c86"/>
+  <text x="30" y="122" font-family="DejaVu Sans" font-size="8.2" fill="#0e7c86" font-weight="bold">WHY %ISOPEN IS ALWAYS FALSE:</text>
+  <text x="230" y="122" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">Oracle closes the SQL cursor automatically after executing the associated SQL statement.</text>
+  <text x="30" y="135" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">So there is never a moment at which you could observe it open.</text>
+
+  <rect x="20" y="150" width="500" height="32" rx="3" fill="#f6f0fa" stroke="#7a3e9d"/>
+  <text x="30" y="164" font-family="DejaVu Sans" font-size="8.2" fill="#7a3e9d" font-weight="bold">ALSO AVAILABLE:</text>
+  <text x="140" y="164" font-family="DejaVu Sans Mono" font-size="8.2" fill="#1c2833">%BULK_ROWCOUNT</text>
+  <text x="290" y="164" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">and</text>
+  <text x="316" y="164" font-family="DejaVu Sans Mono" font-size="8.2" fill="#1c2833">%BULK_EXCEPTIONS</text>
+  <text x="30" y="177" font-family="DejaVu Sans" font-size="7.8" fill="#5d6d7e">— designed for use with the FORALL statement.</text>
+</svg>
+<figcaption class="figcap"><b>Figure 27.2</b> — The four implicit cursor attributes. The odd one out is
+<code>%ISOPEN</code>, which is defined to be always FALSE because the implicit cursor is never open when you can
+look at it.</figcaption>
+</figure>
+
+<h2 id="c27-5">27.5 Worked Implicit Cursor Program</h2>
+
+<div class="box amber"><span class="tag">Program — using SQL%ROWCOUNT (source)</span>
+<p><b>Problem:</b> increase every customer's salary by 500, and report how many customers were affected.</p>
+<p>The source uses this CUSTOMERS table throughout the chapter:</p>
+<table class="rel">
+<caption>Table 27.3 — The CUSTOMERS table used in the source's cursor examples.</caption>
+<thead><tr><th class="mono">ID</th><th class="mono">NAME</th><th class="mono">AGE</th><th class="mono">ADDRESS</th><th class="mono">SALARY</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">1</td><td class="mono">Ramesh</td><td class="mono">32</td><td class="mono">Ahmedabad</td><td class="mono">2000</td></tr>
+<tr><td class="mono pk">2</td><td class="mono">Khilan</td><td class="mono">25</td><td class="mono">Delhi</td><td class="mono">1500</td></tr>
+<tr><td class="mono pk">3</td><td class="mono">kaushik</td><td class="mono">23</td><td class="mono">Kota</td><td class="mono">2000</td></tr>
+<tr><td class="mono pk">4</td><td class="mono">Chaitali</td><td class="mono">25</td><td class="mono">Mumbai</td><td class="mono">6500</td></tr>
+<tr><td class="mono pk">5</td><td class="mono">Hardik</td><td class="mono">27</td><td class="mono">Bhopal</td><td class="mono">8500</td></tr>
+<tr><td class="mono pk">6</td><td class="mono">Komal</td><td class="mono">22</td><td class="mono">MP</td><td class="mono">4500</td></tr>
+</tbody>
+</table>
+
+<pre>DECLARE
+   total_rows number(2);
+BEGIN
+   UPDATE customers
+   SET    salary = salary + 500;
+
+   IF sql%notfound THEN
+      dbms_output.put_line('no customers selected');
+   ELSIF sql%found THEN
+      total_rows := sql%rowcount;
+      dbms_output.put_line( total_rows || ' customers selected ');
+   END IF;
+END;
+/</pre>
+
+<p><b>Logic:</b> the UPDATE has no WHERE clause, so it affects every row. Oracle associates an implicit cursor
+with it. The block then tests <code>sql%notfound</code>: if no rows were affected, it prints a “none” message.
+Otherwise <code>sql%found</code> is true, so it copies <code>sql%rowcount</code> — the number of rows the UPDATE
+affected — into <code>total_rows</code> and prints it.</p>
+
+<div class="box amber"><span class="tag">Dry run</span>
+<table>
+<thead><tr><th>Step</th><th>Action</th><th>State</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>total_rows</code> declared as <code>number(2)</code></td><td class="mono">total_rows = NULL</td></tr>
+<tr><td>2</td><td><code>UPDATE customers SET salary = salary + 500</code></td><td>6 rows affected; <code>sql%rowcount</code> = 6</td></tr>
+<tr><td>3</td><td>Test <code>sql%notfound</code></td><td>FALSE (rows were affected) → skip</td></tr>
+<tr><td>4</td><td>Test <code>sql%found</code></td><td>TRUE → take this branch</td></tr>
+<tr><td>5</td><td><code>total_rows := sql%rowcount</code></td><td class="mono">total_rows = 6</td></tr>
+<tr><td>6</td><td>Print</td><td class="mono">6 customers selected</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><b>Output (source):</b></p>
+<pre class="output">6 customers selected
+PL/SQL procedure successfully completed.</pre>
+<p>The source adds: <em>if you check the records in the customers table, you will find that the rows have been
+updated.</em> Every salary is now 500 higher than in Table 27.3.</p>
+
+<div class="box note"><span class="tag">Explanation — what the attributes prove here</span>
+<p>Notice what the program demonstrates. It never names the implicit cursor, never opens it and never closes it —
+yet it still learns a fact about what just happened. That is the whole point of implicit cursor attributes: they
+are the DBMS telling you the outcome of the statement it just executed for you.</p>
+</div>
+</div>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 27</span>
+<ul>
+<li>A <b>cursor</b> is a pointer to the result set of a SQL query against database tables, created so that a
+program can work with one row (or a subset) at a time instead of the whole result set.</li>
+<li>The <b>context area</b> is the memory Oracle allocates for a SQL statement; the rows in it are the
+<b>active set</b>, whose size equals the number of rows meeting the condition.</li>
+<li><b>Implicit cursors</b> are created automatically for DML statements and <code>SELECT … INTO</code>.
+Programmers cannot control them.</li>
+<li>The implicit cursor is referred to as the <b>SQL cursor</b>, with attributes
+<code>%FOUND</code>, <code>%NOTFOUND</code>, <code>%ISOPEN</code> (always FALSE) and <code>%ROWCOUNT</code>,
+accessed as <code>sql%attribute_name</code>.</li>
+<li><code>%BULK_ROWCOUNT</code> and <code>%BULK_EXCEPTIONS</code> exist for use with FORALL.</li>
+</ul>
+</div>
+</section>
+
+<!-- ==================== CHAPTER 28 ==================== -->
+<section>
+<h1 class="chap" id="c28">28. Explicit Cursors and Cursor Loops</h1>
+<div class="chapmeta">Part 6 &nbsp;•&nbsp; declare, open, fetch, close — and terminate correctly</div>
+<div class="chaprule"></div>
+
+<p>An implicit cursor is convenient but opaque: you can read its attributes, but you cannot control it. When a
+program needs real control over a multi-row query — reading rows one at a time, deciding when to stop — it needs
+an explicit cursor.</p>
+
+<h2 id="c28-1">28.1 Declaring, Opening, Fetching and Closing</h2>
+
+<div class="box def"><span class="tag">Definition (source)</span>
+<p><b>Explicit cursors</b> are programmer-defined cursors for gaining more control over the context area. An
+explicit cursor should be defined in the <b>declaration section</b> of the PL/SQL block. It is created on a
+SELECT statement which returns more than one row.</p>
+<pre>CURSOR cursor_name IS select_statement;</pre>
+</div>
+
+<p>The source lists the four steps of working with an explicit cursor, and the order matters:</p>
+<ol>
+<li><b>Declaring</b> the cursor, for initialising the memory.</li>
+<li><b>Opening</b> the cursor, for allocating the memory.</li>
+<li><b>Fetching</b> the cursor, for retrieving the data.</li>
+<li><b>Closing</b> the cursor, to release the allocated memory.</li>
+</ol>
+
+<table>
+<caption>Table 28.1 — The four steps, with the source's syntax and explanation for each.</caption>
+<thead><tr><th>Step</th><th>Syntax (source)</th><th>What it does (source)</th></tr></thead>
+<tbody>
+<tr><td>Declare</td><td class="mono">CURSOR c_customers IS<br>SELECT id, name, address FROM customers;</td><td>Defines the cursor with a name and the associated SELECT statement.</td></tr>
+<tr><td>Open</td><td class="mono">OPEN c_customers;</td><td>Allocates the memory for the cursor and makes it ready for fetching the rows returned by the SQL statement into it.</td></tr>
+<tr><td>Fetch</td><td class="mono">FETCH c_customers INTO c_id, c_name, c_addr;</td><td>Accesses one row at a time.</td></tr>
+<tr><td>Close</td><td class="mono">CLOSE c_customers;</td><td>Releases the allocated memory.</td></tr>
+</tbody>
+</table>
+
+<h2 id="c28-2">28.2 The Cursor Life Cycle</h2>
+
+<figure>
+<svg viewBox="0 0 540 260" width="540" height="260" role="img"
+     aria-label="The explicit cursor life cycle from declare to close">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">THE EXPLICIT CURSOR LIFE CYCLE</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <!-- step 1 declare -->
+  <rect x="24" y="34" width="150" height="46" rx="4" fill="#e8f1fb" stroke="#1f4fbf"/>
+  <text x="34" y="52" font-family="DejaVu Sans" font-size="8.8" fill="#1f4fbf" font-weight="bold">1 · DECLARE</text>
+  <text x="34" y="68" font-family="DejaVu Sans Mono" font-size="7.6" fill="#1c2833">CURSOR c IS SELECT…</text>
+  <text x="34" y="78" font-family="DejaVu Sans" font-size="7.2" fill="#5d6d7e">initialise the memory</text>
+
+  <path d="M174,57 L206,57" stroke="#0e7c86" stroke-width="1.5"/><path d="M202,53 L212,57 L202,61 z" fill="#0e7c86"/>
+
+  <!-- step 2 open -->
+  <rect x="212" y="34" width="150" height="46" rx="4" fill="#eef7f8" stroke="#0e7c86"/>
+  <text x="222" y="52" font-family="DejaVu Sans" font-size="8.8" fill="#0e7c86" font-weight="bold">2 · OPEN</text>
+  <text x="222" y="68" font-family="DejaVu Sans Mono" font-size="7.6" fill="#1c2833">OPEN c;</text>
+  <text x="222" y="78" font-family="DejaVu Sans" font-size="7.2" fill="#5d6d7e">allocate the memory</text>
+
+  <path d="M362,57 L394,57" stroke="#0e7c86" stroke-width="1.5"/><path d="M390,53 L400,57 L390,61 z" fill="#0e7c86"/>
+
+  <!-- step 3 fetch loop -->
+  <rect x="400" y="34" width="120" height="46" rx="4" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="410" y="52" font-family="DejaVu Sans" font-size="8.8" fill="#a0522d" font-weight="bold">3 · FETCH</text>
+  <text x="410" y="68" font-family="DejaVu Sans Mono" font-size="7.6" fill="#1c2833">FETCH c INTO …</text>
+  <text x="410" y="78" font-family="DejaVu Sans" font-size="7.2" fill="#5d6d7e">retrieve one row</text>
+
+  <!-- loop back -->
+  <path d="M460,80 L460,96 L270,96 L270,104" fill="none" stroke="#b5481b" stroke-width="1.4"/>
+  <path d="M266,100 L270,110 L274,100 z" fill="#b5481b"/>
+  <text x="300" y="92" font-family="DejaVu Sans" font-size="7.6" fill="#b5481b">repeat while rows remain</text>
+
+  <!-- decision -->
+  <polygon points="270,110 380,128 270,146 160,128" fill="#fdf1ec" stroke="#b5481b" stroke-width="1.3"/>
+  <text x="196" y="132" font-family="DejaVu Sans Mono" font-size="7.8" fill="#b5481b" font-weight="bold">c%NOTFOUND?</text>
+
+  <path d="M160,128 L118,128 L118,64 L174,64" fill="none" stroke="#b5481b" stroke-width="1.3"/>
+  <path d="M170,60 L180,64 L170,68 z" fill="#b5481b"/>
+  <text x="100" y="100" font-family="DejaVu Sans" font-size="7.4" fill="#b5481b">FALSE — fetch again</text>
+
+  <path d="M380,128 L430,128 L430,160" fill="none" stroke="#4f8a37" stroke-width="1.4"/>
+  <path d="M426,156 L430,166 L434,156 z" fill="#4f8a37"/>
+  <text x="386" y="146" font-family="DejaVu Sans" font-size="7.4" fill="#4f8a37">TRUE — no more rows</text>
+
+  <!-- step 4 close -->
+  <rect x="340" y="166" width="180" height="46" rx="4" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="350" y="184" font-family="DejaVu Sans" font-size="8.8" fill="#4f8a37" font-weight="bold">4 · CLOSE</text>
+  <text x="350" y="200" font-family="DejaVu Sans Mono" font-size="7.6" fill="#1c2833">CLOSE c;</text>
+  <text x="350" y="210" font-family="DejaVu Sans" font-size="7.2" fill="#5d6d7e">release the memory</text>
+
+  <path d="M340,189 L300,189" stroke="#4f8a37" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <path d="M304,185 L294,189 L304,193 z" fill="#4f8a37"/>
+  <rect x="24" y="166" width="262" height="46" rx="4" fill="#f7f9fc" stroke="#34495e"/>
+  <text x="34" y="184" font-family="DejaVu Sans" font-size="8.4" fill="#34495e" font-weight="bold">WHY CLOSE?</text>
+  <text x="34" y="200" font-family="DejaVu Sans" font-size="7.8" fill="#1c2833">Closing releases the context area. Leaving cursors open holds</text>
+  <text x="34" y="210" font-family="DejaVu Sans" font-size="7.8" fill="#1c2833">server memory until the session ends.</text>
+
+  <rect x="24" y="222" width="496" height="30" rx="3" fill="#eef7f8" stroke="#0e7c86"/>
+  <text x="34" y="240" font-family="DejaVu Sans" font-size="8.2" fill="#0e7c86" font-weight="bold">THE ORDER MATTERS:</text>
+  <text x="150" y="240" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">you cannot fetch from a cursor that is not open, and you cannot open one that was never declared.</text>
+</svg>
+<figcaption class="figcap"><b>Figure 28.1</b> — The explicit cursor life cycle. The fetch step repeats inside a loop;
+the loop is terminated by testing an attribute such as <code>%NOTFOUND</code>, and the cursor is then closed to
+release its memory.</figcaption>
+</figure>
+
+<h2 id="c28-3">28.3 Worked Explicit Cursor Program</h2>
+
+<div class="box amber"><span class="tag">Program — reading the CUSTOMERS table (source)</span>
+<p><b>Problem:</b> print the id, name and address of every customer.</p>
+<pre>DECLARE
+   c_id    customers.id%type;
+   c_name  customer.name%type;
+   c_addr  customers.address%type;
+
+   CURSOR c_customers is
+      SELECT id, name, address FROM customers;
+BEGIN
+   OPEN c_customers;
+   LOOP
+      FETCH c_customers into c_id, c_name, c_addr;
+      EXIT WHEN c_customers%notfound;
+      dbms_output.put_line(c_id || ' ' || c_name || ' ' || c_addr);
+   END LOOP;
+   CLOSE c_customers;
+END;
+/</pre>
+
+<p><b>Structure:</b> the declaration section holds three variables, each typed with <code>%type</code> so that
+its data type matches the corresponding column automatically, plus the cursor itself. The body opens the cursor,
+then loops: fetch a row into the three variables, test the cursor's <code>%notfound</code> attribute to decide
+whether to stop, and if there is a row, print it. After the loop the cursor is closed.</p>
+
+<div class="box note"><span class="tag">Explanation — why EXIT WHEN comes straight after FETCH</span>
+<p>The order inside the loop is not arbitrary. <code>FETCH</code> must run before
+<code>EXIT WHEN c_customers%notfound</code> because the attribute describes the <em>most recent</em> fetch.
+Placing the EXIT immediately after the FETCH means the loop stops the moment a fetch finds no row, and never
+prints an uninitialised row. If the print came first, the final iteration would print stale values from the
+previous row.</p>
+</div>
+
+<div class="box amber"><span class="tag">Dry run — tracing the six rows</span>
+<table>
+<thead><tr><th>Iteration</th><th>FETCH retrieves</th><th>%NOTFOUND</th><th>Printed</th></tr></thead>
+<tbody>
+<tr><td>1</td><td class="mono">1, Ramesh, Ahmedabad</td><td>FALSE</td><td class="mono">1 Ramesh Ahmedabad</td></tr>
+<tr><td>2</td><td class="mono">2, Khilan, Delhi</td><td>FALSE</td><td class="mono">2 Khilan Delhi</td></tr>
+<tr><td>3</td><td class="mono">3, kaushik, Kota</td><td>FALSE</td><td class="mono">3 kaushik Kota</td></tr>
+<tr><td>4</td><td class="mono">4, Chaitali, Mumbai</td><td>FALSE</td><td class="mono">4 Chaitali Mumbai</td></tr>
+<tr><td>5</td><td class="mono">5, Hardik, Bhopal</td><td>FALSE</td><td class="mono">5 Hardik Bhopal</td></tr>
+<tr><td>6</td><td class="mono">6, Komal, MP</td><td>FALSE</td><td class="mono">6 Komal MP</td></tr>
+<tr><td>7</td><td>no row</td><td class="ok">TRUE</td><td>— loop exits</td></tr>
+</tbody>
+</table>
+<p>Six rows printed, and the seventh fetch — the one that finds nothing — terminates the loop without printing
+anything. This is the standard shape of every explicit cursor loop.</p>
+</div>
+
+<p><b>Output (source):</b></p>
+<pre class="output">1 Ramesh Ahmedabad
+2 Khilan Delhi
+3 kaushik Kota
+4 Chaitali Mumbai
+5 Hardik Bhopal
+6 Komal MP
+PL/SQL procedure successfully completed.</pre>
+
+<div class="box violet"><span class="tag">From the source — two small defects in the printed program</span>
+<p>The source's program contains two slips that do not affect the logic but would stop the block compiling if
+typed literally. These notes reproduce the source's code as printed, and flag them here so you are not caught
+out:</p>
+<ul>
+<li><code>c_name customer.name%type;</code> — the table name is missing its plural: elsewhere the table is
+<code>customers</code>. It should be <code>customers.name%type</code>.</li>
+<li>The first two variables are declared as <code>c_id</code> and <code>c_name</code> but the FETCH statement
+elsewhere in the source's chapter writes <code>c_id, c_name, c_addr</code>; the declaration in the earlier
+section of the source uses <code>c_id customers.id%type;</code>. Both spellings refer to the same variables; the
+mismatch is a transcription artefact.</li>
+</ul>
+<p>The <b>output</b> the source shows is correct for the logic, and matches the dry run above. If you type the
+program yourself, use <code>customers.name%type</code>.</p>
+</div>
+</div>
+
+<h2 id="c28-4">28.4 Implicit versus Explicit Cursors</h2>
+
+<table>
+<caption>Table 28.2 — Implicit and explicit cursors compared.</caption>
+<thead><tr><th>Aspect</th><th>Implicit cursor</th><th>Explicit cursor</th></tr></thead>
+<tbody>
+<tr><td>Who creates it</td><td>Oracle, automatically, for DML and <code>SELECT … INTO</code></td><td>The programmer, in the declaration section</td></tr>
+<tr><td>Declared?</td><td>No</td><td>Yes — <code>CURSOR name IS select_statement;</code></td></tr>
+<tr><td>Opened / closed by you?</td><td>No — Oracle manages it and closes it automatically</td><td>Yes — <code>OPEN</code> and <code>CLOSE</code> are your responsibility</td></tr>
+<tr><td>Can you control it?</td><td>No</td><td>Yes — that is its purpose</td></tr>
+<tr><td>Returns</td><td>One row for <code>SELECT … INTO</code>, or the affected rows for DML</td><td>A set of rows, fetched one at a time</td></tr>
+<tr><td>Attributes</td><td><code>SQL%FOUND</code>, <code>SQL%NOTFOUND</code>, <code>SQL%ISOPEN</code> (always FALSE), <code>SQL%ROWCOUNT</code></td><td><code>c%FOUND</code>, <code>c%NOTFOUND</code>, <code>c%ISOPEN</code>, <code>c%ROWCOUNT</code> — using the cursor's own name</td></tr>
+<tr><td>Typical use</td><td>A single-row query or a DML statement whose row count you want to know</td><td>A multi-row query processed row by row</td></tr>
+</tbody>
+</table>
+
+<div class="box note"><span class="tag">Explanation — the one attribute that differs in meaning</span>
+<p>For an implicit cursor <code>%ISOPEN</code> is <b>always FALSE</b> because Oracle has already closed it. For an
+explicit cursor <code>%ISOPEN</code> is genuinely useful: it is TRUE between <code>OPEN</code> and
+<code>CLOSE</code>. This is a favourite viva question precisely because the same attribute name behaves
+differently in the two cases.</p>
+</div>
+
+<h2 id="c28-5">28.5 Cursor Errors and Exam Traps</h2>
+
+<div class="box warn"><span class="tag">Common mistake 1 — forgetting to open the cursor</span>
+<p>Fetching from a cursor that has not been opened raises <code>ORA-01001: invalid cursor</code>. The
+<code>OPEN</code> statement is what allocates the context area; without it there is nothing to fetch from.</p>
+</div>
+
+<div class="box warn"><span class="tag">Common mistake 2 — testing %NOTFOUND before the first fetch</span>
+<p>Immediately after <code>OPEN</code>, the cursor has not fetched anything, so <code>%FOUND</code> and
+<code>%NOTFOUND</code> do not yet reflect the data. The reliable pattern — the one the source uses — is
+<code>FETCH</code> first, then <code>EXIT WHEN c%NOTFOUND</code>. A loop that tests <code>%NOTFOUND</code> before
+its first fetch may process one row too many or too few.</p>
+</div>
+
+<div class="box warn"><span class="tag">Common mistake 3 — forgetting to close</span>
+<p>An unclosed cursor keeps its context area allocated until the session ends. In a program that opens many
+cursors, that is a memory leak. <code>CLOSE c_customers;</code> releases the memory, and the source places it
+after the loop for exactly this reason.</p>
+</div>
+
+<div class="box warn"><span class="tag">Common mistake 4 — a cursor for a query that returns one row</span>
+<p>The source specifies that an explicit cursor “is created on a SELECT Statement which returns more than one
+row”. If a query is guaranteed to return a single row, <code>SELECT … INTO</code> with an implicit cursor is the
+simpler and more appropriate tool. Using a cursor loop for a single row works but adds ceremony for no
+benefit.</p>
+</div>
+
+<div class="box tip"><span class="tag">The pattern to memorise</span>
+<pre>CURSOR c IS SELECT … ;      -- declare (in DECLARE section)
+…
+OPEN  c;                    -- allocate
+LOOP
+   FETCH c INTO …;          -- get the next row
+   EXIT WHEN c%NOTFOUND;    -- stop when there is none
+   … process the row …      -- only reached for a real row
+END LOOP;
+CLOSE c;                    -- release</pre>
+<p>Every explicit cursor program in this chapter, and in the source, is a variation on these six lines.</p>
+</div>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 28</span>
+<ul>
+<li><b>Explicit cursors</b> are programmer-defined and declared in the declaration section; they are created on a
+SELECT that returns more than one row.</li>
+<li>The four steps are <b>declare</b> (initialise memory), <b>open</b> (allocate memory), <b>fetch</b> (retrieve
+one row at a time) and <b>close</b> (release memory).</li>
+<li>A cursor loop fetches, tests <code>%NOTFOUND</code> to decide whether to stop, and processes the row. The
+<code>EXIT WHEN</code> must come immediately after the <code>FETCH</code>.</li>
+<li>Explicit cursors are closed by you; implicit cursors are closed by Oracle, which is why
+<code>SQL%ISOPEN</code> is always FALSE.</li>
+<li>Common errors: fetching without opening, testing <code>%NOTFOUND</code> before the first fetch, forgetting to
+close, and using a cursor where a single-row <code>SELECT … INTO</code> would do.</li>
+</ul>
+</div>
+</section>
+

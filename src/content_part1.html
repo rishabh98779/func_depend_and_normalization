@@ -1,0 +1,637 @@
+<!-- ==================== PART 1 DIVIDER ==================== -->
+<section class="partdiv" id="part1">
+  <div class="plabel">Part 1</div>
+  <div class="prule"></div>
+  <h1>Relational Foundations<br>and Database Keys</h1>
+  <div class="psub">Relations, tuples and attributes · why a database needs keys ·
+  the ten keys of the source, one at a time · classification, confusions and exercises</div>
+  <div class="pfoot">Source: UNIT 2, Chapter 2.1.7 (Keys in detail) — all ten key types, the Student and
+  Employee schemas, and the Department / Employee foreign-key example.</div>
+</section>
+
+<!-- ==================== CHAPTER 1 ==================== -->
+<section>
+<h1 class="chap" id="c1">1. Relational Model Foundations and the Idea of a Key</h1>
+<div class="chapmeta">Part 1 &nbsp;•&nbsp; the vocabulary you must not get wrong</div>
+<div class="chaprule"></div>
+
+<p>Every later topic in these notes — dependency, normalization, join, view — is built on one small piece of
+vocabulary. Learn it precisely here and the rest of the book reads easily. The source opens the key chapter
+with a note that is worth taking seriously: <em>“The terms ‘relation’ and ‘table’ are used
+interchangeably; the terms ‘tuple’ and ‘record’ are used interchangeably. So, don't get confused!”</em></p>
+
+<h2 id="c1-1">1.1 Relation, Tuple, Attribute and Domain</h2>
+
+<p>A <b>relation</b> is a table of values arranged in rows and columns, where the order of the rows and the
+order of the columns do not carry meaning. Each row is a <b>tuple</b> (a record). Each column is an
+<b>attribute</b> (a field), and each attribute draws its values from a permitted set called its
+<b>domain</b>.</p>
+
+<figure>
+<svg viewBox="0 0 520 150" width="520" height="150" role="img"
+     aria-label="Anatomy of a relation: table, tuple, attribute and domain labelled">
+  <text x="14" y="13" font-family="DejaVu Sans" font-size="9" fill="#0e7c86" font-weight="bold">relation (table) = STUDENT</text>
+  <!-- header -->
+  <rect x="14" y="22" width="96" height="22" fill="#1b6e8a"/>
+  <rect x="110" y="22" width="96" height="22" fill="#1b6e8a"/>
+  <rect x="206" y="22" width="72" height="22" fill="#1b6e8a"/>
+  <rect x="278" y="22" width="72" height="22" fill="#1b6e8a"/>
+  <rect x="350" y="22" width="86" height="22" fill="#1b6e8a"/>
+  <text x="22" y="37" font-family="DejaVu Sans Mono" font-size="9.5" fill="#fff" font-weight="bold">Roll_No</text>
+  <text x="118" y="37" font-family="DejaVu Sans Mono" font-size="9.5" fill="#fff">Name</text>
+  <text x="214" y="37" font-family="DejaVu Sans Mono" font-size="9.5" fill="#fff">Sex</text>
+  <text x="286" y="37" font-family="DejaVu Sans Mono" font-size="9.5" fill="#fff">Age</text>
+  <text x="358" y="37" font-family="DejaVu Sans Mono" font-size="9.5" fill="#fff">Class</text>
+  <!-- rows -->
+  <rect x="14" y="44" width="422" height="20" fill="#f4f7fb" stroke="#c8d4e3" stroke-width="0.5"/>
+  <rect x="14" y="64" width="422" height="20" fill="#ffffff" stroke="#c8d4e3" stroke-width="0.5"/>
+  <rect x="14" y="84" width="422" height="20" fill="#f4f7fb" stroke="#c8d4e3" stroke-width="0.5"/>
+  <text x="22" y="58" font-family="DejaVu Sans Mono" font-size="9" fill="#1f4fbf" font-weight="bold">101</text>
+  <text x="118" y="58" font-family="DejaVu Sans Mono" font-size="9">Ananya</text>
+  <text x="214" y="58" font-family="DejaVu Sans Mono" font-size="9">F</text>
+  <text x="286" y="58" font-family="DejaVu Sans Mono" font-size="9">19</text>
+  <text x="358" y="58" font-family="DejaVu Sans Mono" font-size="9">CSE-3A</text>
+  <text x="22" y="78" font-family="DejaVu Sans Mono" font-size="9" fill="#1f4fbf" font-weight="bold">102</text>
+  <text x="118" y="78" font-family="DejaVu Sans Mono" font-size="9">Rohit</text>
+  <text x="214" y="78" font-family="DejaVu Sans Mono" font-size="9">M</text>
+  <text x="286" y="78" font-family="DejaVu Sans Mono" font-size="9">20</text>
+  <text x="358" y="78" font-family="DejaVu Sans Mono" font-size="9">CSE-3A</text>
+  <text x="22" y="98" font-family="DejaVu Sans Mono" font-size="9" fill="#1f4fbf" font-weight="bold">103</text>
+  <text x="118" y="98" font-family="DejaVu Sans Mono" font-size="9">Meera</text>
+  <text x="214" y="98" font-family="DejaVu Sans Mono" font-size="9">F</text>
+  <text x="286" y="98" font-family="DejaVu Sans Mono" font-size="9">18</text>
+  <text x="358" y="98" font-family="DejaVu Sans Mono" font-size="9">CSE-3B</text>
+  <!-- annotations -->
+  <line x1="466" y1="55" x2="490" y2="55" stroke="#1f4fbf" stroke-width="1.2"/>
+  <text x="492" y="58" font-family="DejaVu Sans" font-size="8" fill="#1f4fbf">tuple</text>
+  <line x1="300" y1="14" x2="300" y2="22" stroke="#0e7c86" stroke-width="1.2"/>
+  <text x="302" y="12" font-family="DejaVu Sans" font-size="8" fill="#0e7c86">attribute (column)</text>
+  <line x1="300" y1="110" x2="300" y2="126" stroke="#a0522d" stroke-width="1.2"/>
+  <text x="222" y="140" font-family="DejaVu Sans" font-size="8.5" fill="#a0522d">domain of Age = positive integers 15…40</text>
+</svg>
+<figcaption class="figcap"><b>Figure 1.1</b> — A relation is a set of tuples; each column is an attribute with a domain.
+The row order and column order are irrelevant to the meaning.</figcaption>
+</figure>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>A <b>relation</b> is a set of tuples over a fixed set of attributes. A <b>tuple</b> is one row.
+An <b>attribute</b> is one column name. The <b>degree</b> of a relation is its number of attributes; its
+<b>cardinality</b> is its number of tuples.</p>
+</div>
+
+<h2 id="c1-2">1.2 Why a Database Needs Keys</h2>
+
+<p>The source gives three reasons, and they are the right three. A real table may hold thousands of rows, and
+some of those rows may look identical in every column a user cares about. A key is what makes a row
+addressable anyway.</p>
+
+<div class="box note"><span class="tag">Why keys exist (source reasons)</span>
+<p><b>1. Unique identification.</b> Keys let you identify any row of data in a table even when records
+appear duplicated in ordinary columns.</p>
+<p><b>2. Relationship building.</b> Keys allow you to establish and identify the relation between two tables.</p>
+<p><b>3. Identity and integrity.</b> Keys help you enforce identity and integrity in those relationships.</p>
+</div>
+
+<h2 id="c1-3">1.3 The Vocabulary Trap: Relation = Table, Tuple = Record</h2>
+
+<p>Because the source's slides mix the formal and informal words in the same paragraph, the following table is
+worth keeping beside you while reading Part 1.</p>
+
+<table>
+<caption>Table 1.1 — Formal and informal vocabulary, as used interchangeably in the source.</caption>
+<thead><tr><th>Formal term</th><th>Informal term</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>Relation</td><td>Table</td><td>A named set of tuples over fixed attributes</td></tr>
+<tr><td>Tuple</td><td>Row / record</td><td>One entry of the relation</td></tr>
+<tr><td>Attribute</td><td>Column / field</td><td>One named property</td></tr>
+<tr><td>Domain</td><td>Data type / value set</td><td>The permitted values of an attribute</td></tr>
+<tr><td>Degree</td><td>Number of columns</td><td>Count of attributes</td></tr>
+<tr><td>Cardinality</td><td>Number of rows</td><td>Count of tuples</td></tr>
+</tbody>
+</table>
+
+<div class="box warn"><span class="tag">Common mistake</span>
+<p>Writing “relation” to mean “relationship”. In the relational model a <b>relation</b> is a table.
+The link between two tables is a <b>relationship</b>, and it is implemented by a <b>foreign key</b>. Mixing the
+two words in an answer costs marks in viva.</p>
+</div>
+</section>
+
+<!-- ==================== CHAPTER 2 ==================== -->
+<section>
+<h1 class="chap" id="c2">2. The Ten Keys in Detail</h1>
+<div class="chapmeta">Part 1 &nbsp;•&nbsp; the source's ten keys, each defined, illustrated and compared</div>
+<div class="chaprule"></div>
+
+<p>The source lists ten keys in DBMS. Two of them — <b>compound key</b> and <b>composite key</b> — are so
+close in meaning that the source itself defines “composite key” twice, once using the wording that belongs
+to a surrogate key. Section 2.7 untangles this and flags it plainly rather than quietly rewriting it.</p>
+
+<table>
+<caption>Table 2.1 — The ten keys of the source, in the order the source presents them.</caption>
+<thead><tr><th>#</th><th>Key</th><th>One-line job</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Super key</td><td>Any set of attributes that identifies a tuple uniquely</td></tr>
+<tr><td>2</td><td>Candidate key</td><td>A <em>minimal</em> super key</td></tr>
+<tr><td>3</td><td>Primary key</td><td>The candidate key the designer chooses</td></tr>
+<tr><td>4</td><td>Alternate key</td><td>A candidate key that was not chosen as primary</td></tr>
+<tr><td>5</td><td>Foreign key</td><td>An attribute whose values must exist as a key elsewhere</td></tr>
+<tr><td>6</td><td>Partial key</td><td>Identifies a group of related tuples, not one tuple</td></tr>
+<tr><td>7</td><td>Composite key</td><td>A primary key made of two or more attributes</td></tr>
+<tr><td>8</td><td>Unique key</td><td>Unique and non-updatable, but may be NULL</td></tr>
+<tr><td>9</td><td>Surrogate key</td><td>A system-generated artificial identifier</td></tr>
+<tr><td>10</td><td>Secondary key</td><td>Used for indexing and faster searching</td></tr>
+</tbody>
+</table>
+
+<p>Throughout this chapter the notes use two running schemas. Learn them once and every example below is
+immediately readable.</p>
+
+<table class="rel">
+<caption>Table 2.2 — The two running schemas (source: Student schema and Employee schema).</caption>
+<thead><tr><th class="mono">Student ( roll, name, sex, age, address, class, section )</th></tr></thead>
+<tbody><tr><td class="mono">Emp ( Emp_ID, Emp_SSN, Emp_Num, Emp_Name, Dept_ID, ... )</td></tr></tbody>
+</table>
+
+<h2 id="c2-1">2.1 Super Key</h2>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>A <b>super key</b> is a set of attributes that can identify each tuple uniquely in the given relation.
+A super key is not restricted to any particular number of attributes — it may consist of any number of
+attributes, and it may carry extra attributes that are not needed for unique identification.</p>
+</div>
+
+<p>The source's own caution is the key sentence: <em>all the attributes in a super key are sufficient to
+identify each tuple uniquely, but all of them may not be necessary.</em> A super key may therefore contain a
+smaller set that would already have done the job.</p>
+
+<h3>Example 1 — the Student schema</h3>
+<p>Given <span class="kv">Student ( roll, name, sex, age, address, class, section )</span>, each of the
+following sets is a super key, because each set uniquely identifies every student:</p>
+<ul>
+<li><span class="kv">( roll, name, sex, age, address, class, section )</span> — the whole tuple</li>
+<li><span class="kv">( class, section, roll )</span> — a minimal one</li>
+<li><span class="kv">( class, section, roll, sex )</span> — minimal set plus an extra attribute</li>
+<li><span class="kv">( name, address )</span> — unique in this schema</li>
+</ul>
+
+<h3>Example 2 — the Employee schema</h3>
+<p>In the source's Employee example, <span class="kv">Emp_SSN</span> and <span class="kv">Emp_Num</span>
+are each super keys.</p>
+
+<div class="box warn"><span class="tag">Common mistake</span>
+<p>Assuming that <em>every</em> combination of columns is a super key. Only sets that actually guarantee
+uniqueness qualify. In the Student schema, <span class="kv">( class, section )</span> alone is <b>not</b> a
+super key, because many students share a class and section.</p>
+</div>
+
+<h2 id="c2-2">2.2 Candidate Key</h2>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>A <b>candidate key</b> is a <b>minimal super key</b> — a set of the fewest possible attributes that can
+identify each tuple uniquely. Equivalently: a super key from which no attribute can be removed without
+destroying uniqueness.</p>
+</div>
+
+<p>From the same Student schema, the candidate keys are <span class="kv">( class, section, roll )</span>
+and <span class="kv">( name, address )</span>. The set
+<span class="kv">( class, section, roll, sex )</span> is a super key but <b>not</b> a candidate key, because
+<em>sex</em> can be removed and the set still identifies a student.</p>
+
+<h3>Properties of a candidate key (from the source)</h3>
+<table>
+<thead><tr><th>Property</th><th>Consequence</th></tr></thead>
+<tbody>
+<tr><td>Must contain unique values</td><td>No two tuples share a candidate-key value</td></tr>
+<tr><td>May have multiple attributes</td><td>It can be composite</td></tr>
+<tr><td>Must not contain NULL</td><td>A NULL would be “unknown”, so it cannot identify</td></tr>
+<tr><td>Should contain the minimum fields needed</td><td>Minimality is what separates it from a super key</td></tr>
+<tr><td>Uniquely identifies each record</td><td>That is its whole purpose</td></tr>
+</tbody>
+</table>
+
+<div class="box note"><span class="tag">Explanation — why minimality matters</span>
+<p>Minimality is not fussiness. A candidate key is the smallest piece of information you must supply to pin
+down exactly one row. If you store a larger set as “the” key, you force users to supply redundant data and you
+allow inconsistencies: the extra columns could be changed to contradict the identifying ones.</p>
+</div>
+
+<h3>Example 2 — a table with three candidate keys</h3>
+<p>In the source's student table, <span class="kv">Stud_ID</span>, <span class="kv">Roll_No</span> and
+<span class="kv">Email</span> are all candidate keys; each one independently identifies a student record.</p>
+
+<div class="box tip"><span class="tag">Facts to memorise</span>
+<p>Every table has <b>at least one</b> candidate key. A table may have <b>several</b> candidate keys but only
+<b>one</b> primary key. Every attribute that appears in <em>some</em> candidate key is called a
+<b>prime attribute</b>; all other attributes are <b>non-prime</b>. This prime/non-prime split is the language
+of 2NF and 3NF in Part 3.</p>
+</div>
+
+<h2 id="c2-3">2.3 Primary Key</h2>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>A <b>primary key</b> is the candidate key that the database designer selects and implements. It is the
+official identifier of the relation.</p>
+</div>
+
+<h3>Rules for defining a primary key (from the source)</h3>
+<ol>
+<li>Two rows cannot have the same primary-key value — it must be unique.</li>
+<li>Every row must have a primary-key value — it cannot be NULL.</li>
+<li>The value in a primary-key column can never be modified or updated while any foreign key refers to it.</li>
+<li>A relation is allowed to have only one primary key.</li>
+</ol>
+
+<div class="box warn"><span class="tag">Common mistake</span>
+<p>“A table can have two primary keys.” No. A table can have several <em>candidate</em> keys; exactly one of
+them becomes the primary key, and the rest become alternate keys. Two separate primary keys would give two
+conflicting notions of identity.</p>
+</div>
+
+<h2 id="c2-4">2.4 Alternate Key</h2>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>An <b>alternate key</b> is a candidate key that is left unimplemented after the primary key has been
+chosen. All the candidate keys that are not the primary key are alternate keys.</p>
+</div>
+
+<p>In the source's example, <span class="kv">Stud_ID</span>, <span class="kv">Roll_No</span> and
+<span class="kv">Email</span> are all qualified to be primary key. Because
+<span class="kv">Stud_ID</span> is chosen, <span class="kv">Roll_No</span> and
+<span class="kv">Email</span> become the alternate keys.</p>
+
+<figure>
+<svg viewBox="0 0 500 120" width="500" height="120" role="img"
+     aria-label="Candidate keys narrowing to one primary key and the remaining alternate keys">
+  <rect x="12" y="40" width="120" height="42" rx="4" fill="#e8f1fb" stroke="#1f4fbf"/>
+  <text x="24" y="58" font-family="DejaVu Sans Mono" font-size="9.5" fill="#1f4fbf" font-weight="bold">Stud_ID</text>
+  <text x="24" y="72" font-family="DejaVu Sans" font-size="8" fill="#5d6d7e">candidate</text>
+  <rect x="12" y="88" width="120" height="24" rx="3" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="24" y="104" font-family="DejaVu Sans Mono" font-size="9" fill="#a0522d">Roll_No</text>
+  <text x="102" y="104" font-family="DejaVu Sans" font-size="7.5" fill="#a0522d">alt.</text>
+  <rect x="150" y="88" width="120" height="24" rx="3" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="162" y="104" font-family="DejaVu Sans Mono" font-size="9" fill="#a0522d">Email</text>
+  <text x="240" y="104" font-family="DejaVu Sans" font-size="7.5" fill="#a0522d">alt.</text>
+  <text x="12" y="26" font-family="DejaVu Sans" font-size="8.5" fill="#0e7c86" font-weight="bold">CANDIDATE KEYS</text>
+  <path d="M132,61 L180,61" stroke="#0e7c86" stroke-width="1.4"/>
+  <path d="M176,57 L186,61 L176,65 z" fill="#0e7c86"/>
+  <rect x="196" y="40" width="140" height="42" rx="4" fill="#1f4fbf"/>
+  <text x="208" y="58" font-family="DejaVu Sans" font-size="10" fill="#fff" font-weight="bold">PRIMARY KEY</text>
+  <text x="208" y="72" font-family="DejaVu Sans Mono" font-size="9" fill="#dbe6f3">Stud_ID</text>
+  <path d="M336,61 L384,61" stroke="#0e7c86" stroke-width="1.4"/>
+  <path d="M380,57 L390,61 L380,65 z" fill="#0e7c86"/>
+  <rect x="392" y="34" width="96" height="54" rx="4" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="402" y="52" font-family="DejaVu Sans" font-size="9" fill="#a0522d" font-weight="bold">ALTERNATE</text>
+  <text x="402" y="66" font-family="DejaVu Sans" font-size="9" fill="#a0522d" font-weight="bold">KEYS</text>
+  <text x="402" y="80" font-family="DejaVu Sans" font-size="7.5" fill="#a0522d">Roll_No, Email</text>
+</svg>
+<figcaption class="figcap"><b>Figure 2.1</b> — Three candidate keys; one is implemented as the primary key and the
+remaining two become alternate keys.</figcaption>
+</figure>
+
+<h2 id="c2-5">2.5 Foreign Key and Referential Integrity</h2>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>An attribute <b>X</b> is a <b>foreign key</b> referring to attribute <b>Y</b> when the values of X must
+come from the values that actually exist in Y. The relation containing Y is the <b>referenced relation</b>
+(also called the master or primary table); the relation containing X is the <b>referencing relation</b>
+(also called the foreign table). X may have a name different from Y.</p>
+</div>
+
+<p>The source's example uses two relations:</p>
+<table class="rel">
+<thead><tr><th class="mono">Employee ( Emp_ID, Emp_Name, …, Dept_ID )</th><th class="mono">Department ( Dept_ID, Dept_Name )</th></tr></thead>
+<tbody><tr><td class="mono">t_dept takes only values present in <b>dept_no</b> of Department</td><td class="mono">Dept_ID is the primary key here</td></tr></tbody>
+</table>
+
+<figure>
+<svg viewBox="0 0 520 176" width="520" height="176" role="img"
+     aria-label="Foreign key from Employee.Dept_ID to Department.Dept_ID">
+  <defs><marker id="fk1" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+    <path d="M0,0 L10,5 L0,10 z" fill="#a0522d"/></marker></defs>
+
+  <!-- Department (referenced / master) -->
+  <rect x="300" y="24" width="204" height="74" rx="4" fill="#ffffff" stroke="#1f4fbf" stroke-width="1.5"/>
+  <rect x="300" y="24" width="204" height="22" rx="4" fill="#1b6e8a"/>
+  <text x="310" y="39" font-family="DejaVu Sans" font-size="9.5" fill="#fff" font-weight="bold">DEPARTMENT (master)</text>
+  <line x1="300" y1="46" x2="504" y2="46" stroke="#1b6e8a"/>
+  <text x="310" y="62" font-family="DejaVu Sans Mono" font-size="9" fill="#1f4fbf" font-weight="bold">Dept_ID</text>
+  <text x="382" y="62" font-family="DejaVu Sans" font-size="7.5" fill="#1f4fbf">PRIMARY KEY</text>
+  <text x="310" y="78" font-family="DejaVu Sans Mono" font-size="9">Dept_Name</text>
+  <text x="310" y="92" font-family="DejaVu Sans Mono" font-size="8" fill="#5d6d7e">001 CSE · 002 ECE · 003 ME</text>
+
+  <!-- Employee (referencing / foreign) -->
+  <rect x="16" y="24" width="204" height="112" rx="4" fill="#ffffff" stroke="#a0522d" stroke-width="1.5"/>
+  <rect x="16" y="24" width="204" height="22" rx="4" fill="#1b6e8a"/>
+  <text x="26" y="39" font-family="DejaVu Sans" font-size="9.5" fill="#fff" font-weight="bold">EMPLOYEE (foreign table)</text>
+  <line x1="16" y1="46" x2="220" y2="46" stroke="#1b6e8a"/>
+  <text x="26" y="62" font-family="DejaVu Sans Mono" font-size="9" fill="#1f4fbf" font-weight="bold">Emp_ID</text>
+  <text x="120" y="62" font-family="DejaVu Sans" font-size="7.5" fill="#1f4fbf">PRIMARY KEY</text>
+  <text x="26" y="78" font-family="DejaVu Sans Mono" font-size="9">Emp_Name</text>
+  <text x="26" y="96" font-family="DejaVu Sans Mono" font-size="9" fill="#a0522d" font-weight="bold">Dept_ID</text>
+  <text x="120" y="96" font-family="DejaVu Sans" font-size="7.5" fill="#a0522d">FOREIGN KEY</text>
+  <text x="26" y="120" font-family="DejaVu Sans Mono" font-size="8" fill="#5d6d7e">E1 Amit → 001 · E2 Bela → 002</text>
+
+  <!-- arrow -->
+  <path d="M220,90 C258,90 262,60 300,60" fill="none" stroke="#a0522d" stroke-width="1.7"
+        stroke-dasharray="5 3" marker-end="url(#fk1)"/>
+  <text x="222" y="118" font-family="DejaVu Sans" font-size="8" fill="#a0522d">values must exist in the master</text>
+
+  <!-- rule box -->
+  <rect x="16" y="146" width="488" height="24" rx="3" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="26" y="162" font-family="DejaVu Sans" font-size="8.5" fill="#a0522d" font-weight="bold">REFERENTIAL INTEGRITY:</text>
+  <text x="164" y="162" font-family="DejaVu Sans" font-size="8.5" fill="#a0522d">every Dept_ID in EMPLOYEE must appear as a Dept_ID in DEPARTMENT (or be NULL).</text>
+</svg>
+<figcaption class="figcap"><b>Figure 2.2</b> — A foreign key creates the relationship between two tables and is the
+mechanism of referential integrity.</figcaption>
+</figure>
+
+<h3>Notes on the foreign key (from the source)</h3>
+<ul>
+<li>A foreign key references the primary key of the referenced table.</li>
+<li>It can take only those values that are present in the primary key of the referenced relation.</li>
+<li>It may have a name different from that of the primary key it references.</li>
+<li>It <b>can</b> take the NULL value (meaning “no department assigned yet”).</li>
+<li>There is no restriction that a foreign key be unique — in fact it is usually <em>not</em> unique.</li>
+</ul>
+
+<h2 id="c2-6">2.6 Partial Key</h2>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>A <b>partial key</b> is a key that cannot identify all the records of a table uniquely. It can, however,
+select a <em>bunch of related tuples</em> from the table.</p>
+</div>
+
+<p>The source's example makes this concrete:</p>
+<table class="rel">
+<caption>Table 2.3 — Department ( Emp_no, Dependent_name, Relation ).</caption>
+<thead><tr><th class="mono">Emp_no</th><th class="mono">Dependent_name</th><th class="mono">Relation</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">E1</td><td class="mono">Suman</td><td class="mono">Mother</td></tr>
+<tr><td class="mono pk">E1</td><td class="mono">Ajay</td><td class="mono">Father</td></tr>
+<tr><td class="mono pk">E2</td><td class="mono">Vijay</td><td class="mono">Father</td></tr>
+<tr><td class="mono pk">E2</td><td class="mono">Ankush</td><td class="mono">Son</td></tr>
+</tbody>
+</table>
+<p>Using <span class="kv">Emp_no</span> alone we cannot identify a single tuple — E1 appears twice — but we
+can select the group of tuples belonging to E1. <span class="kv">Emp_no</span> is therefore a partial key.
+In entity–relationship modelling this is exactly the “partial key” of a weak entity; the full identifier is
+the partial key together with the owner's key.</p>
+
+<h2 id="c2-7">2.7 Composite Key and Compound Key</h2>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>A <b>composite key</b> is a primary key made up of two or more attributes rather than a single attribute.
+The combination guarantees uniqueness even though each individual column may repeat values.</p>
+</div>
+
+<table class="rel">
+<caption>Table 2.4 — A composite key in action. Neither column is unique alone; the pair is.</caption>
+<thead><tr><th class="mono">Student_Name</th><th class="mono">Course_Code</th></tr></thead>
+<tbody>
+<tr><td class="mono">Rahul</td><td class="mono">CS101</td></tr>
+<tr><td class="mono">Priya</td><td class="mono">CS101</td></tr>
+<tr><td class="mono">Rahul</td><td class="mono">MA201</td></tr>
+<tr><td class="mono">Sana</td><td class="mono">CS101</td></tr>
+</tbody>
+</table>
+<p><em>Student_Name</em> repeats (“Rahul” twice) and <em>Course_Code</em> repeats (“CS101” three times),
+but the pair <span class="kv">( Student_Name, Course_Code )</span> is unique, because a student cannot enrol
+in the same course twice. That pair is the composite primary key.</p>
+
+<h3>Composite versus compound — as the source draws the line</h3>
+<p>The source states the difference explicitly: <em>any part of a <b>compound</b> key can be a foreign key,
+but the <b>composite</b> key may or may not be part of a foreign key.</em> In other words, a compound key is
+a composite key in which each component is itself a foreign key to a different table. A many-to-many junction
+table such as <span class="kv">Enrolment ( Student_ID, Course_ID )</span> has a compound key, because both
+components are foreign keys.</p>
+
+<div class="box violet"><span class="tag">From the source — an inconsistency handled honestly</span>
+<p>The source's summary list defines <b>Composite Key</b> with the wording “An artificial key which aims to
+uniquely identify each record is called a surrogate key…” — that is the <em>surrogate</em> key definition
+pasted under the wrong heading, because the two sentences below it define “Surrogate Key” with the same
+words. Later in the same chapter, “Composite Key” is correctly defined as a primary key of multiple
+attributes. These notes follow the <b>later, correct</b> definition and treat the earlier line as a copy
+error in the source. Nothing else in the chapter depends on it.</p>
+</div>
+
+<h2 id="c2-8">2.8 Unique Key</h2>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>A <b>unique key</b> is unique for all records of the table, is non-updatable once assigned, and
+<b>may</b> contain a NULL value.</p>
+</div>
+
+<p>The source's example is the Aadhaar card number, and it is a good one because it exercises all three
+properties at once:</p>
+<ul>
+<li>It is <b>unique</b> for all citizens (tuples) of India (the table).</li>
+<li>If the card is lost and a duplicate copy is issued, the duplicate always carries the <b>same number</b> —
+so the value is <b>non-updatable</b>.</li>
+<li>Some citizens have no Aadhaar card yet, so for those rows the value is <b>NULL</b>.</li>
+</ul>
+
+<div class="box note"><span class="tag">Explanation — unique key versus primary key</span>
+<p>The single practical difference is the NULL rule. A primary key forbids NULL and permits exactly one per
+table. A unique key permits NULL and a table may declare several of them. Both enforce uniqueness on the
+values that are present.</p>
+</div>
+
+<h2 id="c2-9">2.9 Surrogate Key</h2>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>A <b>surrogate key</b> is an artificial key created to identify each record uniquely. It is unique because
+it is generated when no natural primary key exists. It lends no meaning to the data, is usually an integer,
+and is generated just before the record is inserted.</p>
+</div>
+
+<p>The source's example is the mobile number of students in a class where every student owns a mobile phone.
+The source also lists the two situations in which surrogate keys are allowed:</p>
+<ul>
+<li>When no existing property has the characteristics required of a primary key.</li>
+<li>When the natural primary key is too big or too complicated.</li>
+</ul>
+
+<figure>
+<svg viewBox="0 0 520 130" width="520" height="130" role="img"
+     aria-label="Natural key too complex, replaced by a generated surrogate key">
+  <rect x="14" y="24" width="216" height="88" rx="4" fill="#fdf1ec" stroke="#b5481b"/>
+  <text x="26" y="42" font-family="DejaVu Sans" font-size="9.5" fill="#b5481b" font-weight="bold">NATURAL KEY — awkward</text>
+  <line x1="14" y1="50" x2="230" y2="50" stroke="#b5481b" stroke-width="0.7"/>
+  <text x="26" y="66" font-family="DejaVu Sans Mono" font-size="8.5" fill="#1c2833">(FirstName, LastName,</text>
+  <text x="26" y="80" font-family="DejaVu Sans Mono" font-size="8.5" fill="#1c2833"> BirthDate, City)</text>
+  <text x="26" y="100" font-family="DejaVu Sans" font-size="8" fill="#b5481b">long, can change, can clash</text>
+
+  <path d="M234,68 L286,68" stroke="#0e7c86" stroke-width="1.6"/>
+  <path d="M282,63 L294,68 L282,73 z" fill="#0e7c86"/>
+  <text x="238" y="60" font-family="DejaVu Sans" font-size="8" fill="#0e7c86">generate</text>
+
+  <rect x="298" y="24" width="208" height="88" rx="4" fill="#e8f1fb" stroke="#1f4fbf"/>
+  <text x="310" y="42" font-family="DejaVu Sans" font-size="9.5" fill="#1f4fbf" font-weight="bold">SURROGATE KEY — clean</text>
+  <line x1="298" y1="50" x2="506" y2="50" stroke="#1f4fbf" stroke-width="0.7"/>
+  <text x="310" y="68" font-family="DejaVu Sans Mono" font-size="8.5" fill="#1f4fbf" font-weight="bold">Student_No   (integer)</text>
+  <text x="310" y="86" font-family="DejaVu Sans" font-size="8" fill="#5d6d7e">1001, 1002, 1003, …</text>
+  <text x="310" y="102" font-family="DejaVu Sans" font-size="8" fill="#4f8a37">meaningless, stable, never NULL</text>
+</svg>
+<figcaption class="figcap"><b>Figure 2.3</b> — A surrogate key replaces a complex or absent natural key with a
+generated integer. The original attributes are still stored, but no longer carry identity.</figcaption>
+</figure>
+
+<div class="box warn"><span class="tag">Common mistake</span>
+<p>Confusing a surrogate key with a unique key. A surrogate key is <b>artificial and updatable</b>; a unique
+key is typically a <b>natural, non-updatable</b> attribute (Aadhaar number, passport number). The source's
+own definitions of the two make this distinction by listing “updatable / not updatable” as the separating
+property.</p>
+</div>
+
+<h2 id="c2-10">2.10 Secondary Key</h2>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>A <b>secondary key</b> is a key required for indexing, so that searching is better and faster.</p>
+</div>
+
+<p>Unlike the previous nine keys, a secondary key says nothing about uniqueness. It is a performance device:
+it is the attribute you commonly search on, and an index is built over it so the DBMS can avoid a full table
+scan. In the Student schema, if the query “find all students of class CSE-3A” is common,
+<span class="kv">class</span> would be a secondary key.</p>
+
+<h2 id="c2-11">2.11 Key Classification at a Glance</h2>
+
+<figure>
+<svg viewBox="0 0 540 250" width="540" height="250" role="img"
+     aria-label="Classification of database keys: identity keys, relationship keys and support keys">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="10" fill="#12294b" font-weight="bold">DATABASE KEYS</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.6"/>
+
+  <!-- branch lines -->
+  <line x1="270" y1="22" x2="270" y2="40" stroke="#0e7c86" stroke-width="1.2"/>
+  <line x1="88" y1="40" x2="452" y2="40" stroke="#0e7c86" stroke-width="1.2"/>
+  <line x1="88" y1="40" x2="88" y2="56" stroke="#0e7c86" stroke-width="1.2"/>
+  <line x1="270" y1="40" x2="270" y2="56" stroke="#0e7c86" stroke-width="1.2"/>
+  <line x1="452" y1="40" x2="452" y2="56" stroke="#0e7c86" stroke-width="1.2"/>
+
+  <!-- group 1: identity -->
+  <rect x="14" y="56" width="148" height="24" rx="3" fill="#1f4fbf"/>
+  <text x="24" y="72" font-family="DejaVu Sans" font-size="9.5" fill="#fff" font-weight="bold">IDENTITY KEYS</text>
+  <rect x="14" y="86" width="148" height="150" rx="3" fill="#e8f1fb" stroke="#1f4fbf"/>
+  <text x="24" y="104" font-family="DejaVu Sans" font-size="8.6" fill="#1c2833">Super key</text>
+  <text x="24" y="121" font-family="DejaVu Sans" font-size="8.6" fill="#1c2833">Candidate key</text>
+  <text x="24" y="138" font-family="DejaVu Sans" font-size="8.6" fill="#1f4fbf" font-weight="bold">Primary key</text>
+  <text x="24" y="155" font-family="DejaVu Sans" font-size="8.6" fill="#1c2833">Alternate key</text>
+  <text x="24" y="172" font-family="DejaVu Sans" font-size="8.6" fill="#1c2833">Composite key</text>
+  <text x="24" y="189" font-family="DejaVu Sans" font-size="8.6" fill="#1c2833">Surrogate key</text>
+  <text x="24" y="206" font-family="DejaVu Sans" font-size="8.6" fill="#1c2833">Unique key</text>
+  <text x="24" y="223" font-family="DejaVu Sans" font-size="8.6" fill="#1c2833">Partial key</text>
+
+  <!-- group 2: relationship -->
+  <rect x="196" y="56" width="148" height="24" rx="3" fill="#a0522d"/>
+  <text x="206" y="72" font-family="DejaVu Sans" font-size="9.5" fill="#fff" font-weight="bold">RELATIONSHIP KEYS</text>
+  <rect x="196" y="86" width="148" height="150" rx="3" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="206" y="104" font-family="DejaVu Sans" font-size="8.6" fill="#1c2833">Foreign key</text>
+  <text x="206" y="121" font-family="DejaVu Sans" font-size="8.6" fill="#1c2833">Compound key</text>
+  <text x="206" y="138" font-family="DejaVu Sans" font-size="8.6" fill="#5d6d7e">(every part is an FK)</text>
+  <text x="206" y="162" font-family="DejaVu Sans" font-size="8.6" fill="#1c2833">Referential</text>
+  <text x="206" y="176" font-family="DejaVu Sans" font-size="8.6" fill="#1c2833">integrity rule</text>
+  <text x="206" y="200" font-family="DejaVu Sans" font-size="8.6" fill="#5d6d7e">links two tables</text>
+
+  <!-- group 3: support -->
+  <rect x="378" y="56" width="148" height="24" rx="3" fill="#4f8a37"/>
+  <text x="388" y="72" font-family="DejaVu Sans" font-size="9.5" fill="#fff" font-weight="bold">SUPPORT KEYS</text>
+  <rect x="378" y="86" width="148" height="150" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="388" y="104" font-family="DejaVu Sans" font-size="8.6" fill="#1c2833">Secondary key</text>
+  <text x="388" y="128" font-family="DejaVu Sans" font-size="8.6" fill="#5d6d7e">used for indexing</text>
+  <text x="388" y="152" font-family="DejaVu Sans" font-size="8.6" fill="#5d6d7e">not about identity,</text>
+  <text x="388" y="166" font-family="DejaVu Sans" font-size="8.6" fill="#5d6d7e">about search speed</text>
+  <text x="388" y="196" font-family="DejaVu Sans" font-size="8.6" fill="#1c2833">Access path</text>
+</svg>
+<figcaption class="figcap"><b>Figure 2.4</b> — The ten source keys grouped by the job they do. Only the first
+group says “this row is unique”; the second says “this row belongs to”; the third says “search here fast”.</figcaption>
+</figure>
+
+<h2 id="c2-12">2.12 Commonly Confused Pairs</h2>
+
+<table>
+<caption>Table 2.5 — Side-by-side comparison of the pairs students most often mix up.</caption>
+<thead><tr><th>Pair</th><th>First</th><th>Second</th><th>The decisive test</th></tr></thead>
+<tbody>
+<tr><td>Super key / Candidate key</td>
+<td>Any set that identifies uniquely; may contain redundant attributes</td>
+<td>A super key with no removable attribute</td>
+<td>Can you delete a column and keep uniqueness? If yes it was only a super key.</td></tr>
+<tr><td>Candidate key / Primary key</td>
+<td>Every minimal identifier that exists</td>
+<td>The one minimal identifier that was chosen</td>
+<td>Count: a table may have many candidate keys, exactly one primary key.</td></tr>
+<tr><td>Alternate key / Secondary key</td>
+<td>A candidate key not chosen as primary</td>
+<td>Any attribute used for indexing</td>
+<td>Is it a minimal identifier? Alternate yes; secondary not necessarily.</td></tr>
+<tr><td>Composite key / Surrogate key</td>
+<td>Two or more real attributes combined</td>
+<td>One artificial generated attribute</td>
+<td>Does the key carry meaning from the data? Composite yes; surrogate no.</td></tr>
+<tr><td>Primary key / Unique key</td>
+<td>Unique, NOT NULL, one per table</td>
+<td>Unique, NULL allowed, many per table</td>
+<td>May it be NULL? Unique yes; primary no.</td></tr>
+<tr><td>Foreign key / Primary key</td>
+<td>Values must exist in another table; may repeat; may be NULL</td>
+<td>Values define identity; never repeat; never NULL</td>
+<td>Which table “owns” the value?</td></tr>
+</tbody>
+</table>
+
+<h2 id="c2-13">2.13 Key Identification Exercises</h2>
+
+<div class="box amber"><span class="tag">Exercise 1</span>
+<p><b>Schema:</b> <span class="kv">Student ( roll, name, sex, age, address, class, section )</span>.
+Assume no two students share a name, and a name is unique across the table.</p>
+<p><b>(a)</b> List all candidate keys. &nbsp; <b>(b)</b> Is
+<span class="kv">( class, section, roll, sex )</span> a candidate key? &nbsp; <b>(c)</b> Name two super keys
+that are not candidate keys.</p>
+<p><b>Answer.</b> (a) <span class="kv">( class, section, roll )</span> and
+<span class="kv">( name, address )</span> — both are minimal. (b) No: it is a super key, but
+<em>sex</em> is removable, so it is not minimal. (c) The whole tuple, and
+<span class="kv">( class, section, roll, sex )</span>.</p>
+</div>
+
+<div class="box amber"><span class="tag">Exercise 2</span>
+<p><b>Schema:</b> <span class="kv">Employee ( Emp_ID, Emp_Name, Passport_Number, License_Number, Dept_ID )</span>
+and <span class="kv">Department ( Dept_ID, Dept_Name )</span>.</p>
+<p><b>(a)</b> Identify the primary key, all candidate keys and all alternate keys of Employee.
+<b>(b)</b> Identify the foreign key. <b>(c)</b> Give one composite key and one super key that is not a
+candidate key.</p>
+<p><b>Answer.</b> (a) Primary key <span class="kv">Emp_ID</span>; candidate keys
+<span class="kv">Emp_ID</span>, <span class="kv">Passport_Number</span>,
+<span class="kv">License_Number</span>; alternate keys <span class="kv">Passport_Number</span> and
+<span class="kv">License_Number</span>. (b) <span class="kv">Dept_ID</span> in Employee references
+<span class="kv">Dept_ID</span> in Department. (c) Composite: <span class="kv">( Emp_Name, Emp_ID )</span>
+as the source gives it. Super key but not candidate: <span class="kv">( Emp_ID, Emp_Name )</span>.</p>
+</div>
+
+<div class="box amber"><span class="tag">Exercise 3</span>
+<p><b>Schema:</b> <span class="kv">Enrolment ( Student_ID, Course_ID, Semester )</span>, where a student
+takes each course once, and both <span class="kv">Student_ID</span> and
+<span class="kv">Course_ID</span> reference other tables.</p>
+<p><b>Question.</b> Is <span class="kv">( Student_ID, Course_ID )</span> a composite key or a compound key?
+Justify.</p>
+<p><b>Answer.</b> It is a <b>compound</b> key, because each of its parts is itself a foreign key to a
+different table. Every compound key is a composite key, but the reverse is not true: a composite key whose
+parts are ordinary attributes (not foreign keys) is composite only.</p>
+</div>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Part 1</span>
+<ul>
+<li>A <b>super key</b> identifies uniquely but may carry extra attributes; a <b>candidate key</b> is a minimal
+super key; the chosen candidate key is the <b>primary key</b>; the rest are <b>alternate keys</b>.</li>
+<li>A <b>foreign key</b> enforces referential integrity between a referencing and a referenced relation; it
+may repeat and may be NULL.</li>
+<li>A <b>partial key</b> identifies a group, not a tuple. A <b>composite key</b> is a multi-attribute primary
+key; a <b>compound key</b> is a composite key whose parts are all foreign keys.</li>
+<li>A <b>unique key</b> allows NULL; a <b>surrogate key</b> is artificial and generated; a
+<b>secondary key</b> exists for indexing, not identity.</li>
+<li>Prime attributes are those appearing in some candidate key — the vocabulary that drives 2NF and 3NF.</li>
+</ul>
+</div>
+</section>

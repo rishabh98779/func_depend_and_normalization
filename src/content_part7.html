@@ -1,0 +1,703 @@
+<!-- ==================== PART 7 DIVIDER ==================== -->
+<section class="partdiv" id="part7">
+  <div class="plabel">Part 7</div>
+  <div class="prule"></div>
+  <h1>SQL Views</h1>
+  <div class="psub">Views and base tables · creating views from one and from many tables · querying, dropping
+  and replacing · updating, inserting and deleting through a view · WITH CHECK OPTION · the six uses of a view</div>
+  <div class="pfoot">Source: UNIT 2, Chapter 2.3.5 (SQL Views) — the StudentDetails and StudentMarks tables and
+  every example query are the source's own.</div>
+</section>
+
+<!-- ==================== CHAPTER 29 ==================== -->
+<section>
+<h1 class="chap" id="c29">29. SQL Views: Concept and Creation</h1>
+<div class="chapmeta">Part 7 &nbsp;•&nbsp; a stored query that behaves like a table</div>
+<div class="chaprule"></div>
+
+<p>A view is the database's answer to a common problem: many different users need to see different slices of the
+same data, but you do not want to maintain a separate copy for each. A view stores the <em>question</em>, not the
+answer — and every time it is used, the question is asked again against the current data.</p>
+
+<h2 id="c29-1">29.1 Definition and Base Tables</h2>
+
+<div class="box def"><span class="tag">Definition (source)</span>
+<p>An <b>SQL View</b> is a specific representation of data from one or more tables. The tables referred to in
+the view are known as <b>base tables</b>. Creating a view does not take any storage space, because only the
+<b>query</b> is stored in the data dictionary and the actual data is not stored anywhere.</p>
+<p>The maximum number of columns that can be defined in a SQL View is <b>1000</b>, as in tables.</p>
+</div>
+
+<p>The source also gives the informal framing that is worth holding alongside the formal one: <em>views in SQL
+are kind of virtual tables. A view also has rows and columns as they are in a real table in the database. We can
+create a view by selecting fields from one or more tables present in the database. A view can either have all the
+rows of a table or specific rows based on a certain condition.</em></p>
+
+<figure>
+<svg viewBox="0 0 540 216" width="540" height="216" role="img"
+     aria-label="A view sits between the user and the base tables; only the query is stored">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">A VIEW IS A STORED QUERY, NOT A STORED COPY OF THE DATA</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="180" y="34" width="180" height="42" rx="4" fill="#e8f1fb" stroke="#1f4fbf" stroke-width="1.4"/>
+  <text x="192" y="52" font-family="DejaVu Sans" font-size="9" fill="#1f4fbf" font-weight="bold">VIEW</text>
+  <text x="192" y="68" font-family="DejaVu Sans Mono" font-size="7.8" fill="#1c2833">CREATE VIEW v AS SELECT…</text>
+
+  <text x="376" y="50" font-family="DejaVu Sans" font-size="8" fill="#5d6d7e">the definition (the query) is</text>
+  <text x="376" y="62" font-family="DejaVu Sans" font-size="8" fill="#5d6d7e">stored in the data dictionary</text>
+  <text x="376" y="74" font-family="DejaVu Sans" font-size="8" fill="#4f8a37">no data is stored</text>
+
+  <path d="M270,76 L270,96" stroke="#0e7c86" stroke-width="1.5"/>
+  <path d="M90,96 L450,96" stroke="#0e7c86" stroke-width="1.5"/>
+  <path d="M90,96 L90,112" stroke="#0e7c86" stroke-width="1.5"/>
+  <path d="M270,96 L270,112" stroke="#0e7c86" stroke-width="1.5"/>
+  <path d="M450,96 L450,112" stroke="#0e7c86" stroke-width="1.5"/>
+  <text x="278" y="94" font-family="DejaVu Sans" font-size="7.6" fill="#0e7c86">at query time, the view reads the base tables</text>
+
+  <rect x="30" y="112" width="120" height="52" rx="3" fill="#fff" stroke="#1f4fbf"/>
+  <text x="40" y="130" font-family="DejaVu Sans" font-size="8.4" fill="#1f4fbf" font-weight="bold">BASE TABLE 1</text>
+  <text x="40" y="146" font-family="DejaVu Sans Mono" font-size="7.6" fill="#1c2833">StudentDetails</text>
+  <text x="40" y="158" font-family="DejaVu Sans" font-size="7.2" fill="#5d6d7e">stores real data</text>
+
+  <rect x="210" y="112" width="120" height="52" rx="3" fill="#fff" stroke="#1f4fbf"/>
+  <text x="220" y="130" font-family="DejaVu Sans" font-size="8.4" fill="#1f4fbf" font-weight="bold">BASE TABLE 2</text>
+  <text x="220" y="146" font-family="DejaVu Sans Mono" font-size="7.6" fill="#1c2833">StudentMarks</text>
+  <text x="220" y="158" font-family="DejaVu Sans" font-size="7.2" fill="#5d6d7e">stores real data</text>
+
+  <rect x="390" y="112" width="120" height="52" rx="3" fill="#fff" stroke="#1f4fbf"/>
+  <text x="400" y="130" font-family="DejaVu Sans" font-size="8.4" fill="#1f4fbf" font-weight="bold">BASE TABLE n</text>
+  <text x="400" y="146" font-family="DejaVu Sans" font-size="7.2" fill="#5d6d7e">a view may draw</text>
+  <text x="400" y="158" font-family="DejaVu Sans" font-size="7.2" fill="#5d6d7e">on any number</text>
+
+  <rect x="30" y="176" width="480" height="34" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="40" y="192" font-family="DejaVu Sans" font-size="8.4" fill="#4f8a37" font-weight="bold">CONSEQUENCE:</text>
+  <text x="130" y="192" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">a view always shows the CURRENT base-table data, because it re-runs its query each time it is used.</text>
+  <text x="40" y="205" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">Change a base table and every view built on it changes too — with no maintenance of the view at all.</text>
+</svg>
+<figcaption class="figcap"><b>Figure 29.1</b> — A view stores only its defining query. At query time the DBMS runs
+that query against the base tables, so the view is always up to date.</figcaption>
+</figure>
+
+<div class="box note"><span class="tag">Explanation — why “no storage space” is a real benefit</span>
+<p>Because only the query is stored, a view cannot become inconsistent with its base tables. There is no second
+copy to fall out of date — the source's phrase is that the actual data “is not stored anywhere”. This is the
+opposite of the redundancy problem of Part 3: a view is a form of reuse that adds <em>no</em> redundancy at
+all.</p>
+</div>
+
+<h2 id="c29-2">29.2 Benefits of Views</h2>
+
+<div class="box def"><span class="tag">Benefits (source)</span>
+<p>The reasons for using views in applications can be many, like:</p>
+<ul>
+<li><b>Reducing complexity.</b></li>
+<li><b>Improving security.</b></li>
+<li><b>Renaming the table columns.</b></li>
+</ul>
+</div>
+
+<p>Chapter 30 expands these three into the source's fuller list of six uses (Section 30.7). The three here are
+the headline benefits; the six there are the detailed justifications.</p>
+
+<h2 id="c29-3">29.3 The Sample Tables Used Throughout</h2>
+
+<p>The source uses two tables for every view example in the chapter. Learn them once and every query below is
+readable. The source names them <b>StudentDetails</b> and <b>StudentMarks</b>; the rows are reconstructed from
+the outputs the source reports, since the source shows the tables only as captioned images.</p>
+
+<table class="rel">
+<caption>Table 29.1 — StudentDetails (reconstructed from the source's reported outputs).</caption>
+<thead><tr><th class="mono">S_ID</th><th class="mono">NAME</th><th class="mono">ADDRESS</th><th class="mono">AGE</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">1</td><td class="mono">Ramesh</td><td class="mono">Ahmedabad</td><td class="mono">32</td></tr>
+<tr><td class="mono pk">2</td><td class="mono">Khilan</td><td class="mono">Delhi</td><td class="mono">25</td></tr>
+<tr><td class="mono pk">3</td><td class="mono">kaushik</td><td class="mono">Kota</td><td class="mono">23</td></tr>
+<tr><td class="mono pk">4</td><td class="mono">Chaitali</td><td class="mono">Mumbai</td><td class="mono">25</td></tr>
+<tr><td class="mono pk">5</td><td class="mono">Hardik</td><td class="mono">Bhopal</td><td class="mono">27</td></tr>
+<tr><td class="mono pk">6</td><td class="mono">Komal</td><td class="mono">MP</td><td class="mono">22</td></tr>
+</tbody>
+</table>
+
+<table class="rel">
+<caption>Table 29.2 — StudentMarks (reconstructed from the source's reported outputs).</caption>
+<thead><tr><th class="mono">NAME</th><th class="mono">MARKS</th><th class="mono">AGE</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">Ramesh</td><td class="mono">90</td><td class="mono">32</td></tr>
+<tr><td class="mono pk">Khilan</td><td class="mono">85</td><td class="mono">25</td></tr>
+<tr><td class="mono pk">kaushik</td><td class="mono">70</td><td class="mono">23</td></tr>
+<tr><td class="mono pk">Chaitali</td><td class="mono">80</td><td class="mono">25</td></tr>
+<tr><td class="mono pk">Hardik</td><td class="mono">75</td><td class="mono">27</td></tr>
+<tr><td class="mono pk">Komal</td><td class="mono">95</td><td class="mono">22</td></tr>
+</tbody>
+</table>
+
+<div class="box violet"><span class="tag">From the source — reconstructed tables</span>
+<p>The source shows these two tables as images with the caption “Sample Tables:” and no textual rows. The rows
+above are reconstructed from the outputs the source reports for its own queries — in particular, the
+<code>DetailsView</code> output (rows where <code>S_ID &lt; 5</code>) and the <code>MarksView</code> output
+(which joins on NAME). Where the source's output confirms a value, the value above matches it. Treat these rows
+as <b>reconstructed for illustration</b>: if your class slides show different sample data, use those values — the
+SQL and the logic are unaffected.</p>
+</div>
+
+<h2 id="c29-4">29.4 Creating a View from a Single Table</h2>
+
+<div class="box def"><span class="tag">Syntax (source)</span>
+<pre>CREATE VIEW view_name AS
+SELECT column1, column2.....
+FROM   table_name
+WHERE  condition;</pre>
+<table>
+<thead><tr><th>Part</th><th>Meaning (source)</th></tr></thead>
+<tbody>
+<tr><td class="mono">view_name</td><td>Name for the view</td></tr>
+<tr><td class="mono">table_name</td><td>Name of the table</td></tr>
+<tr><td class="mono">condition</td><td>Condition to select rows</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box amber"><span class="tag">Example 1 — DetailsView (source)</span>
+<p><b>Problem:</b> create a view named <code>DetailsView</code> from the table <code>StudentDetails</code>,
+showing only the name and address of students whose id is less than 5.</p>
+<pre>CREATE VIEW DetailsView AS
+SELECT NAME, ADDRESS
+FROM   StudentDetails
+WHERE  S_ID &lt; 5;</pre>
+<p><b>Line by line:</b> <code>CREATE VIEW DetailsView AS</code> names the view and begins its definition;
+<code>SELECT NAME, ADDRESS</code> chooses two columns, so the view has exactly two columns; <code>FROM
+StudentDetails</code> names the single base table; <code>WHERE S_ID &lt; 5</code> restricts the view to rows 1 to
+4.</p>
+<p><b>Resulting view:</b></p>
+<table class="rel">
+<caption>Table 29.3 — The view DetailsView after creation.</caption>
+<thead><tr><th class="mono">NAME</th><th class="mono">ADDRESS</th></tr></thead>
+<tbody>
+<tr><td class="mono">Ramesh</td><td class="mono">Ahmedabad</td></tr>
+<tr><td class="mono">Khilan</td><td class="mono">Delhi</td></tr>
+<tr><td class="mono">kaushik</td><td class="mono">Kota</td></tr>
+<tr><td class="mono">Chaitali</td><td class="mono">Mumbai</td></tr>
+</tbody>
+</table>
+<p>Note what the view does <em>not</em> contain: the S_ID column, the AGE column, and the rows for Hardik and
+Komal. A view can hide both columns and rows, which is the basis of its security benefit.</p>
+</div>
+
+<div class="box amber"><span class="tag">Example 2 — StudentNames (source)</span>
+<p><b>Problem:</b> create a view named <code>StudentNames</code> showing student id and name, ordered by name.</p>
+<pre>CREATE VIEW StudentNames AS
+SELECT S_ID, NAME
+FROM   StudentDetails
+ORDER BY NAME;</pre>
+<p><b>Resulting view (ordered by NAME):</b></p>
+<table class="rel">
+<caption>Table 29.4 — The view StudentNames.</caption>
+<thead><tr><th class="mono">S_ID</th><th class="mono">NAME</th></tr></thead>
+<tbody>
+<tr><td class="mono">4</td><td class="mono">Chaitali</td></tr>
+<tr><td class="mono">5</td><td class="mono">Hardik</td></tr>
+<tr><td class="mono">3</td><td class="mono">kaushik</td></tr>
+<tr><td class="mono">2</td><td class="mono">Khilan</td></tr>
+<tr><td class="mono">6</td><td class="mono">Komal</td></tr>
+<tr><td class="mono">1</td><td class="mono">Ramesh</td></tr>
+</tbody>
+</table>
+<div class="box warn"><span class="tag">Important — ORDER BY makes this view non-updatable</span>
+<p>This view contains an <code>ORDER BY</code> clause. Section 30.3 lists that as one of the conditions that
+prevents a view from being updated. So <code>StudentNames</code> can be queried but not modified through. This
+example is therefore a good illustration of the trade-off: ordering in a view costs updatability.</p>
+</div>
+</div>
+
+<h2 id="c29-5">29.5 Creating a View from Multiple Tables</h2>
+
+<div class="box def"><span class="tag">The source's instruction</span>
+<p>To create a View from multiple tables we can simply include multiple tables in the SELECT statement.</p>
+</div>
+
+<div class="box amber"><span class="tag">Example 3 — MarksView (source)</span>
+<p><b>Problem:</b> create a view named <code>MarksView</code> from the two tables <code>StudentDetails</code> and
+<code>StudentMarks</code>, showing each student's name, address and marks.</p>
+<pre>CREATE VIEW MarksView AS
+SELECT StudentDetails.NAME, StudentDetails.ADDRESS, StudentMarks.MARKS
+FROM   StudentDetails, StudentMarks
+WHERE  StudentDetails.NAME = StudentMarks.NAME;</pre>
+<p><b>Line by line:</b> the SELECT list qualifies each column with its table, which is required here because
+<code>NAME</code> exists in <em>both</em> tables. The FROM clause lists both tables, producing a Cartesian
+product; the WHERE clause then keeps only those pairs whose NAME matches, which is precisely an equi-join. The
+result is one row per student who appears in both tables.</p>
+<p><b>Resulting view:</b></p>
+<table class="rel">
+<caption>Table 29.5 — The view MarksView, joining StudentDetails and StudentMarks on NAME.</caption>
+<thead><tr><th class="mono">NAME</th><th class="mono">ADDRESS</th><th class="mono">MARKS</th></tr></thead>
+<tbody>
+<tr><td class="mono">Ramesh</td><td class="mono">Ahmedabad</td><td class="mono">90</td></tr>
+<tr><td class="mono">Khilan</td><td class="mono">Delhi</td><td class="mono">85</td></tr>
+<tr><td class="mono">kaushik</td><td class="mono">Kota</td><td class="mono">70</td></tr>
+<tr><td class="mono">Chaitali</td><td class="mono">Mumbai</td><td class="mono">80</td></tr>
+<tr><td class="mono">Hardik</td><td class="mono">Bhopal</td><td class="mono">75</td></tr>
+<tr><td class="mono">Komal</td><td class="mono">MP</td><td class="mono">95</td></tr>
+</tbody>
+</table>
+</div>
+
+<figure>
+<svg viewBox="0 0 540 200" width="540" height="200" role="img"
+     aria-label="MarksView joining StudentDetails and StudentMarks on the NAME column">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">MarksView — ONE VIEW, TWO BASE TABLES, JOINED ON NAME</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="20" y="36" width="150" height="88" rx="3" fill="#fff" stroke="#1f4fbf"/>
+  <rect x="20" y="36" width="150" height="20" rx="3" fill="#1b6e8a"/>
+  <text x="30" y="50" font-family="DejaVu Sans" font-size="8.4" fill="#fff" font-weight="bold">StudentDetails</text>
+  <text x="30" y="72" font-family="DejaVu Sans Mono" font-size="7.8" fill="#1c2833">S_ID</text>
+  <text x="30" y="86" font-family="DejaVu Sans Mono" font-size="7.8" fill="#a0522d" font-weight="bold">NAME</text>
+  <text x="30" y="100" font-family="DejaVu Sans Mono" font-size="7.8" fill="#1c2833">ADDRESS</text>
+  <text x="30" y="114" font-family="DejaVu Sans Mono" font-size="7.8" fill="#1c2833">AGE</text>
+
+  <rect x="370" y="36" width="150" height="88" rx="3" fill="#fff" stroke="#1f4fbf"/>
+  <rect x="370" y="36" width="150" height="20" rx="3" fill="#1b6e8a"/>
+  <text x="380" y="50" font-family="DejaVu Sans" font-size="8.4" fill="#fff" font-weight="bold">StudentMarks</text>
+  <text x="380" y="72" font-family="DejaVu Sans Mono" font-size="7.8" fill="#a0522d" font-weight="bold">NAME</text>
+  <text x="380" y="86" font-family="DejaVu Sans Mono" font-size="7.8" fill="#1c2833">MARKS</text>
+  <text x="380" y="100" font-family="DejaVu Sans Mono" font-size="7.8" fill="#1c2833">AGE</text>
+
+  <rect x="200" y="52" width="140" height="56" rx="4" fill="#e8f1fb" stroke="#1f4fbf" stroke-width="1.4"/>
+  <text x="210" y="70" font-family="DejaVu Sans" font-size="8.6" fill="#1f4fbf" font-weight="bold">MarksView</text>
+  <text x="210" y="86" font-family="DejaVu Sans Mono" font-size="7.8" fill="#1c2833">NAME, ADDRESS, MARKS</text>
+  <text x="210" y="100" font-family="DejaVu Sans" font-size="7.4" fill="#5d6d7e">a join, stored as a query</text>
+
+  <path d="M170,74 L200,74" stroke="#a0522d" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <path d="M196,70 L206,74 L196,78 z" fill="#a0522d"/>
+  <path d="M370,74 L340,74" stroke="#a0522d" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <path d="M344,70 L334,74 L344,78 z" fill="#a0522d"/>
+  <text x="174" y="68" font-family="DejaVu Sans" font-size="7.2" fill="#a0522d">join key</text>
+
+  <rect x="20" y="136" width="500" height="52" rx="3" fill="#eef7f8" stroke="#0e7c86"/>
+  <text x="30" y="152" font-family="DejaVu Sans" font-size="8.4" fill="#0e7c86" font-weight="bold">THE JOIN IN THE VIEW:</text>
+  <text x="180" y="152" font-family="DejaVu Sans Mono" font-size="8" fill="#1c2833">WHERE StudentDetails.NAME = StudentMarks.NAME</text>
+  <text x="30" y="170" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">A view built on a join can hide the complexity of that join from the user, who then queries MarksView as if it were a single table.</text>
+  <text x="30" y="182" font-family="DejaVu Sans" font-size="8.2" fill="#4f8a37">This is the source's “hiding data complexity” benefit in action (Section 30.7).</text>
+</svg>
+<figcaption class="figcap"><b>Figure 29.2</b> — MarksView draws on two base tables. The join condition lives inside the
+view definition, so the user never has to write it.</figcaption>
+</figure>
+
+<h2 id="c29-6">29.6 Querying a View</h2>
+
+<div class="box def"><span class="tag">The source's instruction</span>
+<p>To see the data in the View, we can query the view in the same manner as we query a table:</p>
+<pre>SELECT * FROM DetailsView;
+SELECT * FROM StudentNames;
+SELECT * FROM MarksView;</pre>
+</div>
+
+<p>This is the point of a view, and it is easy to overlook: <b>once created, a view is queried exactly like a
+table</b>. The user writes an ordinary <code>SELECT</code> and never needs to know whether the name refers to a
+base table or a view. In the case of <code>MarksView</code>, that single <code>SELECT *</code> hides a two-table
+join.</p>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 29</span>
+<ul>
+<li>A <b>view</b> is a specific representation of data from one or more tables; the tables it refers to are its
+<b>base tables</b>.</li>
+<li>Creating a view takes no storage space — only the query is stored, in the data dictionary. The maximum
+number of columns in a view is 1000.</li>
+<li>Benefits: reducing complexity, improving security, and renaming columns.</li>
+<li><code>CREATE VIEW name AS SELECT … FROM … WHERE …;</code> creates a view from one table; including several
+tables in the FROM clause creates a view from multiple tables.</li>
+<li>A view is queried exactly like a table, with an ordinary <code>SELECT</code>.</li>
+</ul>
+</div>
+</section>
+
+<!-- ==================== CHAPTER 30 ==================== -->
+<section>
+<h1 class="chap" id="c30">30. Modifying, Dropping and Updating Views</h1>
+<div class="chapmeta">Part 7 &nbsp;•&nbsp; what a view allows you to change, and what it forbids</div>
+<div class="chaprule"></div>
+
+<p>So far a view has been read-only. This chapter covers the rest of its life: removing it, redefining it, and —
+most importantly for examinations — the exact conditions under which a view can be written through.</p>
+
+<h2 id="c30-1">30.1 Dropping a View</h2>
+
+<div class="box def"><span class="tag">Syntax (source)</span>
+<p>We have learned about creating a View, but what if a created View is not needed any more? SQL allows us to
+delete an existing View. We can delete or drop a View using the DROP statement.</p>
+<pre>DROP VIEW view_name;</pre>
+<table>
+<thead><tr><th>Part</th><th>Meaning (source)</th></tr></thead>
+<tbody>
+<tr><td class="mono">view_name</td><td>Name of the View which we want to delete</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box amber"><span class="tag">Example (source)</span>
+<pre>DROP VIEW MarksView;</pre>
+<p><b>What this does:</b> it removes the view <em>definition</em> from the data dictionary. It does <b>not</b>
+delete any data, because the view never held any data of its own — the rows it displayed came from
+<code>StudentDetails</code> and <code>StudentMarks</code>, and both tables are untouched. This is an important
+distinction to state in an answer: dropping a view destroys a <em>query</em>, not <em>data</em>.</p>
+</div>
+
+<h2 id="c30-2">30.2 Creating or Replacing a View</h2>
+
+<div class="box def"><span class="tag">Syntax (source)</span>
+<p>We can use the <code>CREATE OR REPLACE VIEW</code> statement to add or remove fields from a view.</p>
+<pre>CREATE OR REPLACE VIEW view_name AS
+SELECT column1, column2,..
+FROM   table_name
+WHERE  condition;</pre>
+</div>
+
+<div class="box amber"><span class="tag">Example — adding a field to MarksView (source)</span>
+<p><b>Problem:</b> update the view <code>MarksView</code> and add the field <code>AGE</code> from the
+<code>StudentMarks</code> table.</p>
+<pre>CREATE OR REPLACE VIEW MarksView AS
+SELECT StudentDetails.NAME, StudentDetails.ADDRESS, StudentMarks.MARKS,
+       StudentMarks.AGE
+FROM   StudentDetails, StudentMarks
+WHERE  StudentDetails.NAME = StudentMarks.NAME;</pre>
+<p><b>Result:</b> the view now has four columns instead of three. Fetching all the data from
+<code>MarksView</code> gives the earlier three columns plus the age:</p>
+<table class="rel">
+<caption>Table 30.1 — MarksView after the CREATE OR REPLACE, with AGE added.</caption>
+<thead><tr><th class="mono">NAME</th><th class="mono">ADDRESS</th><th class="mono">MARKS</th><th class="mono">AGE</th></tr></thead>
+<tbody>
+<tr><td class="mono">Ramesh</td><td class="mono">Ahmedabad</td><td class="mono">90</td><td class="mono">32</td></tr>
+<tr><td class="mono">Khilan</td><td class="mono">Delhi</td><td class="mono">85</td><td class="mono">25</td></tr>
+<tr><td class="mono">kaushik</td><td class="mono">Kota</td><td class="mono">70</td><td class="mono">23</td></tr>
+<tr><td class="mono">Chaitali</td><td class="mono">Mumbai</td><td class="mono">80</td><td class="mono">25</td></tr>
+<tr><td class="mono">Hardik</td><td class="mono">Bhopal</td><td class="mono">75</td><td class="mono">27</td></tr>
+<tr><td class="mono">Komal</td><td class="mono">MP</td><td class="mono">95</td><td class="mono">22</td></tr>
+</tbody>
+</table>
+<div class="box note"><span class="tag">Why CREATE OR REPLACE rather than DROP then CREATE</span>
+<p>Both approaches achieve the same end, but <code>CREATE OR REPLACE</code> is preferable in practice. Dropping a
+view and recreating it creates a window in which the view does not exist, and it also discards any privileges
+granted on the view, which must then be granted again. <code>CREATE OR REPLACE</code> changes the definition in
+one step.</p>
+</div>
+</div>
+
+<h2 id="c30-3">30.3 Conditions Required to Update a View</h2>
+
+<p>This is the most examinable part of the chapter, and the source states it as a numbered list of five
+conditions. The framing is important: <em>there are certain conditions needed to be satisfied to update a view.
+If any one of these conditions is not met, then we will not be allowed to update the view.</em></p>
+
+<div class="box def"><span class="tag">The five conditions (source, verbatim intent)</span>
+<ol>
+<li>The SELECT statement which is used to create the view should <b>not</b> include a <code>GROUP BY</code>
+clause or an <code>ORDER BY</code> clause.</li>
+<li>The SELECT statement should <b>not</b> have the <code>DISTINCT</code> keyword.</li>
+<li>The View should have all <b>NOT NULL</b> values.</li>
+<li>The view should <b>not</b> be created using nested queries or complex queries.</li>
+<li>The view should be created from a <b>single table</b>. If the view is created using multiple tables, we will
+not be allowed to update the view.</li>
+</ol>
+</div>
+
+<figure>
+<svg viewBox="0 0 540 234" width="540" height="234" role="img"
+     aria-label="The five conditions for an updatable view, with the reason for each">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">WHEN CAN A VIEW BE UPDATED? ALL FIVE CONDITIONS MUST HOLD</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="20" y="32" width="250" height="34" rx="3" fill="#fdf1ec" stroke="#b5481b"/>
+  <text x="30" y="48" font-family="DejaVu Sans" font-size="8.4" fill="#b5481b" font-weight="bold">1 · No GROUP BY or ORDER BY</text>
+  <text x="30" y="61" font-family="DejaVu Sans" font-size="7.6" fill="#1c2833">grouped rows and ordered rows do not map to base rows</text>
+
+  <rect x="20" y="72" width="250" height="34" rx="3" fill="#fdf1ec" stroke="#b5481b"/>
+  <text x="30" y="88" font-family="DejaVu Sans" font-size="8.4" fill="#b5481b" font-weight="bold">2 · No DISTINCT keyword</text>
+  <text x="30" y="101" font-family="DejaVu Sans" font-size="7.6" fill="#1c2833">duplicate-eliminated rows cannot be traced back</text>
+
+  <rect x="20" y="112" width="250" height="34" rx="3" fill="#fdf1ec" stroke="#b5481b"/>
+  <text x="30" y="128" font-family="DejaVu Sans" font-size="8.4" fill="#b5481b" font-weight="bold">3 · All NOT NULL values</text>
+  <text x="30" y="141" font-family="DejaVu Sans" font-size="7.6" fill="#1c2833">every view row must be a complete, insertable row</text>
+
+  <rect x="20" y="152" width="250" height="34" rx="3" fill="#fdf1ec" stroke="#b5481b"/>
+  <text x="30" y="168" font-family="DejaVu Sans" font-size="8.4" fill="#b5481b" font-weight="bold">4 · No nested or complex queries</text>
+  <text x="30" y="181" font-family="DejaVu Sans" font-size="7.6" fill="#1c2833">the DBMS cannot derive a single base-table row</text>
+
+  <rect x="20" y="192" width="250" height="34" rx="3" fill="#fdf1ec" stroke="#b5481b"/>
+  <text x="30" y="208" font-family="DejaVu Sans" font-size="8.4" fill="#b5481b" font-weight="bold">5 · Created from a single table</text>
+  <text x="30" y="221" font-family="DejaVu Sans" font-size="7.6" fill="#1c2833">a multi-table view has no single row to update</text>
+
+  <rect x="284" y="32" width="236" height="194" rx="4" fill="#eef7f8" stroke="#0e7c86"/>
+  <text x="294" y="50" font-family="DejaVu Sans" font-size="9" fill="#0e7c86" font-weight="bold">THE UNDERLYING PRINCIPLE</text>
+  <text x="294" y="70" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">To update through a view, the DBMS must be able</text>
+  <text x="294" y="83" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">to map each view row back to exactly one base-</text>
+  <text x="294" y="96" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">table row, and each view column back to a base</text>
+  <text x="294" y="109" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">column.</text>
+  <text x="294" y="130" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">GROUP BY collapses many rows into one, so the</text>
+  <text x="294" y="143" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">mapping is ambiguous. DISTINCT does the same.</text>
+  <text x="294" y="156" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">A join draws from two tables, so a row has no</text>
+  <text x="294" y="169" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">single owner. ORDER BY is about presentation, not</text>
+  <text x="294" y="182" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">identity. All five conditions follow from that one</text>
+  <text x="294" y="195" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">requirement.</text>
+  <text x="294" y="216" font-family="DejaVu Sans" font-size="8.2" fill="#4f8a37" font-weight="bold">One principle; five symptoms.</text>
+</svg>
+<figcaption class="figcap"><b>Figure 30.1</b> — The five conditions are not arbitrary rules: each one prevents the
+DBMS from mapping a view row back to a single base-table row.</figcaption>
+</figure>
+
+<div class="box note"><span class="tag">Explanation — a good way to remember the five</span>
+<p>Notice that the five conditions all answer the same question: <em>can the DBMS work out which base-table row
+this view row came from?</em> <code>GROUP BY</code> and <code>DISTINCT</code> collapse several base rows into
+one, so the answer is no. A join mixes two tables, so there is no single row. A nested or complex query hides
+the mapping behind intermediate steps. And an ORDER BY says nothing about identity at all. If you remember the
+one question, you can reconstruct the five conditions in an examination.</p>
+</div>
+
+<h2 id="c30-4">30.4 Inserting a Row Through a View</h2>
+
+<div class="box def"><span class="tag">Syntax (source)</span>
+<p>We can insert a row in a View in the same way as we do in a table. We can use the <code>INSERT INTO</code>
+statement of SQL to insert a row in a View.</p>
+<pre>INSERT INTO view_name(column1, column2, column3,..)
+VALUES(value1, value2, value3..);</pre>
+<table>
+<thead><tr><th>Part</th><th>Meaning (source)</th></tr></thead>
+<tbody><tr><td class="mono">view_name</td><td>Name of the View</td></tr></tbody>
+</table>
+</div>
+
+<div class="box amber"><span class="tag">Example — inserting into DetailsView (source)</span>
+<p><b>Problem:</b> insert a new row into <code>DetailsView</code>, the view created earlier from a single
+table.</p>
+<pre>INSERT INTO DetailsView(NAME, ADDRESS)
+VALUES("Suresh","Gurgaon");</pre>
+<p><b>What happens:</b> <code>DetailsView</code> is a single-table view with no GROUP BY, no ORDER BY and no
+DISTINCT, so it is updatable — and the INSERT is therefore redirected to the base table
+<code>StudentDetails</code>. A new row is added there with NAME = 'Suresh' and ADDRESS = 'Gurgaon'.</p>
+<p><b>Result:</b> querying the view again now shows five rows:</p>
+<table class="rel">
+<caption>Table 30.2 — DetailsView after the INSERT.</caption>
+<thead><tr><th class="mono">NAME</th><th class="mono">ADDRESS</th></tr></thead>
+<tbody>
+<tr><td class="mono">Ramesh</td><td class="mono">Ahmedabad</td></tr>
+<tr><td class="mono">Khilan</td><td class="mono">Delhi</td></tr>
+<tr><td class="mono">kaushik</td><td class="mono">Kota</td></tr>
+<tr><td class="mono">Chaitali</td><td class="mono">Mumbai</td></tr>
+<tr><td class="mono good">Suresh</td><td class="mono good">Gurgaon</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box warn"><span class="tag">Note the column list — and why it matters here</span>
+<p>The INSERT names only <code>(NAME, ADDRESS)</code>. The base table <code>StudentDetails</code> has further
+columns (S_ID, AGE) which are not in the view, so they receive their default or NULL values in the new base-table
+row. That is why the view shows Suresh but cannot show an id or age for him: those columns are not part of the
+view at all. This is worth stating in an answer, because it shows that a view restricts what can be
+<em>supplied</em> as well as what can be <em>seen</em>.</p>
+</div>
+
+<h2 id="c30-5">30.5 Deleting a Row Through a View</h2>
+
+<div class="box def"><span class="tag">Syntax and the key fact (source)</span>
+<p>Deleting rows from a view is also as simple as deleting rows from a table. We can use the <code>DELETE</code>
+statement of SQL to delete rows from a view. <b>Also, deleting a row from a view first deletes the row from the
+actual table, and the change is then reflected in the view.</b></p>
+<pre>DELETE FROM view_name
+WHERE condition;</pre>
+<table>
+<thead><tr><th>Part</th><th>Meaning (source)</th></tr></thead>
+<tbody>
+<tr><td class="mono">view_name</td><td>Name of view from where we want to delete rows</td></tr>
+<tr><td class="mono">condition</td><td>Condition to select rows</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box amber"><span class="tag">Example — deleting the row just inserted (source)</span>
+<p><b>Problem:</b> delete the last row from <code>DetailsView</code> — the one just added.</p>
+<pre>DELETE FROM DetailsView
+WHERE NAME = "Suresh";</pre>
+<p><b>What happens:</b> the DELETE is redirected to the base table <code>StudentDetails</code>, where the row
+with NAME = 'Suresh' is removed. The view then reflects the change, because it re-runs its query each time it is
+used.</p>
+<p><b>Result:</b> querying <code>DetailsView</code> again shows the original four rows, and Suresh is gone.</p>
+<table class="rel">
+<caption>Table 30.3 — DetailsView after the DELETE — back to four rows.</caption>
+<thead><tr><th class="mono">NAME</th><th class="mono">ADDRESS</th></tr></thead>
+<tbody>
+<tr><td class="mono">Ramesh</td><td class="mono">Ahmedabad</td></tr>
+<tr><td class="mono">Khilan</td><td class="mono">Delhi</td></tr>
+<tr><td class="mono">kaushik</td><td class="mono">Kota</td></tr>
+<tr><td class="mono">Chaitali</td><td class="mono">Mumbai</td></tr>
+</tbody>
+</table>
+</div>
+
+<figure>
+<svg viewBox="0 0 540 176" width="540" height="176" role="img"
+     aria-label="Insert and delete through a view are redirected to the base table">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">WRITES THROUGH A VIEW REACH THE BASE TABLE</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="180" y="34" width="180" height="34" rx="4" fill="#e8f1fb" stroke="#1f4fbf"/>
+  <text x="192" y="55" font-family="DejaVu Sans Mono" font-size="8.4" fill="#1c2833">INSERT INTO DetailsView …</text>
+
+  <path d="M270,68 L270,86" stroke="#0e7c86" stroke-width="1.5"/><path d="M266,82 L270,92 L274,82 z" fill="#0e7c86"/>
+  <text x="278" y="84" font-family="DejaVu Sans" font-size="7.6" fill="#0e7c86">redirected to the base table</text>
+
+  <rect x="180" y="92" width="180" height="34" rx="4" fill="#fff" stroke="#1f4fbf" stroke-width="1.4"/>
+  <text x="192" y="113" font-family="DejaVu Sans Mono" font-size="8.4" fill="#1c2833">StudentDetails (base table)</text>
+
+  <path d="M270,126 L270,142" stroke="#4f8a37" stroke-width="1.5"/><path d="M266,138 L270,148 L274,138 z" fill="#4f8a37"/>
+  <text x="278" y="140" font-family="DejaVu Sans" font-size="7.6" fill="#4f8a37">the view shows the new row</text>
+
+  <rect x="180" y="148" width="180" height="26" rx="4" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="192" y="165" font-family="DejaVu Sans Mono" font-size="8.4" fill="#1c2833">SELECT * FROM DetailsView;</text>
+
+  <rect x="20" y="92" width="140" height="82" rx="3" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="30" y="110" font-family="DejaVu Sans" font-size="8.2" fill="#a0522d" font-weight="bold">DELETE is the same:</text>
+  <text x="30" y="126" font-family="DejaVu Sans" font-size="7.8" fill="#1c2833">deleting through the view</text>
+  <text x="30" y="138" font-family="DejaVu Sans" font-size="7.8" fill="#1c2833">first deletes from the actual</text>
+  <text x="30" y="150" font-family="DejaVu Sans" font-size="7.8" fill="#1c2833">table, and the change is</text>
+  <text x="30" y="162" font-family="DejaVu Sans" font-size="7.8" fill="#1c2833">then reflected in the view.</text>
+
+  <rect x="380" y="92" width="140" height="82" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="390" y="110" font-family="DejaVu Sans" font-size="8.2" fill="#4f8a37" font-weight="bold">Requirement:</text>
+  <text x="390" y="126" font-family="DejaVu Sans" font-size="7.8" fill="#1c2833">all five conditions of</text>
+  <text x="390" y="138" font-family="DejaVu Sans" font-size="7.8" fill="#1c2833">Section 30.3 must hold, or</text>
+  <text x="390" y="150" font-family="DejaVu Sans" font-size="7.8" fill="#1c2833">the write is refused.</text>
+  <text x="390" y="164" font-family="DejaVu Sans" font-size="7.8" fill="#4f8a37">Multi-table views are read-only.</text>
+</svg>
+<figcaption class="figcap"><b>Figure 30.2</b> — A write through an updatable view is redirected to the base table,
+and the view reflects the change because it re-runs its query.</figcaption>
+</figure>
+
+<h2 id="c30-6">30.6 WITH CHECK OPTION</h2>
+
+<div class="box def"><span class="tag">Definition (source)</span>
+<p>The <code>WITH CHECK OPTION</code> clause in SQL is a very useful clause for views. It is applicable to an
+updatable view. If the view is not updatable, then there is no meaning in including this clause in the CREATE
+VIEW statement.</p>
+<ul>
+<li>The <code>WITH CHECK OPTION</code> clause is used to <b>prevent the insertion of rows in the view where the
+condition in the WHERE clause in the CREATE VIEW statement is not satisfied</b>.</li>
+<li>If we have used the <code>WITH CHECK OPTION</code> clause in the CREATE VIEW statement, and if the UPDATE or
+INSERT clause does not satisfy the conditions, then they will <b>return an error</b>.</li>
+</ul>
+</div>
+
+<p>This is a genuinely useful mechanism, and its purpose is easy to state. A view's <code>WHERE</code> clause
+defines which rows belong to the view. Without <code>WITH CHECK OPTION</code>, you can insert a row through the
+view that does <em>not</em> satisfy that condition — and the row then vanishes from the view the moment it is
+inserted, because the view's query excludes it. <code>WITH CHECK OPTION</code> forbids that, turning a silent
+disappearance into an explicit error.</p>
+
+<div class="box amber"><span class="tag">Example — SampleView with WITH CHECK OPTION (source)</span>
+<p><b>Problem:</b> create a view of students whose NAME is not null, and prevent any insert that would violate
+that condition.</p>
+<pre>CREATE VIEW SampleView AS
+SELECT S_ID, NAME
+FROM   StudentDetails
+WHERE  NAME IS NOT NULL
+WITH CHECK OPTION;</pre>
+<p><b>What the view does:</b> it selects only S_ID and NAME, and only for rows where NAME is not null. The
+<code>WITH CHECK OPTION</code> means that any INSERT or UPDATE through this view must also satisfy
+<code>NAME IS NOT NULL</code>, or the statement fails.</p>
+<p><b>The statement the source shows as invalid:</b></p>
+<pre>INSERT INTO SampleView(S_ID)
+VALUES(6);</pre>
+<p><b>Why it fails:</b> this INSERT supplies only S_ID. It does not supply a NAME, and the source's note explains
+the consequence: <em>the default value of the NAME column is null.</em> So the new row would have NAME = NULL,
+which violates the view's <code>WHERE NAME IS NOT NULL</code> condition. Because the view was created
+<code>WITH CHECK OPTION</code>, the DBMS refuses the insert and returns an error.</p>
+<div class="box tip"><span class="tag">The key point to state in an exam</span>
+<p>The view <em>is</em> updatable — the source says so explicitly: “though the View is updatable but then also
+the below query for this View is not valid”. The reason the insert fails is not that the view is read-only, but
+that the new row would fall outside the view's own condition. <code>WITH CHECK OPTION</code> converts that
+situation from a silent anomaly into a refused statement.</p>
+</div>
+</div>
+
+<figure>
+<svg viewBox="0 0 540 186" width="540" height="186" role="img"
+     aria-label="WITH CHECK OPTION rejects a row that would fall outside the view condition">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">WITH CHECK OPTION — THE GUARD ON THE VIEW'S WHERE CLAUSE</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="24" y="36" width="200" height="60" rx="4" fill="#e8f1fb" stroke="#1f4fbf"/>
+  <text x="34" y="54" font-family="DejaVu Sans" font-size="8.6" fill="#1f4fbf" font-weight="bold">SampleView</text>
+  <text x="34" y="70" font-family="DejaVu Sans Mono" font-size="7.6" fill="#1c2833">WHERE NAME IS NOT NULL</text>
+  <text x="34" y="86" font-family="DejaVu Sans Mono" font-size="7.6" fill="#4f8a37">WITH CHECK OPTION</text>
+
+  <path d="M224,66 L258,66" stroke="#0e7c86" stroke-width="1.5"/><path d="M254,62 L264,66 L254,70 z" fill="#0e7c86"/>
+  <text x="196" y="57" font-family="DejaVu Sans" font-size="7.4" fill="#0e7c86">INSERT (S_ID) VALUES (6)</text>
+
+  <polygon points="374,40 486,66 374,92 262,66" fill="#fdf1ec" stroke="#b5481b" stroke-width="1.3"/>
+  <text x="290" y="62" font-family="DejaVu Sans" font-size="7.8" fill="#b5481b" font-weight="bold">Does the new row</text>
+  <text x="292" y="80" font-family="DejaVu Sans" font-size="7.8" fill="#b5481b" font-weight="bold">satisfy the WHERE?</text>
+
+  <path d="M486,66 L506,66" stroke="#b5481b" stroke-width="1.4"/><path d="M502,62 L512,66 L502,70 z" fill="#b5481b"/>
+  <rect x="380" y="98" width="146" height="34" rx="3" fill="#fdf1ec" stroke="#b5481b"/>
+  <text x="390" y="114" font-family="DejaVu Sans" font-size="8.2" fill="#b5481b" font-weight="bold">NO → ERROR</text>
+  <text x="390" y="127" font-family="DejaVu Sans" font-size="7.6" fill="#1c2833">NAME defaults to NULL</text>
+
+  <path d="M262,66 L200,66 L200,110" fill="none" stroke="#4f8a37" stroke-width="1.4"/>
+  <path d="M196,106 L200,116 L204,106 z" fill="#4f8a37"/>
+  <rect x="60" y="116" width="180" height="34" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="70" y="132" font-family="DejaVu Sans" font-size="8.2" fill="#4f8a37" font-weight="bold">YES → INSERT SUCCEEDS</text>
+  <text x="70" y="145" font-family="DejaVu Sans" font-size="7.6" fill="#1c2833">the row is visible in the view</text>
+
+  <rect x="24" y="158" width="500" height="24" rx="3" fill="#eef7f8" stroke="#0e7c86"/>
+  <text x="34" y="174" font-family="DejaVu Sans" font-size="8.2" fill="#0e7c86" font-weight="bold">WITHOUT IT:</text>
+  <text x="120" y="174" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">the row would be inserted into the base table and then immediately invisible in the view — a silent anomaly.</text>
+</svg>
+<figcaption class="figcap"><b>Figure 30.3</b> — <code>WITH CHECK OPTION</code> makes the view's WHERE clause a
+constraint on writes as well as reads.</figcaption>
+</figure>
+
+<h2 id="c30-7">30.7 Uses of a View</h2>
+
+<p>The source closes the chapter with six reasons a good database should contain views. This is a standard
+examination question, and the source's own wording is worth reproducing closely.</p>
+
+<table>
+<caption>Table 30.4 — The six uses of a view (source).</caption>
+<thead><tr><th>#</th><th>Use</th><th>The source's explanation</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><b>Restricting data access</b></td><td>Views provide an additional level of table security by restricting access to a predetermined set of rows and columns of a table.</td></tr>
+<tr><td>2</td><td><b>Hiding data complexity</b></td><td>A view can hide the complexity that exists in a multiple-table join.</td></tr>
+<tr><td>3</td><td><b>Simplifying commands for the user</b></td><td>Views allow the user to select information from multiple tables without requiring the user to actually know how to perform a join.</td></tr>
+<tr><td>4</td><td><b>Storing complex queries</b></td><td>Views can be used to store complex queries.</td></tr>
+<tr><td>5</td><td><b>Renaming columns</b></td><td>Views can also be used to rename the columns without affecting the base tables, provided the number of columns in the view matches the number of columns specified in the SELECT statement. Thus renaming helps to hide the names of the columns of the base tables.</td></tr>
+<tr><td>6</td><td><b>Multiple view facility</b></td><td>Different views can be created on the same table for different users.</td></tr>
+</tbody>
+</table>
+
+<div class="box note"><span class="tag">Explanation — the six uses fall into three groups</span>
+<p>It helps to see the pattern. Uses <b>1</b> and <b>5</b> are about <b>security and hiding</b>: restrict which
+rows and columns a user can reach, and obscure the underlying column names. Uses <b>2</b>, <b>3</b> and <b>4</b>
+are about <b>simplification</b>: put the join inside the view so the user never writes it. Use <b>6</b> is about
+<b>customisation</b>: one table, many audiences, each with their own view. If you can reproduce those three
+headings, the six individual uses follow naturally.</p>
+</div>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 30</span>
+<ul>
+<li><code>DROP VIEW view_name;</code> removes a view definition. It deletes no data, because the view stored
+none.</li>
+<li><code>CREATE OR REPLACE VIEW …</code> adds or removes fields from a view in one step, without a window in
+which the view does not exist.</li>
+<li>A view is <b>updatable</b> only if all five conditions hold: no <code>GROUP BY</code> or
+<code>ORDER BY</code>; no <code>DISTINCT</code>; all <code>NOT NULL</code> values; not created from nested or
+complex queries; and created from a <b>single table</b>.</li>
+<li><code>INSERT INTO view …</code> and <code>DELETE FROM view …</code> are redirected to the base table, and
+the change is reflected in the view.</li>
+<li><code>WITH CHECK OPTION</code> prevents an insert or update through the view that would not satisfy the
+view's <code>WHERE</code> condition; such a statement returns an error.</li>
+<li>Six uses: restricting data access, hiding data complexity, simplifying commands, storing complex queries,
+renaming columns, and the multiple-view facility.</li>
+</ul>
+</div>
+</section>
+

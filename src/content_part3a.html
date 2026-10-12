@@ -1,0 +1,469 @@
+<!-- ==================== PART 3 DIVIDER ==================== -->
+<section class="partdiv" id="part3">
+  <div class="plabel">Part 3</div>
+  <div class="prule"></div>
+  <h1>Normalization</h1>
+  <div class="psub">Redundancy and the three anomalies · 1NF to 5NF, one form at a time · before-and-after
+  tables and worked decompositions · lossless join and dependency preservation · a complete case study ·
+  denormalization</div>
+  <div class="pfoot">Source: UNIT 2, Chapters 2.1.2–2.1.6 (Normalization, 1NF, 2NF, 3NF, BCNF, 4NF, 5NF,
+  Denormalization). Every table below is the source's own example, made explicit.</div>
+</section>
+
+<!-- ==================== CHAPTER 6 ==================== -->
+<section>
+<h1 class="chap" id="c6">6. Normalization Fundamentals and First Normal Form</h1>
+<div class="chapmeta">Part 3 &nbsp;•&nbsp; why we decompose at all</div>
+<div class="chaprule"></div>
+
+<p>Before learning six normal forms, it helps to know exactly what disease they are treating. The disease is
+<b>redundancy</b>: the same fact stored in more than one place. Redundancy is not merely wasteful; it is the
+direct cause of three specific failures called <b>anomalies</b>. Normalization is the systematic removal of
+redundancy by decomposition, and each normal form removes one more kind of redundancy.</p>
+
+<h2 id="c6-1">6.1 What Normalization Is</h2>
+
+<div class="box def"><span class="tag">Definition (source)</span>
+<p><b>Normalization</b> is a process of designing a consistent database by minimising redundancy and ensuring
+data integrity through decomposition which is lossless. It is a systematic, step-by-step decomposition of
+complex records into simple records.</p>
+</div>
+
+<p>The source lists several characterisations, all of which are worth knowing because exam questions often ask
+for two or three of them.</p>
+
+<table>
+<caption>Table 6.1 — How the source describes normalization.</caption>
+<thead><tr><th>Description</th><th>What it adds</th></tr></thead>
+<tbody>
+<tr><td>A process of organizing data in the database</td><td>The general aim</td></tr>
+<tr><td>A systematic approach of decomposing tables to eliminate data redundancy</td><td>The method: decomposition</td></tr>
+<tr><td>Developed by E. F. Codd</td><td>Provenance — the relational model's inventor</td></tr>
+<tr><td>A multi-step process placing data in tabular form by removing duplicate data</td><td>The mechanism: remove duplicates</td></tr>
+<tr><td>A step-by-step decomposition of complex records into simple records</td><td>The direction: big table → small tables</td></tr>
+<tr><td>Also called Canonical Synthesis</td><td>An alternative name</td></tr>
+<tr><td>A technique of building database structures to store data</td><td>The purpose: schema design</td></tr>
+</tbody>
+</table>
+
+<h3>Features of normalization (source list)</h3>
+<ul>
+<li>It avoids data redundancy.</li>
+<li>It is a formal process of developing data structures.</li>
+<li>It promotes data integrity.</li>
+<li>It ensures data dependencies make sense — that is, data is logically stored.</li>
+<li>It eliminates undesirable characteristics.</li>
+</ul>
+
+<h3>How normalization works, in the source's words</h3>
+<p>Normalization designs the schema by modifying the existing schema, reducing both redundancy and dependency
+of the data. Unwanted duplication is removed along with the anomalies. In an insert anomaly, values such as
+NULL are forced where they should not be; in an update anomaly, data cannot be updated correctly because the
+same value occurs multiple times in a column; in a delete anomaly, deleting one record removes facts that
+belong to other records. The aim is therefore to remove redundant data and store only related data in each
+table, which decreases database size and makes the data logically stored.</p>
+
+<h2 id="c6-2">6.2 The Three Anomalies</h2>
+
+<p>The source defines the three anomalies and, crucially, the definition of each is best understood on a
+single example. Use this one table throughout the section.</p>
+
+<table class="rel">
+<caption>Table 6.2 — An unnormalized relation used to demonstrate all three anomalies. The primary key is (Stu_ID, Course).</caption>
+<thead><tr><th class="mono">Stu_ID</th><th class="mono">Stu_Name</th><th class="mono">Dept</th><th class="mono">Course</th><th class="mono">Instructor</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">101</td><td class="mono">Ananya</td><td class="mono">CSE</td><td class="mono">DBMS</td><td class="mono">Dr. Dhakar</td></tr>
+<tr><td class="mono pk">101</td><td class="mono">Ananya</td><td class="mono">CSE</td><td class="mono">OS</td><td class="mono">Dr. Verma</td></tr>
+<tr><td class="mono pk">102</td><td class="mono">Rohit</td><td class="mono">CSE</td><td class="mono">DBMS</td><td class="mono">Dr. Dhakar</td></tr>
+<tr><td class="mono pk">103</td><td class="mono">Meera</td><td class="mono">ECE</td><td class="mono">Signals</td><td class="mono">Dr. Rao</td></tr>
+</tbody>
+</table>
+
+<div class="box def"><span class="tag">The three anomalies</span>
+<p><b>Update anomaly.</b> If data items are scattered and not linked properly, updating one fact leaves
+copies elsewhere unchanged. Here “Ananya's department is CSE” appears twice; changing it in one row and not
+the other leaves the database inconsistent.</p>
+<p><b>Insertion anomaly.</b> Data cannot be inserted because some other, unrelated fact is missing. Here we
+cannot record that a new course “Networks” is taught by Dr. Nair until at least one student enrols, because
+the primary key requires a <em>Stu_ID</em> — and we cannot invent one.</p>
+<p><b>Deletion anomaly.</b> Deleting a record removes facts that belong to other records. If Meera is the only
+student taking Signals, deleting Meera also deletes the fact that Dr. Rao teaches Signals.</p>
+</div>
+
+<figure>
+<svg viewBox="0 0 540 240" width="540" height="240" role="img"
+     aria-label="The three anomalies illustrated on one unnormalized table">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">ONE REDUNDANT TABLE → THREE ANOMALIES</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="14" y="34" width="164" height="150" rx="4" fill="#fdf1ec" stroke="#b5481b"/>
+  <text x="24" y="52" font-family="DejaVu Sans" font-size="9.4" fill="#b5481b" font-weight="bold">UPDATE ANOMALY</text>
+  <text x="24" y="70" font-family="DejaVu Sans" font-size="8" fill="#1c2833">Same fact stored twice:</text>
+  <rect x="24" y="78" width="144" height="18" fill="#fff" stroke="#e0b3a6"/>
+  <text x="30" y="91" font-family="DejaVu Sans Mono" font-size="7.6" fill="#b5481b">101 Ananya CSE DBMS</text>
+  <rect x="24" y="98" width="144" height="18" fill="#fff" stroke="#e0b3a6"/>
+  <text x="30" y="111" font-family="DejaVu Sans Mono" font-size="7.6" fill="#b5481b">101 Ananya CSE OS</text>
+  <text x="24" y="134" font-family="DejaVu Sans" font-size="8" fill="#1c2833">Update one row only →</text>
+  <text x="24" y="148" font-family="DejaVu Sans" font-size="8" fill="#1c2833">the other row keeps the</text>
+  <text x="24" y="162" font-family="DejaVu Sans" font-size="8" fill="#1c2833">old value.</text>
+  <text x="24" y="178" font-family="DejaVu Sans" font-size="8" fill="#b5481b" font-weight="bold">Result: inconsistent state</text>
+
+  <rect x="188" y="34" width="164" height="150" rx="4" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="198" y="52" font-family="DejaVu Sans" font-size="9.4" fill="#a0522d" font-weight="bold">INSERTION ANOMALY</text>
+  <text x="198" y="70" font-family="DejaVu Sans" font-size="8" fill="#1c2833">Want to add:</text>
+  <rect x="198" y="78" width="144" height="18" fill="#fff" stroke="#e0cdb6"/>
+  <text x="204" y="91" font-family="DejaVu Sans Mono" font-size="7.6" fill="#a0522d">Networks — Dr. Nair</text>
+  <text x="198" y="110" font-family="DejaVu Sans" font-size="8" fill="#1c2833">But the primary key needs</text>
+  <text x="198" y="124" font-family="DejaVu Sans" font-size="8" fill="#1c2833">a Stu_ID. No student has</text>
+  <text x="198" y="138" font-family="DejaVu Sans" font-size="8" fill="#1c2833">enrolled yet.</text>
+  <text x="198" y="158" font-family="DejaVu Sans" font-size="8" fill="#a0522d" font-weight="bold">Result: cannot insert</text>
+  <text x="198" y="172" font-family="DejaVu Sans" font-size="8" fill="#a0522d">without a fake / NULL value</text>
+
+  <rect x="362" y="34" width="164" height="150" rx="4" fill="#f6f0fa" stroke="#7a3e9d"/>
+  <text x="372" y="52" font-family="DejaVu Sans" font-size="9.4" fill="#7a3e9d" font-weight="bold">DELETION ANOMALY</text>
+  <text x="372" y="70" font-family="DejaVu Sans" font-size="8" fill="#1c2833">Delete Meera (the only</text>
+  <text x="372" y="84" font-family="DejaVu Sans" font-size="8" fill="#1c2833">student taking Signals):</text>
+  <rect x="372" y="92" width="144" height="18" fill="#fff" stroke="#d3c0e0"/>
+  <text x="378" y="105" font-family="DejaVu Sans Mono" font-size="7.6" fill="#7a3e9d">103 Meera ECE Signals</text>
+  <text x="372" y="126" font-family="DejaVu Sans" font-size="8" fill="#1c2833">The row goes — and with it</text>
+  <text x="372" y="140" font-family="DejaVu Sans" font-size="8" fill="#1c2833">the fact that Dr. Rao</text>
+  <text x="372" y="154" font-family="DejaVu Sans" font-size="8" fill="#1c2833">teaches Signals.</text>
+  <text x="372" y="174" font-family="DejaVu Sans" font-size="8" fill="#7a3e9d" font-weight="bold">Result: lost information</text>
+
+  <rect x="14" y="196" width="512" height="34" rx="3" fill="#eef7f8" stroke="#0e7c86"/>
+  <text x="24" y="212" font-family="DejaVu Sans" font-size="8.4" fill="#0e7c86" font-weight="bold">ROOT CAUSE:</text>
+  <text x="98" y="212" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">three unrelated facts — student, department, and course-instructor — are packed into one relation.</text>
+  <text x="24" y="225" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">Normalization separates them so each table stores exactly one kind of fact.</text>
+</svg>
+<figcaption class="figcap"><b>Figure 6.1</b> — All three anomalies come from the same cause: unrelated facts sharing
+one table. Removing the cause removes all three symptoms.</figcaption>
+</figure>
+
+<h2 id="c6-3">6.3 The Ladder of Normal Forms</h2>
+
+<p>The source lists six normal forms in order. Each is a stricter condition than the one before it, and each
+removes one more class of redundancy.</p>
+
+<figure>
+<svg viewBox="0 0 520 240" width="520" height="240" role="img"
+     aria-label="The ladder of normal forms from 1NF to 5NF">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">THE LADDER — EACH STEP REMOVES ONE KIND OF REDUNDANCY</text>
+  <line x1="14" y1="22" x2="506" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="20" y="34" width="472" height="32" rx="3" fill="#e8f1fb" stroke="#1f4fbf"/>
+  <text x="32" y="55" font-family="DejaVu Sans" font-size="10" fill="#1f4fbf" font-weight="bold">UNF</text>
+  <text x="86" y="55" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">Unnormalized — multi-valued cells, repeating groups</text>
+
+  <rect x="20" y="72" width="472" height="32" rx="3" fill="#e8f1fb" stroke="#1f4fbf"/>
+  <text x="32" y="93" font-family="DejaVu Sans" font-size="10" fill="#1f4fbf" font-weight="bold">1NF</text>
+  <text x="86" y="93" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">Atomic values only · no repeating groups · remove multi-valued attributes</text>
+
+  <rect x="20" y="110" width="472" height="32" rx="3" fill="#eef7f8" stroke="#0e7c86"/>
+  <text x="32" y="131" font-family="DejaVu Sans" font-size="10" fill="#0e7c86" font-weight="bold">2NF</text>
+  <text x="86" y="131" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">1NF + no partial dependency of a non-prime attribute on part of a key</text>
+
+  <rect x="20" y="148" width="472" height="32" rx="3" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="32" y="169" font-family="DejaVu Sans" font-size="10" fill="#a0522d" font-weight="bold">3NF</text>
+  <text x="86" y="169" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">2NF + no transitive dependency of a non-prime attribute on a key</text>
+
+  <rect x="20" y="186" width="472" height="32" rx="3" fill="#f6f0fa" stroke="#7a3e9d"/>
+  <text x="32" y="207" font-family="DejaVu Sans" font-size="10" fill="#7a3e9d" font-weight="bold">BCNF</text>
+  <text x="86" y="207" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">3NF + every determinant of a non-trivial dependency is a super key</text>
+
+  <text x="20" y="234" font-family="DejaVu Sans" font-size="8.4" fill="#5d6d7e">Then 4NF (multivalued dependencies) and 5NF (join dependencies) — Chapters 10 and 11.</text>
+</svg>
+<figcaption class="figcap"><b>Figure 6.2</b> — The ladder. A relation that satisfies 3NF automatically satisfies
+2NF and 1NF; the forms are cumulative, not alternatives.</figcaption>
+</figure>
+
+<h2 id="c6-4">6.4 First Normal Form (1NF)</h2>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>A relation is in <b>First Normal Form</b> if every attribute contains an <b>atomic</b> value. An attribute
+of a table cannot hold multiple values; it must hold only single-valued attributes. 1NF therefore disallows
+multi-valued attributes, composite attributes, and their combinations.</p>
+</div>
+
+<p>The source gives a second, equivalent statement that is worth remembering: <em>1NF is defined in the
+definition of relations themselves — all attributes in a relation must have atomic domains, and the values in
+an atomic domain are indivisible units.</em> Each attribute must contain only a single value from its
+predefined domain.</p>
+
+<h2 id="c6-5">6.5 Worked 1NF Example</h2>
+
+<h3>Source Example 1 — the EMPLOYEE table</h3>
+<p>The source's first example is an EMPLOYEE relation that is <b>not</b> in 1NF because
+<span class="kv">EMP_PHONE</span> is multi-valued: one employee row lists several phone numbers in a single
+cell.</p>
+
+<table class="rel">
+<caption>Table 6.3 — Before: EMPLOYEE violates 1NF — EMP_PHONE holds several values in one cell.</caption>
+<thead><tr><th class="mono">Emp_ID</th><th class="mono">Emp_Name</th><th class="mono">EMP_PHONE</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">E1</td><td class="mono">Amit</td><td class="mono bad">9876543210, 9812345678</td></tr>
+<tr><td class="mono pk">E2</td><td class="mono">Bhavna</td><td class="mono bad">9900112233</td></tr>
+<tr><td class="mono pk">E3</td><td class="mono">Chirag</td><td class="mono bad">9123456780, 9000111222, 9811122233</td></tr>
+</tbody>
+</table>
+
+<p>To reach 1NF the multi-valued cell is split so that each phone number occupies its own row. The primary key
+becomes the pair <span class="kv">( Emp_ID, EMP_PHONE )</span>, because one employee may have several
+numbers.</p>
+
+<table class="rel">
+<caption>Table 6.4 — After: the same information in 1NF. Each cell is atomic; the key is now composite.</caption>
+<thead><tr><th class="mono">Emp_ID</th><th class="mono">Emp_Name</th><th class="mono">EMP_PHONE</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">E1</td><td class="mono">Amit</td><td class="mono good">9876543210</td></tr>
+<tr><td class="mono pk">E1</td><td class="mono">Amit</td><td class="mono good">9812345678</td></tr>
+<tr><td class="mono pk">E2</td><td class="mono">Bhavna</td><td class="mono good">9900112233</td></tr>
+<tr><td class="mono pk">E3</td><td class="mono">Chirag</td><td class="mono good">9123456780</td></tr>
+<tr><td class="mono pk">E3</td><td class="mono">Chirag</td><td class="mono good">9000111222</td></tr>
+<tr><td class="mono pk">E3</td><td class="mono">Chirag</td><td class="mono good">9811122233</td></tr>
+</tbody>
+</table>
+
+<div class="box note"><span class="tag">Explanation — the price of 1NF</span>
+<p>Notice what happened: the fix introduced <b>repetition</b> of Emp_ID and Emp_Name. That repetition is
+precisely what 2NF will now attack. This is the pattern of the whole ladder — each normal form removes one
+kind of redundancy, and sometimes exposes the next kind.</p>
+</div>
+
+<h3>Source Example 2 — a course-enrolment relation</h3>
+<p>The source's second example is a relation in which a single student cell or course cell holds several
+values. Rearranging it so that each attribute holds a single value from its domain converts it to 1NF, exactly
+as above. The same principle applies: <b>one cell, one value</b>.</p>
+
+<div class="box warn"><span class="tag">Common mistake</span>
+<p>Believing that 1NF is about the <em>number of columns</em>. It is not. 1NF is about the <b>contents of one
+cell</b>. A table with 200 columns is perfectly capable of being in 1NF, provided every cell holds exactly one
+indivisible value. Equally, a two-column table can violate 1NF if a cell contains a list.</p>
+</div>
+
+<div class="box tip"><span class="tag">Quick test for 1NF</span>
+<p>Ask of every column: <em>“Can this cell ever need to hold two values?”</em> A comma-separated list, a set
+of tags, an array, or a repeating group in a cell all mean the answer is yes, and the relation is not in 1NF.
+The fix is always the same: move the repeated values into their own rows.</p>
+</div>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 6</span>
+<ul>
+<li>Normalization is lossless decomposition to remove redundancy and anomalies; it was introduced by E. F. Codd
+and is also called canonical synthesis.</li>
+<li>The three anomalies are update, insertion and deletion; all three come from unrelated facts sharing one
+table.</li>
+<li><b>1NF</b> requires atomic values: no multi-valued attributes, no composite attributes, no repeating
+groups inside a cell.</li>
+<li>The ladder runs 1NF → 2NF → 3NF → BCNF → 4NF → 5NF and is cumulative.</li>
+</ul>
+</div>
+</section>
+
+<!-- ==================== CHAPTER 7 ==================== -->
+<section>
+<h1 class="chap" id="c7">7. Second Normal Form (2NF)</h1>
+<div class="chapmeta">Part 3 &nbsp;•&nbsp; removing partial dependencies</div>
+<div class="chaprule"></div>
+
+<p>2NF is the first form that depends on <em>which</em> attributes are prime. Before stating the rule, the
+source defines the two terms the rule needs.</p>
+
+<h2 id="c7-1">7.1 Prime and Non-Prime Attributes</h2>
+
+<div class="box def"><span class="tag">Definitions (source)</span>
+<p><b>Prime attribute.</b> An attribute that is part of a candidate key.</p>
+<p><b>Non-prime attribute.</b> An attribute that is not part of any candidate key.</p>
+</div>
+
+<p>The source's note in the keys chapter says the same thing in one line: <em>those attributes which appear in
+some candidate key are called prime attributes.</em> Note that a prime attribute must be part of <b>some</b>
+candidate key — not necessarily of the primary key you happened to choose.</p>
+
+<h2 id="c7-2">7.2 The 2NF Rule: Full Functional Dependency</h2>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>If we follow Second Normal Form, then <b>every non-prime attribute must be fully functionally dependent on
+the primary key</b>. That is: if X → A holds, there must be <b>no proper subset Y of X</b> for which Y → A
+also holds.</p>
+</div>
+
+<p>In the source's formulation, a table is in 2NF when two conditions are met:</p>
+<ol>
+<li>The table is in the first normal form.</li>
+<li>The primary key of the table is composed of exactly one column.</li>
+</ol>
+
+<div class="box note"><span class="tag">Explanation — the two statements are the same rule</span>
+<p>The second condition looks like a different rule, and students often wonder why a single-column key
+automatically gives 2NF. The reason is that a single-column key has <b>no proper subset</b> other than the
+empty set, so a partial dependency is impossible. Conversely, when the key has two or more columns, a
+non-prime attribute might depend on only one of them — and that is exactly the violation. So “no proper subset
+determines the attribute” and “the key is a single column” describe the same requirement from two angles.</p>
+</div>
+
+<h2 id="c7-3">7.3 Partial Dependency and How to Remove It</h2>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>A <b>partial dependency</b> exists when a non-prime attribute depends on <b>part</b> of a composite
+candidate key rather than on the whole key.</p>
+</div>
+
+<p>The source's Student_Project relation is the canonical example. Its prime key attributes are
+<span class="kv">Stu_ID</span> and <span class="kv">Proj_ID</span>. The rule says the non-key attributes
+<span class="kv">Stu_Name</span> and <span class="kv">Proj_Name</span> must depend on <b>both</b>, not on
+either individually. But <span class="kv">Stu_Name</span> can be identified by
+<span class="kv">Stu_ID</span> alone, and <span class="kv">Proj_Name</span> by
+<span class="kv">Proj_ID</span> alone. Those are partial dependencies, and 2NF forbids them.</p>
+
+<table class="rel">
+<caption>Table 7.1 — Before: Student_Project violates 2NF. Key = (Stu_ID, Proj_ID).</caption>
+<thead><tr><th class="mono">Stu_ID</th><th class="mono">Proj_ID</th><th class="mono">Stu_Name</th><th class="mono">Proj_Name</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">S1</td><td class="mono pk">P1</td><td class="mono bad">Ananya</td><td class="mono bad">Library System</td></tr>
+<tr><td class="mono pk">S1</td><td class="mono pk">P2</td><td class="mono bad">Ananya</td><td class="mono bad">Hostel Portal</td></tr>
+<tr><td class="mono pk">S2</td><td class="mono pk">P1</td><td class="mono bad">Rohit</td><td class="mono bad">Library System</td></tr>
+</tbody>
+</table>
+
+<figure>
+<svg viewBox="0 0 540 210" width="540" height="210" role="img"
+     aria-label="Partial dependency: Stu_Name depends only on Stu_ID, Proj_Name only on Proj_ID">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">PARTIAL DEPENDENCY — A NON-PRIME ATTRIBUTE DEPENDS ON PART OF THE KEY</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="150" y="34" width="240" height="30" rx="4" fill="#1f4fbf"/>
+  <text x="176" y="54" font-family="DejaVu Sans" font-size="10" fill="#fff" font-weight="bold">COMPOSITE KEY</text>
+  <text x="288" y="54" font-family="DejaVu Sans Mono" font-size="9.4" fill="#dbe6f3">(Stu_ID, Proj_ID)</text>
+
+  <rect x="40" y="86" width="120" height="28" rx="3" fill="#e8f1fb" stroke="#1f4fbf"/>
+  <text x="66" y="105" font-family="DejaVu Sans Mono" font-size="9.6" fill="#1f4fbf" font-weight="bold">Stu_ID</text>
+  <rect x="380" y="86" width="120" height="28" rx="3" fill="#e8f1fb" stroke="#1f4fbf"/>
+  <text x="404" y="105" font-family="DejaVu Sans Mono" font-size="9.6" fill="#1f4fbf" font-weight="bold">Proj_ID</text>
+
+  <path d="M100,86 L100,72 L200,72" fill="none" stroke="#0e7c86" stroke-width="1.2" stroke-dasharray="3 2"/>
+  <path d="M440,86 L440,72 L340,72" fill="none" stroke="#0e7c86" stroke-width="1.2" stroke-dasharray="3 2"/>
+
+  <path d="M100,114 L100,140 L180,140" fill="none" stroke="#b5481b" stroke-width="1.7"/>
+  <path d="M176,135 L188,140 L176,145 z" fill="#b5481b"/>
+  <rect x="188" y="126" width="120" height="28" rx="3" fill="#fdf1ec" stroke="#b5481b"/>
+  <text x="204" y="145" font-family="DejaVu Sans Mono" font-size="9.6" fill="#b5481b" font-weight="bold">Stu_Name</text>
+
+  <path d="M440,114 L440,140 L380,140" fill="none" stroke="#b5481b" stroke-width="1.7"/>
+  <path d="M384,135 L372,140 L384,145 z" fill="#b5481b"/>
+  <rect x="252" y="126" width="120" height="28" rx="3" fill="#fdf1ec" stroke="#b5481b"/>
+  <text x="268" y="145" font-family="DejaVu Sans Mono" font-size="9.6" fill="#b5481b" font-weight="bold">Proj_Name</text>
+
+  <text x="24" y="180" font-family="DejaVu Sans" font-size="8.4" fill="#b5481b" font-weight="bold">VIOLATION:</text>
+  <text x="94" y="180" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">Stu_ID → Stu_Name uses only half the key.</text>
+  <text x="94" y="194" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">Proj_ID → Proj_Name uses the other half. Neither needs the whole key.</text>
+  <text x="24" y="206" font-family="DejaVu Sans" font-size="8.4" fill="#4f8a37" font-weight="bold">FIX:</text>
+  <text x="60" y="206" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">split so that each dependency lives in a table whose whole key it uses.</text>
+</svg>
+<figcaption class="figcap"><b>Figure 7.1</b> — A partial dependency: each non-prime attribute uses only one half of the
+composite key. 2NF removes it by splitting along the dependency lines.</figcaption>
+</figure>
+
+<p>Decomposing along those lines gives two relations, and neither contains a partial dependency:</p>
+
+<table class="rel">
+<caption>Table 7.2 — After (relation 1): Stu_ID → Stu_Name, key Stu_ID.</caption>
+<thead><tr><th class="mono">Stu_ID</th><th class="mono">Stu_Name</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">S1</td><td class="mono good">Ananya</td></tr>
+<tr><td class="mono pk">S2</td><td class="mono good">Rohit</td></tr>
+</tbody>
+</table>
+
+<table class="rel">
+<caption>Table 7.3 — After (relation 2): Proj_ID → Proj_Name, key Proj_ID.</caption>
+<thead><tr><th class="mono">Proj_ID</th><th class="mono">Proj_Name</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">P1</td><td class="mono good">Library System</td></tr>
+<tr><td class="mono pk">P2</td><td class="mono good">Hostel Portal</td></tr>
+</tbody>
+</table>
+
+<div class="box warn"><span class="tag">Important — do not lose the relationship</span>
+<p>The two tables above remove the redundancy, but they also remove the fact that S1 <em>works on</em> P1. In a
+real schema you keep a third, junction relation <span class="kv">Works_On ( Stu_ID, Proj_ID )</span> whose
+whole composite key represents that many-to-many relationship. The source's slide shows only the two
+projections because it is illustrating the dependency, not designing the final schema. Chapter 13 builds the
+complete schema properly.</p>
+</div>
+
+<h2 id="c7-4">7.4 Worked 2NF Example</h2>
+
+<h3>The source's enrolment table</h3>
+<p>The source's second example is a student-enrolment table. Its first column is the student name, its second
+the course code.</p>
+
+<table class="rel">
+<caption>Table 7.4 — Before: enrolment is not in 2NF.</caption>
+<thead><tr><th class="mono">Student Name</th><th class="mono">Course Code</th></tr></thead>
+<tbody>
+<tr><td class="mono bad">Rahul</td><td class="mono">CS101</td></tr>
+<tr><td class="mono">Priya</td><td class="mono bad">CS101</td></tr>
+<tr><td class="mono bad">Rahul</td><td class="mono">MA201</td></tr>
+<tr><td class="mono">Sana</td><td class="mono bad">CS101</td></tr>
+</tbody>
+</table>
+
+<p>Neither column is unique — “Rahul” appears in rows 1 and 3, “CS101” appears in rows 2 and 4 — but the pair
+<span class="kv">( Student Name, Course Code )</span> is unique, because a student cannot enrol in the same
+course more than once. So the pair is the primary key.</p>
+
+<p>As per the 2NF definition this table is <b>not</b> in 2NF. In this particular table both columns are prime,
+so there is no non-prime attribute to violate the rule literally; the source's real point is the structural
+one: a two-column key is a table in which partial dependencies <em>can</em> arise, and the standard treatment
+is to separate the entity from the relationship. The source does exactly that, by introducing an enrolment
+number as a single-column key.</p>
+
+<table class="rel">
+<caption>Table 7.5 — After (step 1): an enrolment number becomes a single-column key.</caption>
+<thead><tr><th class="mono">Enrolment No</th><th class="mono">Student Name</th><th class="mono">Course Code</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">1</td><td class="mono">Rahul</td><td class="mono">CS101</td></tr>
+<tr><td class="mono pk">2</td><td class="mono">Priya</td><td class="mono">CS101</td></tr>
+<tr><td class="mono pk">3</td><td class="mono">Rahul</td><td class="mono">MA201</td></tr>
+<tr><td class="mono pk">4</td><td class="mono">Sana</td><td class="mono">CS101</td></tr>
+</tbody>
+</table>
+
+<table class="rel">
+<caption>Table 7.6 — After (step 2): the courses are held separately, so each course fact is stored once.</caption>
+<thead><tr><th class="mono">Course Code</th><th class="mono">Course Name</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">CS101</td><td class="mono good">Programming Fundamentals</td></tr>
+<tr><td class="mono pk">MA201</td><td class="mono good">Discrete Mathematics</td></tr>
+</tbody>
+</table>
+
+<p>The source's closing remark is exactly right: <em>these two tables together provide the exact same
+information as the original table.</em> That is the definition of a lossless decomposition, formalised in
+Chapter 12.</p>
+
+<div class="box note"><span class="tag">Explanation — the shape of a 2NF fix</span>
+<p>Every 2NF decomposition has the same shape. You identify a composite key; you notice that some non-prime
+attribute depends on only one part of it; you move that attribute into a new table whose key is that one part.
+The junction table keeps only the two key parts, and it is what preserves the original many-to-many fact.</p>
+</div>
+
+<div class="box tip"><span class="tag">Quick test for 2NF</span>
+<p>Look at the primary key. If it has <b>one</b> column, the relation is automatically in 2NF (given 1NF). If
+it has two or more columns, check every non-prime attribute: does it need the <em>whole</em> key, or would one
+part of the key do? If one part would do, the relation is not in 2NF.</p>
+</div>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 7</span>
+<ul>
+<li>A <b>prime attribute</b> belongs to some candidate key; a <b>non-prime attribute</b> belongs to none.</li>
+<li><b>2NF</b> requires 1NF plus the rule that every non-prime attribute is fully functionally dependent on
+the key — no proper subset of the key determines it.</li>
+<li>A <b>partial dependency</b> is a non-prime attribute depending on part of a composite key.</li>
+<li>The fix is to split the relation so each non-prime attribute sits with the smallest key that determines
+it, keeping a junction relation to preserve the original relationship.</li>
+</ul>
+</div>
+</section>
