@@ -1,0 +1,1098 @@
+<!-- ==================== PART 4 DIVIDER ==================== -->
+<section class="partdiv" id="part4">
+  <div class="plabel">Part 4</div>
+  <div class="prule"></div>
+  <h1>Database Security</h1>
+  <div class="psub">Confidentiality, integrity and availability · threats and their consequences ·
+  security levels from physical to network · encryption and key management · authentication and the three
+  access-control models · the six control measures · the DBA's role</div>
+  <div class="pfoot">Source: UNIT 2 database-security slides — “Database Security: Introduction, Threats,
+  Counter Measures”, including the access-control models, the authentication/authorization comparison and the
+  DBA slides.</div>
+</section>
+
+<!-- ==================== CHAPTER 15 ==================== -->
+<section>
+<h1 class="chap" id="c15">15. Database Security: Meaning, Importance and Scope</h1>
+<div class="chapmeta">Part 4 &nbsp;•&nbsp; what is being protected, and why it is hard</div>
+<div class="chaprule"></div>
+
+<p>The source defines database security in a single line and then spends several slides unpacking what that
+line implies. The unpacking is the interesting part: security is not one control but a stack of controls
+spanning six levels, and the threats it faces are correspondingly varied.</p>
+
+<h2 id="c15-1">15.1 Definition</h2>
+
+<div class="box def"><span class="tag">Definition (source)</span>
+<p><b>Database security</b> is protection from malicious attempts to steal (view) or modify data.</p>
+<p>More fully: <em>security of databases refers to the array of controls, tools, and procedures designed to
+ensure and safeguard confidentiality, integrity, and accessibility.</em></p>
+</div>
+
+<p>The source also gives the operational framing that exam answers usually want: database security ensures that
+sensitive and critical data stored in a database is secure from unauthorized access, misuse, or corruption, and
+the security measures include <b>access controls, encryption, authentication, and auditing</b>
+mechanisms.</p>
+
+<h2 id="c15-2">15.2 The Five Things Security Must Protect</h2>
+
+<p>The source lists five aspects that database security must cover. They are worth learning as a list, because a
+“discuss the scope of database security” question is answered by naming them and giving an example of each.</p>
+
+<figure>
+<svg viewBox="0 0 540 216" width="540" height="216" role="img"
+     aria-label="The five layers that database security must protect">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">THE SCOPE OF DATABASE SECURITY — FIVE LAYERS, OUTERMOST FIRST</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="40" y="32" width="460" height="32" rx="3" fill="#eef7f8" stroke="#0e7c86"/>
+  <text x="52" y="52" font-family="DejaVu Sans" font-size="9" fill="#0e7c86" font-weight="bold">1 · COMPUTING / NETWORK INFRASTRUCTURE</text>
+  <text x="330" y="52" font-family="DejaVu Sans" font-size="8" fill="#1c2833">the path used to reach the database</text>
+
+  <rect x="60" y="70" width="420" height="32" rx="3" fill="#e8f1fb" stroke="#1f4fbf"/>
+  <text x="72" y="90" font-family="DejaVu Sans" font-size="9" fill="#1f4fbf" font-weight="bold">2 · PHYSICAL / VIRTUAL SERVER AND ITS HARDWARE</text>
+  <text x="392" y="90" font-family="DejaVu Sans" font-size="8" fill="#1c2833">the machine</text>
+
+  <rect x="80" y="108" width="380" height="32" rx="3" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="92" y="128" font-family="DejaVu Sans" font-size="9" fill="#a0522d" font-weight="bold">3 · APPLICATIONS ASSOCIATED WITH THE DATABASE</text>
+  <text x="368" y="128" font-family="DejaVu Sans" font-size="8" fill="#1c2833">the programs</text>
+
+  <rect x="100" y="146" width="340" height="32" rx="3" fill="#f6f0fa" stroke="#7a3e9d"/>
+  <text x="112" y="166" font-family="DejaVu Sans" font-size="9" fill="#7a3e9d" font-weight="bold">4 · THE DATABASE MANAGEMENT SYSTEM (DBMS)</text>
+  <text x="380" y="166" font-family="DejaVu Sans" font-size="8" fill="#1c2833">the software</text>
+
+  <rect x="120" y="184" width="300" height="28" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="132" y="202" font-family="DejaVu Sans" font-size="9" fill="#4f8a37" font-weight="bold">5 · THE DATABASE CONTAINING THE DATA</text>
+  <text x="344" y="202" font-family="DejaVu Sans" font-size="8" fill="#1c2833">the asset</text>
+</svg>
+<figcaption class="figcap"><b>Figure 15.1</b> — Security must be applied at every layer, not only at the database
+itself. A weakness in any outer layer exposes the innermost one.</figcaption>
+</figure>
+
+<table>
+<caption>Table 15.1 — The five aspects the source says database security must safeguard.</caption>
+<thead><tr><th>#</th><th>Aspect (source wording)</th><th>A failure looks like</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>The database containing data</td><td>Data files copied or altered</td></tr>
+<tr><td>2</td><td>Database management systems (DBMS)</td><td>Privilege escalation through the DBMS</td></tr>
+<tr><td>3</td><td>Any applications associated with it</td><td>SQL injection through an application form</td></tr>
+<tr><td>4</td><td>Physical database servers or the database server virtual, and the hardware that runs it</td><td>Disk stolen; server physically accessed</td></tr>
+<tr><td>5</td><td>The infrastructure for computing or network used to connect to the database</td><td>Traffic intercepted in transit</td></tr>
+</tbody>
+</table>
+
+<h2 id="c15-3">15.3 The Usability Paradox</h2>
+
+<p>The source makes an observation that is worth quoting in any answer about the difficulty of the subject,
+because it explains why security is a design problem rather than a checklist:</p>
+
+<div class="box note"><span class="tag">The source's observation</span>
+<p>“Security of databases is a complicated and challenging task that requires all aspects of security practices
+and technologies. This is inherently at odds with the accessibility of databases. The more usable and
+accessible the database is, the more susceptible we are to threats from security. The more vulnerable it is to
+attacks and threats, the more difficult it is to access and utilize.”</p>
+</div>
+
+<p>This is a genuine trade-off, not a rhetorical flourish. Every control that blocks an attacker also blocks
+some legitimate work: stricter authentication slows logins, encryption costs processor time, and least-privilege
+grants force more administration. Security design is the art of choosing where on that spectrum a given system
+should sit.</p>
+
+<h2 id="c15-4">15.4 Why Database Security Matters</h2>
+
+<p>The source gives four consequences of a breach. They are worth learning as a list because they are the
+“importance of database security” answer.</p>
+
+<table>
+<caption>Table 15.2 — The four consequences of a breach (source).</caption>
+<thead><tr><th>Consequence</th><th>The source's explanation</th></tr></thead>
+<tbody>
+<tr><td>Loss of intellectual property</td><td>Trade secrets, inventions or proprietary methods could be vital to maintaining an industry advantage. If they are stolen or disclosed and the competitive advantage is lost, it may be difficult to recover.</td></tr>
+<tr><td>Damage to brand reputation</td><td>Customers or partners may not want to buy goods or services from a company they do not trust to protect their data.</td></tr>
+<tr><td>Loss of business continuity</td><td>Some businesses cannot continue to function until a breach has been resolved.</td></tr>
+<tr><td>Cost of repair and notification</td><td>Beyond notifying customers, the breached company must cover investigation and forensic services such as crisis management and triage repairs to affected systems.</td></tr>
+</tbody>
+</table>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 15</span>
+<ul>
+<li>Database security is protection from malicious attempts to steal or modify data; formally it is the array
+of controls, tools and procedures safeguarding <b>confidentiality, integrity and accessibility</b>.</li>
+<li>It must cover five layers: the data, the DBMS, the applications, the physical/virtual server and its
+hardware, and the computing/network infrastructure.</li>
+<li>Security is inherently at odds with accessibility — the trade-off is the central design tension.</li>
+<li>A breach costs intellectual property, reputation, business continuity and repair/notification expense.</li>
+</ul>
+</div>
+</section>
+
+<!-- ==================== CHAPTER 16 ==================== -->
+<section>
+<h1 class="chap" id="c16">16. Threats and the CIA Triad</h1>
+<div class="chapmeta">Part 4 &nbsp;•&nbsp; what can go wrong, and how it is classified</div>
+<div class="chaprule"></div>
+
+<p>Having established what security protects, the source turns to what threatens it. Its treatment is organised
+around the three properties security is meant to preserve, and around a concrete list of threat examples.</p>
+
+<h2 id="c16-1">16.1 What a Threat Is</h2>
+
+<div class="box def"><span class="tag">Definition (source)</span>
+<p>A <b>threat</b> is any intentional or accidental event that may adversely affect the system.</p>
+</div>
+
+<p>Two words in that definition carry weight. <b>Intentional</b> covers an attacker using another person's login
+or a hacker entering illegally. <b>Accidental</b> covers a careless administrator deleting a critical file or a
+user mistyping a destructive statement. Security that addresses only attackers leaves half the risk untouched —
+and the source's physical-level discussion (Section 17.3) explicitly names administrator error as a threat.</p>
+
+<h3>Examples of threats (source list)</h3>
+<ul>
+<li>Using another person's log-in name to access data</li>
+<li>Unauthorized copying of data</li>
+<li>Program or data alteration</li>
+<li>Illegal entry by a hacker</li>
+<li>Viruses</li>
+</ul>
+
+<h2 id="c16-2">16.2 Loss of Integrity, Availability and Confidentiality</h2>
+
+<p>The source's “Threats to databases” material is built around three losses, which together form what is
+usually called the <b>CIA triad</b> (Confidentiality, Integrity, Availability). Learn each definition exactly as
+the source gives it, because the wording carries the distinctions.</p>
+
+<figure>
+<svg viewBox="0 0 540 200" width="540" height="200" role="img"
+     aria-label="The CIA triad with the threat that causes each loss">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">THE THREE LOSSES — AND WHAT EACH ONE MEANS</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="20" y="34" width="160" height="120" rx="4" fill="#e8f1fb" stroke="#1f4fbf"/>
+  <text x="30" y="52" font-family="DejaVu Sans" font-size="10" fill="#1f4fbf" font-weight="bold">CONFIDENTIALITY</text>
+  <text x="30" y="70" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">Protection of data from</text>
+  <text x="30" y="83" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">unauthorized <b>disclosure</b>.</text>
+  <text x="30" y="102" font-family="DejaVu Sans" font-size="7.8" fill="#b5481b">Broken by: reading data you</text>
+  <text x="30" y="114" font-family="DejaVu Sans" font-size="7.8" fill="#b5481b">should not see</text>
+  <text x="30" y="134" font-family="DejaVu Sans" font-size="7.8" fill="#4f8a37">Restored by: access control,</text>
+  <text x="30" y="146" font-family="DejaVu Sans" font-size="7.8" fill="#4f8a37">encryption, inference control</text>
+
+  <rect x="190" y="34" width="160" height="120" rx="4" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="200" y="52" font-family="DejaVu Sans" font-size="10" fill="#a0522d" font-weight="bold">INTEGRITY</text>
+  <text x="200" y="70" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">Protection from improper</text>
+  <text x="200" y="83" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833"><b>modification</b> — creation,</text>
+  <text x="200" y="96" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">insertion, update, deletion.</text>
+  <text x="200" y="114" font-family="DejaVu Sans" font-size="7.8" fill="#b5481b">Broken by: any unauthorized</text>
+  <text x="200" y="126" font-family="DejaVu Sans" font-size="7.8" fill="#b5481b">change, intentional or not</text>
+  <text x="200" y="144" font-family="DejaVu Sans" font-size="7.8" fill="#4f8a37">Restored by: constraints,</text>
+  <text x="200" y="152" font-family="DejaVu Sans" font-size="7.8" fill="#4f8a37">flow control, auditing</text>
+
+  <rect x="360" y="34" width="160" height="120" rx="4" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="370" y="52" font-family="DejaVu Sans" font-size="10" fill="#4f8a37" font-weight="bold">AVAILABILITY</text>
+  <text x="370" y="70" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">Making objects available to</text>
+  <text x="370" y="83" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">a user or program that has</text>
+  <text x="370" y="96" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">a <b>legitimate right</b> to them.</text>
+  <text x="370" y="114" font-family="DejaVu Sans" font-size="7.8" fill="#b5481b">Broken by: denial of service,</text>
+  <text x="370" y="126" font-family="DejaVu Sans" font-size="7.8" fill="#b5481b">hardware failure, disaster</text>
+  <text x="370" y="144" font-family="DejaVu Sans" font-size="7.8" fill="#4f8a37">Restored by: backup,</text>
+  <text x="370" y="152" font-family="DejaVu Sans" font-size="7.8" fill="#4f8a37">replication, recovery</text>
+
+  <text x="20" y="178" font-family="DejaVu Sans" font-size="8.4" fill="#5d6d7e">Note the tension: confidentiality pushes toward restricting access, availability pushes toward permitting it. A secure system balances both.</text>
+  <text x="20" y="192" font-family="DejaVu Sans" font-size="8.4" fill="#5d6d7e">The source defines all three losses separately, and exam answers should too.</text>
+</svg>
+<figcaption class="figcap"><b>Figure 16.1</b> — The three losses the source names, with the type of attack that
+causes each and the class of control that addresses it.</figcaption>
+</figure>
+
+<div class="box def"><span class="tag">The three losses, in the source's words</span>
+<p><b>Loss of integrity.</b> Database integrity refers to the requirement that information be protected from
+improper modification. Modification of data includes creation, insertion, updating, changing the status of data,
+and deletion. Integrity is lost if unauthorized changes are made to the data by either intentional or accidental
+acts. If the loss of system or data integrity is not corrected, continued use of the contaminated system or
+corrupted data could result in <em>inaccuracy, fraud, or erroneous decisions</em>.</p>
+<p><b>Loss of availability.</b> Database availability refers to making objects available to a human user or a
+program to which they have a legitimate right.</p>
+<p><b>Loss of confidentiality.</b> Database confidentiality refers to the protection of data from unauthorized
+disclosure. The impact of unauthorized disclosure of confidential information can range from violation of the
+Data Privacy Act to the jeopardization of national security. Unauthorized, unanticipated, or unintentional
+disclosure could result in loss of public confidence, embarrassment, or legal action against the
+organization.</p>
+</div>
+
+<div class="box warn"><span class="tag">Common mistake</span>
+<p>Treating availability as the least important of the three. The source defines it as a full member of the
+triad, and the reason is practical: a database that is correct and secret but unreachable has failed its users
+just as completely as one that has been corrupted. Note also that the source's definition is deliberately
+qualified — availability is owed to those with a <em>legitimate right</em>, not to everyone.</p>
+</div>
+
+<h2 id="c16-3">16.3 Threat Categories</h2>
+
+<p>Threats can be grouped by the layer at which they act. The table below collects the source's examples and
+places each against the triad property it most directly threatens.</p>
+
+<table>
+<caption>Table 16.1 — Threats grouped by the property they endanger.</caption>
+<thead><tr><th>Threat</th><th>Layer</th><th>Primarily threatens</th></tr></thead>
+<tbody>
+<tr><td>Using another person's log-in name</td><td>Human / application</td><td>Confidentiality, integrity</td></tr>
+<tr><td>Unauthorized copying of data</td><td>Human / network</td><td>Confidentiality</td></tr>
+<tr><td>Program or data alteration</td><td>Application / database</td><td>Integrity</td></tr>
+<tr><td>Illegal entry by a hacker</td><td>Network / operating system</td><td>All three</td></tr>
+<tr><td>Viruses</td><td>Operating system</td><td>Availability, integrity</td></tr>
+<tr><td>Administrator error (e.g. deleting critical files)</td><td>Physical / operating system</td><td>Availability</td></tr>
+<tr><td>Eavesdropping</td><td>Network</td><td>Confidentiality</td></tr>
+<tr><td>Masquerading</td><td>Network</td><td>Confidentiality, integrity</td></tr>
+<tr><td>Person-in-the-middle attack</td><td>Network</td><td>Confidentiality, integrity</td></tr>
+</tbody>
+</table>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 16</span>
+<ul>
+<li>A <b>threat</b> is any intentional or accidental event that may adversely affect the system.</li>
+<li>The three losses are <b>integrity</b> (improper modification), <b>availability</b> (objects withheld from
+legitimate users) and <b>confidentiality</b> (unauthorized disclosure).</li>
+<li>Each loss has a characteristic class of control: integrity → constraints and auditing; availability →
+backup and recovery; confidentiality → access control and encryption.</li>
+<li>Threats act at different layers, so controls must too.</li>
+</ul>
+</div>
+</section>
+
+<!-- ==================== CHAPTER 17 ==================== -->
+<section>
+<h1 class="chap" id="c17">17. Levels of Data Security, Physical and OS Security</h1>
+<div class="chapmeta">Part 4 &nbsp;•&nbsp; where a security function should be enforced</div>
+<div class="chaprule"></div>
+
+<p>One of the source's most useful ideas is that security is not a single mechanism applied at a single place.
+It is a set of decisions about <em>which level</em> should handle <em>which function</em>. This chapter sets out
+the levels and then examines the two outermost ones in detail.</p>
+
+<h2 id="c17-1">17.1 Types of Security Issues</h2>
+
+<p>The source frames database security as “a broad area that addresses many issues”, and lists four kinds. They
+are worth knowing because they show that security is partly legal and organisational, not purely technical.</p>
+
+<table>
+<caption>Table 17.1 — The four kinds of security issue (source).</caption>
+<thead><tr><th>Kind of issue</th><th>The source's description</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td>Legal and ethical</td><td>Various legal and ethical issues regarding the right to access certain information</td><td>Some information is deemed private and cannot be accessed legally by unauthorized organizations or persons</td></tr>
+<tr><td>Policy</td><td>Policy issues at governmental, institutional or corporate level about what information should not be publicly available</td><td>Credit ratings and personal medical records</td></tr>
+<tr><td>System-related</td><td>The system levels at which security functions should be enforced</td><td>Should a function be handled at the physical hardware level, the operating system level, or the DBMS level?</td></tr>
+<tr><td>Multiple security levels</td><td>The need in some organizations to identify multiple security levels and categorize data and users by them</td><td>Top secret, secret, confidential, and unclassified</td></tr>
+</tbody>
+</table>
+
+<h2 id="c17-2">17.2 The Six Levels of Data Security</h2>
+
+<p>The source lists six levels, from the human being at the top down to the physical hardware at the bottom.
+The ordering is deliberate: the highest level is the least controllable.</p>
+
+<figure>
+<svg viewBox="0 0 540 226" width="540" height="226" role="img"
+     aria-label="The six levels of data security from human down to physical">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">LEVELS OF DATA SECURITY — FROM THE HUMAN DOWN TO THE PHYSICAL</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="30" y="32" width="480" height="28" rx="3" fill="#f6f0fa" stroke="#7a3e9d"/>
+  <text x="42" y="50" font-family="DejaVu Sans" font-size="9" fill="#7a3e9d" font-weight="bold">1 · HUMAN LEVEL</text>
+  <text x="180" y="50" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">corrupt or careless user — hardest to control</text>
+
+  <rect x="46" y="66" width="448" height="28" rx="3" fill="#eef7f8" stroke="#0e7c86"/>
+  <text x="58" y="84" font-family="DejaVu Sans" font-size="9" fill="#0e7c86" font-weight="bold">2 · NETWORK / USER INTERFACE</text>
+  <text x="262" y="84" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">eavesdropping, masquerading</text>
+
+  <rect x="62" y="100" width="416" height="28" rx="3" fill="#e8f1fb" stroke="#1f4fbf"/>
+  <text x="74" y="118" font-family="DejaVu Sans" font-size="9" fill="#1f4fbf" font-weight="bold">3 · DATABASE APPLICATION PROGRAM</text>
+  <text x="298" y="118" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">authentication, authorization</text>
+
+  <rect x="78" y="134" width="384" height="28" rx="3" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="90" y="152" font-family="DejaVu Sans" font-size="9" fill="#a0522d" font-weight="bold">4 · DATABASE SYSTEM</text>
+  <text x="262" y="152" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">access control, inference control</text>
+
+  <rect x="94" y="168" width="352" height="28" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="106" y="186" font-family="DejaVu Sans" font-size="9" fill="#4f8a37" font-weight="bold">5 · OPERATING SYSTEM</text>
+  <text x="262" y="186" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">protection from virus / worm attacks</text>
+
+  <rect x="110" y="196" width="320" height="26" rx="3" fill="#fdf1ec" stroke="#b5481b"/>
+  <text x="122" y="213" font-family="DejaVu Sans" font-size="9" fill="#b5481b" font-weight="bold">6 · PHYSICAL LEVEL</text>
+  <text x="262" y="213" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">lock and key, fire, flood, admin error</text>
+</svg>
+<figcaption class="figcap"><b>Figure 17.1</b> — The six levels of data security named by the source. A defensible
+system applies controls at all six.</figcaption>
+</figure>
+
+<h2 id="c17-3">17.3 Physical-Level Security</h2>
+
+<p>The source treats the physical level under the heading “Physical/OS Security” and gives both the threats and
+a concrete remedy.</p>
+
+<table>
+<caption>Table 17.2 — Physical-level security: threats and remedies (source).</caption>
+<thead><tr><th>Concern</th><th>Source's point</th></tr></thead>
+<tbody>
+<tr><td>Traditional protection</td><td>Lock-and-key security</td></tr>
+<tr><td>Protection from disaster</td><td>Protection from floods, fire, etc. — the source cites the World Trade Center attack of 9/11, fires at IITM, and a WWW conference website as examples of physical disasters that destroyed data.</td></tr>
+<tr><td>Protection from administrator error</td><td>For example, deleting critical files</td></tr>
+<tr><td>Solution</td><td><b>Remote backup for disaster recovery</b>, plus <b>archival backup</b> (for example DVDs or tapes)</td></tr>
+</tbody>
+</table>
+
+<div class="box note"><span class="tag">Explanation — why the remedy is backup</span>
+<p>Physical threats cannot be prevented by clever software: a fire does not care how strong your password is.
+For threats that cannot be prevented, the only workable strategy is to make the loss recoverable. That is why
+the source's answer at this level is not a control but a <em>copy</em> — remote backup for fast recovery, and
+archival backup for a durable record.</p>
+</div>
+
+<h2 id="c17-4">17.4 Operating-System-Level Security</h2>
+
+<p>The source's statement here is short and blunt: at the operating-system level, <em>protection from virus and
+worm attacks is critical</em>. The reasoning is straightforward once the six-level model is in view. The DBMS
+runs on top of the operating system, so an attacker who controls the OS can read the database files directly,
+bypassing every DBMS control. Operating-system security is therefore not optional plumbing; it is the
+foundation the DBMS's own controls stand on.</p>
+
+<div class="box tip"><span class="tag">A useful way to remember the levels</span>
+<p>Ask of any proposed control: <em>which level does it live at, and what does it assume about the levels
+below?</em> Application-level authentication assumes the OS is not compromised. DBMS access control assumes the
+files are not readable directly. Physical locks assume nothing at all, which is why they are the last line.</p>
+</div>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 17</span>
+<ul>
+<li>Security issues are legal/ethical, policy, system-related, and multi-level classification problems.</li>
+<li>The six levels of data security are: human, network/user interface, database application program, database
+system, operating system, and physical.</li>
+<li><b>Physical security</b> covers lock-and-key, disaster protection and administrator error; the remedy is
+remote backup plus archival backup.</li>
+<li><b>OS-level security</b> is critical for protection from virus and worm attacks, because the DBMS depends
+on the OS.</li>
+</ul>
+</div>
+</section>
+
+<!-- ==================== CHAPTER 18 ==================== -->
+<section>
+<h1 class="chap" id="c18">18. Encryption and Key Management</h1>
+<div class="chapmeta">Part 4 &nbsp;•&nbsp; protecting data when the storage medium itself is lost</div>
+<div class="chaprule"></div>
+
+<p>The source's encryption material is short but asks a good question that motivates the whole technique. It is
+worth following the question rather than merely listing the answer.</p>
+
+<h2 id="c18-1">18.1 Why Encrypt</h2>
+
+<p>The source's motivating scenario: <em>what if a laptop, disk or USB key with critical data is lost?</em></p>
+
+<p>Notice why this scenario defeats the controls discussed so far. Access control and authentication protect
+data while the DBMS is running and reachable. But a lost disk is not a running database — it is a physical
+object in a stranger's hands. No password prompt stands between the finder and the bytes. The only control that
+helps is one that makes the bytes meaningless without a secret.</p>
+
+<h2 id="c18-2">18.2 Storage-Level Encryption and Key Management</h2>
+
+<div class="box def"><span class="tag">The source's approach</span>
+<p><b>Partial solution:</b> encrypt the database at storage level, transparent to the application.</p>
+<p><b>Main issue:</b> key management.</p>
+<p><b>Common practice:</b> the user provides a decryption key (password) when the database is started up. This
+is supported by many database systems.</p>
+</div>
+
+<p>The phrase <b>“transparent to the application”</b> is the design goal. The application continues to issue
+ordinary SQL; the DBMS encrypts on write and decrypts on read. This means no application change is needed — but
+it also means the encryption cannot protect against an attacker who is already inside the running database with
+valid credentials, because at that point the DBMS is decrypting for them.</p>
+
+<div class="box note"><span class="tag">Explanation — why key management is the hard part</span>
+<p>Encryption itself is a solved problem; keeping the key safe is not. The source names key management as the
+main issue for three connected reasons:</p>
+<ul>
+<li>The key must be available when the database starts, so it cannot simply be stored beside the data — a lost
+disk would then carry its own key.</li>
+<li>If the key is supplied by a person as a password at startup, the system is only as secure as that person and
+that password (see Section 20.2).</li>
+<li>If the key is lost, the data is <em>permanently</em> unreadable. Encryption converts a confidentiality risk
+into an availability risk, which is exactly the tension described in Figure 16.1.</li>
+</ul>
+</div>
+
+<figure>
+<svg viewBox="0 0 540 196" width="540" height="196" role="img"
+     aria-label="Encryption protects data at rest; the key management problem">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">WHAT ENCRYPTION PROTECTS — AND WHAT IT DOES NOT</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="20" y="34" width="240" height="96" rx="4" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="30" y="52" font-family="DejaVu Sans" font-size="9" fill="#4f8a37" font-weight="bold">PROTECTED — DATA AT REST</text>
+  <text x="30" y="70" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">A laptop, disk or USB key is lost.</text>
+  <text x="30" y="86" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">No DBMS is running, so no access</text>
+  <text x="30" y="99" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">control applies. The finder holds the</text>
+  <text x="30" y="112" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">bytes — but they are ciphertext.</text>
+
+  <rect x="280" y="34" width="240" height="96" rx="4" fill="#fdf1ec" stroke="#b5481b"/>
+  <text x="290" y="52" font-family="DejaVu Sans" font-size="9" fill="#b5481b" font-weight="bold">NOT PROTECTED</text>
+  <text x="290" y="70" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">• an attacker logged in with valid</text>
+  <text x="298" y="83" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">credentials — the DBMS decrypts</text>
+  <text x="298" y="96" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">for them</text>
+  <text x="290" y="112" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">• a user reading data they are</text>
+  <text x="298" y="125" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">authorized to read</text>
+
+  <rect x="20" y="140" width="500" height="48" rx="4" fill="#f6f0fa" stroke="#7a3e9d"/>
+  <text x="30" y="158" font-family="DejaVu Sans" font-size="8.8" fill="#7a3e9d" font-weight="bold">THE KEY-MANAGEMENT PROBLEM:</text>
+  <text x="230" y="158" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">the key must be available at startup, so it cannot be stored</text>
+  <text x="30" y="172" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">with the data — a lost disk would carry its own key. Common practice: the user supplies the decryption key (password) when the database is started up.</text>
+  <text x="30" y="184" font-family="DejaVu Sans" font-size="8.2" fill="#b5481b">If the key is lost, the data is permanently unreadable — a confidentiality risk converted into an availability risk.</text>
+</svg>
+<figcaption class="figcap"><b>Figure 18.1</b> — Encryption is the only control that still works when the database is not
+running. Its hard part is not the cipher but the key.</figcaption>
+</figure>
+
+
+<h2 id="c18-3">18.3 Practical Guidance from the Source</h2>
+
+<p>The source's closing guidance on encryption is a practice, not a theory: <em>it is standard practice now to
+encrypt credit card information, and other sensitive information.</em> The reason is the same as the motivating
+scenario — credit card numbers are precisely the data whose disclosure is most damaging and whose storage
+medium is most likely to travel (laptops, backups, portable drives).</p>
+
+<div class="box warn"><span class="tag">Common mistake</span>
+<p>Believing that encryption makes a database secure on its own. Encryption protects <b>data at rest</b> — the
+bytes on the medium. It does nothing about an attacker who logs in with valid credentials, nothing about a
+careless user who reads data they are authorized to read, and nothing about an application that is tricked into
+revealing data. Encryption is one control among the six in Chapter 21, not a substitute for the others.</p>
+</div>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 18</span>
+<ul>
+<li>Encryption is motivated by loss of the storage medium itself, which no access-control mechanism can
+prevent.</li>
+<li>The approach is storage-level encryption that is transparent to the application.</li>
+<li>The main problem is <b>key management</b>: the key must be available at startup yet not stored with the
+data, and losing it means losing the data.</li>
+<li>It is now standard practice to encrypt credit card and other sensitive information.</li>
+</ul>
+</div>
+</section>
+
+<!-- ==================== CHAPTER 19 ==================== -->
+<section>
+<h1 class="chap" id="c19">19. Authentication, Authorization and Access-Control Models</h1>
+<div class="chapmeta">Part 4 &nbsp;•&nbsp; who are you, and what may you do</div>
+<div class="chaprule"></div>
+
+<p>The source devotes a whole slide to the difference between authentication and authorization, and two more to
+the three access-control models. Together they answer the two questions every database must ask before it serves
+a row of data.</p>
+
+<h2 id="c19-1">19.1 Authentication versus Authorization</h2>
+
+<div class="box def"><span class="tag">Definitions (source)</span>
+<p><b>Authentication:</b> <em>who are you? Prove it!</em></p>
+<p><b>Authorization:</b> <em>what you are allowed to do.</em></p>
+</div>
+
+<p>The source's framing is that authentication and authorization mechanisms allow specific users access only to
+the required data. Authentication establishes identity; authorization decides what that identity may do.</p>
+
+<table>
+<caption>Table 19.1 — Authentication versus authorization, following the source's comparison slide.</caption>
+<thead><tr><th>Point of comparison</th><th>Authentication</th><th>Authorization</th></tr></thead>
+<tbody>
+<tr><td>Purpose</td><td>Decides whether users are what they claim they are</td><td>Decides which user is allowed to access what</td></tr>
+<tr><td>How it works</td><td>User identity is verified via a username and password, or by answering a security question</td><td>Verifies whether the given access is allowed by following rules and policies</td></tr>
+<tr><td>Order</td><td>Takes place <b>before</b> authorization</td><td>Takes place <b>once authentication is completed</b></td></tr>
+<tr><td>Methods</td><td>CAPTCHA test, biometric authentication, passwords</td><td>Permissions — read and write access to files and to the database; deciding the roles of users for accessing data</td></tr>
+<tr><td>Who controls it</td><td>Controlled through the server, for finding out who is accessing what data or site</td><td>The server decides whether the client has authority to access a resource or not</td></tr>
+<tr><td>Example</td><td>Employees authenticating through the network before opening the company mails</td><td>Once an employee is authenticated, the different systems decide which information will be accessed by which employee</td></tr>
+</tbody>
+</table>
+
+<figure>
+<svg viewBox="0 0 540 160" width="540" height="160" role="img"
+     aria-label="Authentication then authorization, then access">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">A REQUEST PASSES THROUGH BOTH CHECKS, IN THIS ORDER</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="16" y="52" width="104" height="48" rx="4" fill="#1b6e8a"/>
+  <text x="30" y="74" font-family="DejaVu Sans" font-size="9.4" fill="#fff" font-weight="bold">USER</text>
+  <text x="30" y="88" font-family="DejaVu Sans" font-size="8" fill="#d6eef1">login request</text>
+
+  <path d="M120,76 L154,76" stroke="#0e7c86" stroke-width="1.6"/><path d="M150,71 L162,76 L150,81 z" fill="#0e7c86"/>
+
+  <rect x="162" y="46" width="140" height="60" rx="4" fill="#e8f1fb" stroke="#1f4fbf" stroke-width="1.4"/>
+  <text x="172" y="64" font-family="DejaVu Sans" font-size="9" fill="#1f4fbf" font-weight="bold">AUTHENTICATION</text>
+  <text x="172" y="80" font-family="DejaVu Sans" font-size="8" fill="#1c2833">who are you?</text>
+  <text x="172" y="94" font-family="DejaVu Sans" font-size="8" fill="#1c2833">password · biometric · CAPTCHA</text>
+
+  <path d="M302,76 L336,76" stroke="#0e7c86" stroke-width="1.6"/><path d="M332,71 L344,76 L332,81 z" fill="#0e7c86"/>
+
+  <rect x="344" y="46" width="140" height="60" rx="4" fill="#fbf4ec" stroke="#a0522d" stroke-width="1.4"/>
+  <text x="354" y="64" font-family="DejaVu Sans" font-size="9" fill="#a0522d" font-weight="bold">AUTHORIZATION</text>
+  <text x="354" y="80" font-family="DejaVu Sans" font-size="8" fill="#1c2833">what may you do?</text>
+  <text x="354" y="94" font-family="DejaVu Sans" font-size="8" fill="#1c2833">permissions · roles · rules</text>
+
+  <path d="M484,76 L506,76" stroke="#0e7c86" stroke-width="1.6"/><path d="M502,71 L514,76 L502,81 z" fill="#0e7c86"/>
+  <text x="352" y="126" font-family="DejaVu Sans" font-size="8.6" fill="#4f8a37" font-weight="bold">ACCESS GRANTED</text>
+  <text x="352" y="140" font-family="DejaVu Sans" font-size="8" fill="#1c2833">only to the permitted data</text>
+
+  <rect x="16" y="112" width="300" height="34" rx="3" fill="#fdf1ec" stroke="#b5481b"/>
+  <text x="26" y="126" font-family="DejaVu Sans" font-size="8.2" fill="#b5481b" font-weight="bold">FAIL AT EITHER CHECK:</text>
+  <text x="160" y="126" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">the request is refused</text>
+  <text x="26" y="140" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">An authenticated user who lacks the privilege is still denied.</text>
+</svg>
+<figcaption class="figcap"><b>Figure 19.1</b> — Authentication always precedes authorization. Passing the first check
+is necessary but not sufficient; the second check is what actually protects the data.</figcaption>
+</figure>
+
+<div class="box warn"><span class="tag">Common mistake</span>
+<p>Using the two words interchangeably. An answer that says “authentication controls what a user can access” is
+wrong in a way that costs marks. Authentication answers <em>who</em>; authorization answers <em>what</em>. Keep
+the order in mind: authentication is always completed first.</p>
+</div>
+
+<h2 id="c19-2">19.2 Discretionary Access Control (DAC)</h2>
+
+<div class="box def"><span class="tag">Definition (source)</span>
+<p><b>Discretionary Access Control:</b> users have control over their own data, and permissions are granted using
+<b>Access Control Lists (ACLs)</b>.</p>
+</div>
+
+<p>The source adds the mechanism: the typical method of enforcing DAC in a database system is based on
+<b>granting and revoking privileges</b>. These are used to grant privileges to users, including the capability
+to access specific data files, records or fields in a specified mode — such as read, insert, delete, or
+update.</p>
+
+<p>The word “discretionary” is the key: the <em>owner</em> of the data decides who else may use it. That
+flexibility is also the model's weakness, because a user who can read a table can usually copy it somewhere the
+owner no longer controls.</p>
+
+<h2 id="c19-3">19.3 Mandatory Access Control (MAC)</h2>
+
+<div class="box def"><span class="tag">Definition (source)</span>
+<p><b>Mandatory Access Control</b> is based on a <b>central authority</b> assigning <b>security labels</b> to
+data and users. These labels define access levels, ensuring that users can only access data classified within
+their clearance level. MAC is commonly used in government and military applications, where strict control over
+data access is required.</p>
+</div>
+
+<p>The decisive difference from DAC is that the individual user has no discretion at all. A clearance level and a
+classification label are compared by the system, and the comparison — not the owner's preference — decides
+access. This is the model that implements the “top secret, secret, confidential, unclassified” hierarchy the
+source mentioned under multiple security levels.</p>
+
+<h2 id="c19-4">19.4 Role-Based Access Control (RBAC)</h2>
+
+<div class="box def"><span class="tag">Definition (source)</span>
+<p><b>Role-Based Access Control</b> is based on <b>predefined roles</b> assigned to users. Each role has specific
+privileges, including the ability to read, insert, delete, or update data. Instead of granting permissions to
+individual users, RBAC assigns access based on <b>job responsibilities</b>, making it efficient for large
+organizations.</p>
+</div>
+
+<p>RBAC's advantage is administrative. In a large organization, granting privileges user by user means repeating
+the same grants hundreds of times and updating them whenever someone changes jobs. Granting a <em>role</em> once
+and assigning users to it means the permissions are described in one place.</p>
+
+<h2 id="c19-5">19.5 Comparing the Three Models</h2>
+
+<table>
+<caption>Table 19.2 — The three access-control models compared.</caption>
+<thead><tr><th>Aspect</th><th>DAC</th><th>MAC</th><th>RBAC</th></tr></thead>
+<tbody>
+<tr><td>Who decides access</td><td>The data owner</td><td>A central authority</td><td>The role definition</td></tr>
+<tr><td>Basis of the decision</td><td>Granted/revoked privileges, ACLs</td><td>Security labels vs clearance levels</td><td>Job responsibilities</td></tr>
+<tr><td>Flexibility</td><td>High</td><td>Low (deliberately)</td><td>Medium</td></tr>
+<tr><td>Administrative effort in large organizations</td><td>High — per user</td><td>High but centralized</td><td>Low — per role</td></tr>
+<tr><td>Typical setting</td><td>Commercial database systems</td><td>Government and military</td><td>Large enterprises</td></tr>
+<tr><td>Weakness</td><td>Owner can leak data they can read</td><td>Rigid; label management is costly</td><td>Role explosion if roles multiply</td></tr>
+</tbody>
+</table>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 19</span>
+<ul>
+<li><b>Authentication</b> proves identity (“who are you?”); <b>authorization</b> decides permitted actions
+(“what may you do?”). Authentication always happens first.</li>
+<li><b>DAC</b> — owner-controlled, implemented with grants, revokes and ACLs.</li>
+<li><b>MAC</b> — central authority assigns security labels; users are limited to their clearance level; used in
+government and military systems.</li>
+<li><b>RBAC</b> — permissions attach to predefined roles, which are assigned to users; efficient for large
+organizations.</li>
+</ul>
+</div>
+</section>
+
+<!-- ==================== CHAPTER 20 ==================== -->
+<section>
+<h1 class="chap" id="c20">20. Network and Human-Level Security</h1>
+<div class="chapmeta">Part 4 &nbsp;•&nbsp; protecting data in transit, and the weakest link</div>
+<div class="chaprule"></div>
+
+<p>The two outer levels of Figure 17.1 need their own treatment, because the attacks there are unlike the ones a
+DBMS can handle internally. On the network, data is in transit and can be intercepted; at the human level, the
+credential itself can be guessed or shared.</p>
+
+<h2 id="c20-1">20.1 Network-Level Threats</h2>
+
+<div class="box def"><span class="tag">The source's network-level material</span>
+<p>At the network level, encryption <b>must</b> be used to prevent:</p>
+<ul>
+<li><b>Eavesdropping</b> — unauthorized reading of messages.</li>
+<li><b>Masquerading</b> — pretending to be an authorized user or legitimate site, or sending messages supposedly
+from authorized users.</li>
+</ul>
+<p>These are handled by secure HTTP — <b>https://</b>. It must also prevent <b>person-in-the-middle</b> attacks:
+for example, someone impersonates the seller or the bank/credit-card company and fools the buyer into revealing
+information.</p>
+</div>
+
+<figure>
+<svg viewBox="0 0 540 190" width="540" height="190" role="img"
+     aria-label="Eavesdropping, masquerading and person-in-the-middle attacks on a network">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">THREE NETWORK ATTACKS AND HOW ENCRYPTION STOPS THEM</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <!-- eavesdropping -->
+  <rect x="20" y="34" width="160" height="128" rx="4" fill="#fdf1ec" stroke="#b5481b"/>
+  <text x="30" y="52" font-family="DejaVu Sans" font-size="9.2" fill="#b5481b" font-weight="bold">EAVESDROPPING</text>
+  <text x="30" y="70" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">Unauthorized <b>reading</b> of</text>
+  <text x="30" y="83" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">messages in transit.</text>
+  <line x1="40" y1="100" x2="150" y2="100" stroke="#1c2833" stroke-width="1.4"/>
+  <circle cx="95" cy="100" r="6" fill="#b5481b"/>
+  <text x="86" y="118" font-family="DejaVu Sans" font-size="7.6" fill="#b5481b">attacker taps the wire</text>
+  <text x="30" y="140" font-family="DejaVu Sans" font-size="8" fill="#4f8a37" font-weight="bold">STOPPED BY:</text>
+  <text x="30" y="153" font-family="DejaVu Sans" font-size="8" fill="#1c2833">encryption — the bytes read</text>
+  <text x="30" y="164" font-family="DejaVu Sans" font-size="8" fill="#1c2833">are meaningless ciphertext</text>
+
+  <!-- masquerading -->
+  <rect x="190" y="34" width="160" height="128" rx="4" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="200" y="52" font-family="DejaVu Sans" font-size="9.2" fill="#a0522d" font-weight="bold">MASQUERADING</text>
+  <text x="200" y="70" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">Pretending to be an</text>
+  <text x="200" y="83" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">authorized user or site, or</text>
+  <text x="200" y="96" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">sending messages supposedly</text>
+  <text x="200" y="109" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">from authorized users.</text>
+  <text x="200" y="140" font-family="DejaVu Sans" font-size="8" fill="#4f8a37" font-weight="bold">STOPPED BY:</text>
+  <text x="200" y="153" font-family="DejaVu Sans" font-size="8" fill="#1c2833">https:// — the certificate</text>
+  <text x="200" y="164" font-family="DejaVu Sans" font-size="8" fill="#1c2833">proves the site's identity</text>
+
+  <!-- person in middle -->
+  <rect x="360" y="34" width="160" height="128" rx="4" fill="#f6f0fa" stroke="#7a3e9d"/>
+  <text x="370" y="52" font-family="DejaVu Sans" font-size="9.2" fill="#7a3e9d" font-weight="bold">PERSON-IN-THE-MIDDLE</text>
+  <text x="370" y="70" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">Someone impersonates the</text>
+  <text x="370" y="83" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">seller or the bank/credit-card</text>
+  <text x="370" y="96" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">company and fools the buyer</text>
+  <text x="370" y="109" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">into revealing information.</text>
+  <text x="370" y="140" font-family="DejaVu Sans" font-size="8" fill="#4f8a37" font-weight="bold">STOPPED BY:</text>
+  <text x="370" y="153" font-family="DejaVu Sans" font-size="8" fill="#1c2833">https:// — end-to-end</text>
+  <text x="370" y="164" font-family="DejaVu Sans" font-size="8" fill="#1c2833">encryption plus authentication</text>
+</svg>
+<figcaption class="figcap"><b>Figure 20.1</b> — The three network attacks the source names. Encryption addresses
+all three, and https:// is the practical implementation.</figcaption>
+</figure>
+
+<div class="box note"><span class="tag">Explanation — why one control covers three attacks</span>
+<p>All three attacks fail against the same thing: a channel whose contents cannot be read and whose endpoints can
+be authenticated. Eavesdropping fails because the attacker cannot read the ciphertext. Masquerading and
+person-in-the-middle fail because the client can verify that it is talking to the real server, not an impostor.
+That is precisely what https:// provides — encryption <em>plus</em> server authentication.</p>
+</div>
+
+<h2 id="c20-2">20.2 Passwords</h2>
+
+<div class="box def"><span class="tag">The source's point</span>
+<p><b>Password.</b> Most users abuse passwords. For example: they choose easy-to-guess passwords, and they share
+passwords with others.</p>
+</div>
+
+
+
+<p>The source's phrasing is deliberately blunt, and the two failures it names are worth separating because they
+have different fixes:</p>
+
+<table>
+<caption>Table 20.1 — The two password failures the source names, and the control for each.</caption>
+<thead><tr><th>Failure</th><th>Why it is dangerous</th><th>Characteristic control</th></tr></thead>
+<tbody>
+<tr><td>Easy-to-guess password</td><td>An attacker can guess it without any technical attack at all</td><td>Password policy: length, complexity, expiry</td></tr>
+<tr><td>Sharing passwords with others</td><td>Destroys the link between identity and person — authentication still succeeds, but it no longer means what it should</td><td>Policy plus audit; technical controls cannot detect consent</td></tr>
+</tbody>
+</table>
+
+<div class="box warn"><span class="tag">Common mistake</span>
+<p>Thinking that password sharing is a minor issue. It breaks the entire basis of authentication: every later
+control assumes the identity is genuine. If three people use one login, no access-control decision — and no audit
+trail — can be trusted.</p>
+</div>
+
+<h2 id="c20-3">20.3 Smartcards</h2>
+
+<div class="box def"><span class="tag">The source's point</span>
+<p><b>Smartcards.</b> Need the smartcard itself, <b>plus</b> a PIN or password.</p>
+</div>
+
+<p>A smartcard adds a second factor: something the user <em>has</em>, combined with something the user
+<em>knows</em>. This directly addresses both password failures. A shared password is no longer enough, because
+the attacker also needs the physical card; and a guessed password is no longer enough for the same reason. The
+source's “Bill Gates” note in the slide is the memorable illustration of the residual risk — a smartcard can be
+lost or stolen, and if the PIN is written down beside it, both factors travel together.</p>
+
+<div class="box tip"><span class="tag">The security principle here</span>
+<p>Two independent factors are stronger than one, because the two failure modes are independent. A password can
+be guessed or shared but not stolen from your pocket; a card can be stolen but not guessed. Requiring both means
+an attacker must succeed at two different kinds of attack.</p>
+</div>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 20</span>
+<ul>
+<li>Network threats are <b>eavesdropping</b> (unauthorized reading), <b>masquerading</b> (impersonating a user or
+site) and <b>person-in-the-middle</b> attacks (impersonating a seller or bank to extract information).</li>
+<li>All three are handled by encryption and authentication, implemented in practice by <b>https://</b>.</li>
+<li><b>Passwords</b> fail in two ways: they are easy to guess, and they are shared. Both break the link between
+identity and person.</li>
+<li><b>Smartcards</b> require the card <em>plus</em> a PIN or password, adding a second independent factor.</li>
+</ul>
+</div>
+</section>
+
+<!-- ==================== CHAPTER 21 ==================== -->
+<section>
+<h1 class="chap" id="c21">21. Control Methods of Database Security</h1>
+<div class="chapmeta">Part 4 &nbsp;•&nbsp; the six measures that actually implement security</div>
+<div class="chaprule"></div>
+
+<p>Chapters 15 to 20 described what is threatened and where. This chapter is the answer: the six control
+measures the source names, each defined and then tied back to the threat it addresses.</p>
+
+<h2 id="c21-1">21.1 The Six Control Measures</h2>
+
+<div class="box def"><span class="tag">The source's list</span>
+<p>The following are the main control measures used to provide security of data in databases:</p>
+<ol>
+<li>Authentication</li>
+<li>Access control</li>
+<li>Inference control</li>
+<li>Flow control</li>
+<li>Database security applying statistical method</li>
+<li>Encryption</li>
+</ol>
+</div>
+
+<figure>
+<svg viewBox="0 0 540 234" width="540" height="234" role="img"
+     aria-label="The six control measures and the threat each addresses">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">SIX CONTROLS, EACH AIMED AT A SPECIFIC THREAT</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="20" y="32" width="230" height="30" rx="3" fill="#e8f1fb" stroke="#1f4fbf"/>
+  <text x="30" y="51" font-family="DejaVu Sans" font-size="9" fill="#1f4fbf" font-weight="bold">1 · AUTHENTICATION</text>
+  <path d="M250,47 L286,47" stroke="#0e7c86" stroke-width="1.3"/><path d="M282,43 L292,47 L282,51 z" fill="#0e7c86"/>
+  <text x="296" y="51" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">impersonation, shared logins, unauthorised entry</text>
+
+  <rect x="20" y="66" width="230" height="30" rx="3" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="30" y="85" font-family="DejaVu Sans" font-size="9" fill="#a0522d" font-weight="bold">2 · ACCESS CONTROL</text>
+  <path d="M250,81 L286,81" stroke="#0e7c86" stroke-width="1.3"/><path d="M282,77 L292,81 L282,85 z" fill="#0e7c86"/>
+  <text x="296" y="85" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">reading or modifying data beyond one's privilege</text>
+
+  <rect x="20" y="100" width="230" height="30" rx="3" fill="#f6f0fa" stroke="#7a3e9d"/>
+  <text x="30" y="119" font-family="DejaVu Sans" font-size="9" fill="#7a3e9d" font-weight="bold">3 · INFERENCE CONTROL</text>
+  <path d="M250,115 L286,115" stroke="#0e7c86" stroke-width="1.3"/><path d="M282,111 L292,115 L282,119 z" fill="#0e7c86"/>
+  <text x="296" y="119" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">deducing sensitive facts from non-sensitive answers</text>
+
+  <rect x="20" y="134" width="230" height="30" rx="3" fill="#eef7f8" stroke="#0e7c86"/>
+  <text x="30" y="153" font-family="DejaVu Sans" font-size="9" fill="#0e7c86" font-weight="bold">4 · FLOW CONTROL</text>
+  <path d="M250,149 L286,149" stroke="#0e7c86" stroke-width="1.3"/><path d="M282,145 L292,149 L282,153 z" fill="#0e7c86"/>
+  <text x="296" y="153" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">information reaching people who should not hold it</text>
+
+  <rect x="20" y="168" width="230" height="30" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="30" y="187" font-family="DejaVu Sans" font-size="9" fill="#4f8a37" font-weight="bold">5 · STATISTICAL METHOD</text>
+  <path d="M250,183 L286,183" stroke="#0e7c86" stroke-width="1.3"/><path d="M282,179 L292,183 L282,187 z" fill="#0e7c86"/>
+  <text x="296" y="187" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">learning an individual's value from aggregate queries</text>
+
+  <rect x="20" y="202" width="230" height="30" rx="3" fill="#fdf1ec" stroke="#b5481b"/>
+  <text x="30" y="221" font-family="DejaVu Sans" font-size="9" fill="#b5481b" font-weight="bold">6 · ENCRYPTION</text>
+  <path d="M250,217 L286,217" stroke="#0e7c86" stroke-width="1.3"/><path d="M282,213 L292,217 L282,221 z" fill="#0e7c86"/>
+  <text x="296" y="221" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">loss or theft of the storage medium itself</text>
+</svg>
+<figcaption class="figcap"><b>Figure 21.1</b> — The six control measures, each paired with the threat it is designed
+to stop. Notice that no two controls address the same threat, which is why all six are needed.</figcaption>
+</figure>
+
+<h2 id="c21-2">21.2 Authentication</h2>
+
+<div class="box def"><span class="tag">Definition (source)</span>
+<p><b>Authentication</b> is the process of confirming whether the user logs in according to the rights provided
+to them to perform the activities of the database. A particular user can log in only up to their privilege, and
+cannot access other sensitive data. The privilege of accessing sensitive data is restricted by using
+authentication.</p>
+<p>By using authentication tools such as <b>biometrics</b> — retina and fingerprints — the database can be
+protected from unauthorized or malicious users.</p>
+</div>
+
+<p>Read the source's wording carefully, because it makes a claim that is easy to misstate. Authentication
+<em>restricts</em> the privilege of accessing sensitive data, but it does not by itself decide what a user may
+do — that is authorization (Section 19.1). Authentication is the gate: it establishes who is asking.</p>
+
+<h2 id="c21-3">21.3 Access Control</h2>
+
+<div class="box def"><span class="tag">Definition (source)</span>
+<p>The security mechanism of a DBMS must include provisions for <b>restricting access to the database by
+unauthorized users</b>. Access control is done by creating user accounts and controlling the login process
+through the DBMS, so that access to sensitive data is possible only for those database users who are allowed to
+access such data, and access by unauthorized persons is restricted.</p>
+<p>The database system must also <b>keep track of all operations performed by a certain user throughout the
+entire login time.</b></p>
+</div>
+
+<p>Two distinct duties are named here, and both matter:</p>
+
+<table>
+<caption>Table 21.1 — The two duties of access control.</caption>
+<thead><tr><th>Duty</th><th>What it means</th><th>Why it matters</th></tr></thead>
+<tbody>
+<tr><td>Restrict access</td><td>Create accounts; decide, per user, what may be read, inserted, deleted or updated</td><td>Prevents unauthorized reading and modification</td></tr>
+<tr><td>Track operations</td><td>Keep a record of everything a user did during the whole login session</td><td>Makes after-the-fact investigation possible, and deters misuse by insiders</td></tr>
+</tbody>
+</table>
+
+<p>The three access-control models that implement the first duty — DAC, MAC and RBAC — were covered in Sections
+19.2 to 19.4. The second duty is what is usually called auditing, and the source mentions it as one of the four
+security measures alongside access controls, encryption and authentication (Section 15.1).</p>
+
+<h2 id="c21-4">21.4 Inference Control</h2>
+
+<div class="box def"><span class="tag">Definition (source)</span>
+<p><b>Inference control</b> is the countermeasure to the statistical-database security problem. It is used to
+prevent the user from completing any <b>inference channel</b>, and it protects sensitive information from
+<b>indirect disclosure</b>. Inferences are of two types: <b>identity disclosure</b> or <b>attribute
+disclosure</b>.</p>
+</div>
+
+<p>The threat inference control addresses is subtle and worth spelling out. No individual query breaks a rule.
+Each answer is a legitimate statistic about a group. But a sequence of legitimate answers can be combined to
+reveal a fact about one person — a fact that no single query was allowed to return.</p>
+
+<div class="box amber"><span class="tag">Worked step — how inference leaks a secret</span>
+<p>Suppose the rule is that no query may return data about a single employee's salary.</p>
+<pre>Q1: SELECT AVG(salary) FROM emp;                         -- average over 100 employees: fine
+Q2: SELECT AVG(salary) FROM emp WHERE dept = 'CSE';      -- average over 40: fine
+Q3: SELECT AVG(salary) FROM emp WHERE dept = 'CSE'
+      AND name &lt;&gt; 'Ananya';                            -- average over 39: fine</pre>
+<p>Each query is a statistic over a group, so each is permitted. But Q2 and Q3 together let the questioner solve
+for Ananya's salary exactly:</p>
+<p style="text-align:center"><span class="kv">salary(Ananya) = 40 × AVG(Q2) − 39 × AVG(Q3)</span></p>
+<p>The sensitive value has been disclosed without any single query violating the rule. That is <b>indirect
+disclosure</b>, and inference control exists to prevent it — for example by refusing queries whose result set is
+too small.</p>
+</div>
+
+<h2 id="c21-5">21.5 Flow Control and Covert Channels</h2>
+
+<div class="box def"><span class="tag">Definition (source)</span>
+<p><b>Flow control</b> prevents information from flowing in a way that reaches unauthorized users. The pathways
+by which information flows implicitly in ways that violate the privacy policy of a company are called
+<b>covert channels</b>.</p>
+</div>
+
+<p>Note the difference from access control. Access control asks “may this user read this item?” Flow control asks
+“may this <em>fact</em> move from where it is to where this user is?” A user might be perfectly entitled to read
+two separate values yet not entitled to the combination — for example, entitled to see project codes and entitled
+to see salaries, but not the mapping between them. Flow control restricts the propagation of information rather
+than the access to objects.</p>
+
+<div class="box violet"><span class="tag">From the source — a terminology note</span>
+<p>The source writes “convert channels”. The standard term in the security literature is <b>covert
+channels</b>, and the source's own definition (“pathways for information to flow implicitly in ways that violate
+the privacy policy”) is the standard definition of a covert channel. These notes use “covert channel” and note
+the source's spelling here so that you recognise both.</p>
+</div>
+
+<h2 id="c21-6">21.6 Statistical Database Security</h2>
+
+<div class="box def"><span class="tag">Definition (source)</span>
+<p><b>Statistical database security</b> focuses on the protection of confidential individual values stored in and
+used for statistical purposes, and used to retrieve summaries of values based on categories. It does not permit
+retrieval of individual information.</p>
+<p>It allows access to the database to get statistical information — such as the number of employees in the
+company — but not to access the detailed confidential or personal information about a specific individual
+employee.</p>
+</div>
+
+<p>The source's example is the clearest way to hold the distinction: <em>a count of employees is permitted; one
+employee's salary is not.</em> The permitted class is <b>aggregate</b>; the forbidden class is
+<b>individual</b>. Inference control (Section 21.4) is the mechanism that keeps the boundary intact when a clever
+sequence of aggregates threatens to cross it.</p>
+
+<h2 id="c21-7">21.7 Encryption</h2>
+
+<div class="box def"><span class="tag">Definition (source)</span>
+<p><b>Encryption</b> is mainly used to protect sensitive data such as credit card numbers, OTP numbers, and other
+sensitive numbers. The data is encoded using encoding algorithms.</p>
+</div>
+
+<p>Chapter 18 covered encryption in detail, including the key-management problem that makes it harder than it
+looks. In the list of six controls, encryption's distinct role is that it is the only one that still works when
+the database is not running — that is, when the attacker holds the storage medium rather than a session.</p>
+
+<h2 id="c21-8">21.8 Threat-to-Control Mapping</h2>
+
+<p>The single most useful revision table in this part: for each threat, which control addresses it and which
+control does <em>not</em>.</p>
+
+<table>
+<caption>Table 21.2 — Threats against the control that addresses them.</caption>
+<thead><tr><th>Threat</th><th>Control that addresses it</th><th>Why the other controls do not help</th></tr></thead>
+<tbody>
+<tr><td>An attacker logs in as another user</td><td>Authentication</td><td>Access control would faithfully grant that user's privileges to the impostor</td></tr>
+<tr><td>A legitimate user reads data beyond their need</td><td>Access control</td><td>Authentication is satisfied — the user is genuine</td></tr>
+<tr><td>A user deduces an individual value from aggregates</td><td>Inference control</td><td>Every individual query is authorized; only the sequence is dangerous</td></tr>
+<tr><td>Information leaks to an unauthorized destination</td><td>Flow control</td><td>Each access may be individually permitted</td></tr>
+<tr><td>Individual data exposed through statistics</td><td>Statistical database security</td><td>Access control works on objects, not on aggregate/individual boundaries</td></tr>
+<tr><td>A disk or laptop with data is lost</td><td>Encryption</td><td>There is no running DBMS to enforce anything</td></tr>
+<tr><td>A fire or flood destroys the server</td><td>Backup (Chapter 17)</td><td>No control can prevent a physical disaster</td></tr>
+</tbody>
+</table>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 21</span>
+<ul>
+<li>The six control measures are <b>authentication, access control, inference control, flow control, statistical
+database security</b> and <b>encryption</b>.</li>
+<li><b>Authentication</b> confirms identity, using passwords or biometrics such as retina and fingerprints.</li>
+<li><b>Access control</b> creates accounts and restricts access, and also <b>tracks all operations</b> a user
+performs during the login.</li>
+<li><b>Inference control</b> prevents indirect disclosure through inference channels; inferences are identity
+disclosure or attribute disclosure.</li>
+<li><b>Flow control</b> stops information reaching unauthorized users; the illicit pathways are
+<b>covert channels</b>.</li>
+<li><b>Statistical database security</b> permits aggregate information but not individual values.</li>
+<li><b>Encryption</b> encodes sensitive data such as credit card and OTP numbers.</li>
+</ul>
+</div>
+</section>
+
+<!-- ==================== CHAPTER 22 ==================== -->
+<section>
+<h1 class="chap" id="c22">22. The DBA, Privileges and Statistical Database Security</h1>
+<div class="chapmeta">Part 4 &nbsp;•&nbsp; who owns the security policy</div>
+<div class="chaprule"></div>
+
+<p>Every control in Chapter 21 needs an administrator. The source closes its security material by describing that
+role, because the controls are only as good as the authority that assigns them.</p>
+
+<h2 id="c22-1">22.1 Who the DBA Is</h2>
+
+<div class="box def"><span class="tag">Definition (source)</span>
+<p>The <b>database administrator (DBA)</b> is the <b>central authority</b> for managing a database system, and is
+responsible for the <b>overall security</b> of the database system.</p>
+</div>
+
+<p>The phrase “central authority” connects directly to the access-control models of Chapter 19. In DAC the DBA is
+the source of grants; in MAC the DBA is the central authority that assigns security labels; in RBAC the DBA
+defines the roles. Whichever model is in use, someone must hold the authority to make the initial decisions, and
+that is the DBA.</p>
+
+<h2 id="c22-2">22.2 DBA Responsibilities</h2>
+
+<div class="box def"><span class="tag">Responsibilities (source)</span>
+<p>The DBA's responsibilities include:</p>
+<ul>
+<li><b>Granting privileges</b> to users who need to use the system.</li>
+<li><b>Classifying users and data</b> in accordance with the policy of the organization.</li>
+</ul>
+<p>The DBA is responsible for the overall security of the database system.</p>
+</div>
+
+<p>The two responsibilities map onto the two ideas already established. Granting privileges is the discretionary
+act — DAC's granting and revoking (Section 19.2). Classifying users and data is the mandatory act — assigning the
+security labels and clearance levels of MAC (Section 19.3). A DBA therefore operates in both worlds at once.</p>
+
+<h2 id="c22-3">22.3 The DBA / Superuser Account</h2>
+
+<div class="box def"><span class="tag">The DBA account (source)</span>
+<p>The DBA has a <b>DBA account</b> in the DBMS. Sometimes these are called a <b>system</b> or <b>superuser</b>
+account. These accounts provide powerful capabilities such as:</p>
+<ol>
+<li>Account creation</li>
+<li>Privilege granting</li>
+<li>Privilege revocation</li>
+<li>Security level assignment</li>
+</ol>
+<p>Action 1 is <b>access control</b>, whereas actions 2 and 3 are <b>discretionary access</b>, and action 4 is
+used to control <b>mandatory authorization</b>.</p>
+</div>
+
+<figure>
+<svg viewBox="0 0 540 190" width="540" height="190" role="img"
+     aria-label="DBA account capabilities mapped to the security model each implements">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">DBA ACCOUNT CAPABILITIES AND THE MODEL EACH ONE IMPLEMENTS</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="150" y="32" width="240" height="30" rx="4" fill="#12294b"/>
+  <text x="196" y="52" font-family="DejaVu Sans" font-size="10" fill="#fff" font-weight="bold">DBA / SUPERUSER ACCOUNT</text>
+
+  <path d="M270,62 L270,74" stroke="#0e7c86" stroke-width="1.3"/>
+  <path d="M92,74 L448,74" stroke="#0e7c86" stroke-width="1.3"/>
+  <path d="M92,74 L92,86" stroke="#0e7c86" stroke-width="1.3"/>
+  <path d="M210,74 L210,86" stroke="#0e7c86" stroke-width="1.3"/>
+  <path d="M330,74 L330,86" stroke="#0e7c86" stroke-width="1.3"/>
+  <path d="M448,74 L448,86" stroke="#0e7c86" stroke-width="1.3"/>
+
+  <rect x="24" y="86" width="136" height="58" rx="3" fill="#eef7f8" stroke="#0e7c86"/>
+  <text x="34" y="102" font-family="DejaVu Sans" font-size="8.4" fill="#0e7c86" font-weight="bold">1 · Account creation</text>
+  <text x="34" y="118" font-family="DejaVu Sans" font-size="8" fill="#1c2833">→ ACCESS CONTROL</text>
+  <text x="34" y="134" font-family="DejaVu Sans" font-size="7.6" fill="#5d6d7e">establishes who exists</text>
+
+  <rect x="142" y="86" width="136" height="58" rx="3" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="152" y="102" font-family="DejaVu Sans" font-size="8.4" fill="#a0522d" font-weight="bold">2 · Privilege granting</text>
+  <text x="152" y="118" font-family="DejaVu Sans" font-size="8" fill="#1c2833">→ DISCRETIONARY</text>
+  <text x="152" y="134" font-family="DejaVu Sans" font-size="7.6" fill="#5d6d7e">grants what a user may do</text>
+
+  <rect x="260" y="86" width="136" height="58" rx="3" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="270" y="102" font-family="DejaVu Sans" font-size="8.4" fill="#a0522d" font-weight="bold">3 · Privilege revocation</text>
+  <text x="270" y="118" font-family="DejaVu Sans" font-size="8" fill="#1c2833">→ DISCRETIONARY</text>
+  <text x="270" y="134" font-family="DejaVu Sans" font-size="7.6" fill="#5d6d7e">withdraws a grant</text>
+
+  <rect x="378" y="86" width="136" height="58" rx="3" fill="#f6f0fa" stroke="#7a3e9d"/>
+  <text x="388" y="102" font-family="DejaVu Sans" font-size="8.4" fill="#7a3e9d" font-weight="bold">4 · Security level assign.</text>
+  <text x="388" y="118" font-family="DejaVu Sans" font-size="8" fill="#1c2833">→ MANDATORY</text>
+  <text x="388" y="134" font-family="DejaVu Sans" font-size="7.6" fill="#5d6d7e">sets labels and clearances</text>
+
+  <rect x="24" y="156" width="490" height="28" rx="3" fill="#eef7f8" stroke="#0e7c86"/>
+  <text x="34" y="174" font-family="DejaVu Sans" font-size="8.4" fill="#0e7c86" font-weight="bold">IN ONE LINE:</text>
+  <text x="112" y="174" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">account creation = access control · grant/revoke = discretionary access · security level = mandatory authorization.</text>
+</svg>
+<figcaption class="figcap"><b>Figure 22.1</b> — The four DBA account capabilities and the security model each one
+implements. This mapping is the source's own.</figcaption>
+</figure>
+
+<div class="box warn"><span class="tag">Common mistake</span>
+<p>Treating the DBA account as just another user account. The source calls its capabilities “powerful”, and the
+reason is that it can create accounts, grant and revoke privileges, and assign security levels. An attacker who
+obtains the DBA account does not need to defeat any control — the attacker <em>is</em> the control. This is why
+DBA credentials require the strongest protection in the system.</p>
+</div>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 22</span>
+<ul>
+<li>The <b>DBA</b> is the central authority for managing the database system and is responsible for its overall
+security.</li>
+<li>Responsibilities: granting privileges to users who need them, and classifying users and data according to
+organizational policy.</li>
+<li>The DBA/superuser account provides account creation, privilege granting, privilege revocation and security
+level assignment.</li>
+<li>Account creation is access control; granting and revocation are discretionary access; security level
+assignment controls mandatory authorization.</li>
+</ul>
+</div>
+</section>
+
+
+

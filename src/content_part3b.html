@@ -1,0 +1,1301 @@
+<!-- ==================== CHAPTER 8 ==================== -->
+<section>
+<h1 class="chap" id="c8">8. Third Normal Form (3NF)</h1>
+<div class="chapmeta">Part 3 &nbsp;•&nbsp; removing transitive dependencies</div>
+<div class="chaprule"></div>
+
+<p>2NF removed dependencies on <em>part</em> of a key. 3NF removes dependencies that pass <em>through</em> a
+non-prime attribute.</p>
+
+<h2 id="c8-1">8.1 The 3NF Rule</h2>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>For a relation to be in <b>Third Normal Form</b> it must be in Second Normal Form and the following must
+hold: <b>no non-prime attribute is transitively dependent on a prime key attribute.</b></p>
+<p>Equivalently, for any non-trivial functional dependency <span class="kv">X → A</span>, either:</p>
+<ul>
+<li>X is a <b>super key</b>, or</li>
+<li>A is a <b>prime attribute</b>.</li>
+</ul>
+</div>
+
+<p>The source gives a second formulation worth keeping beside the first: the relation should comply with 2NF,
+and any non-prime attribute should not have a transitive functional dependency on the super key.</p>
+
+<figure>
+<svg viewBox="0 0 520 130" width="520" height="130" role="img"
+     aria-label="3NF: X determines A; X must be a superkey or A must be prime">
+  <rect x="24" y="34" width="150" height="56" rx="4" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="36" y="52" font-family="DejaVu Sans" font-size="9.2" fill="#a0522d" font-weight="bold">X → A (non-trivial)</text>
+  <text x="36" y="70" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">X is the determinant,</text>
+  <text x="36" y="84" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">A the dependent</text>
+
+  <path d="M174,62 L206,62" stroke="#0e7c86" stroke-width="1.6"/><path d="M202,58 L212,62 L202,66 z" fill="#0e7c86"/>
+
+  <rect x="212" y="24" width="290" height="34" rx="3" fill="#e8f1fb" stroke="#1f4fbf"/>
+  <text x="224" y="38" font-family="DejaVu Sans" font-size="8.6" fill="#1f4fbf" font-weight="bold">CONDITION 1</text>
+  <text x="224" y="52" font-family="DejaVu Sans" font-size="8.6" fill="#1c2833">X is a super key — it identifies the whole tuple</text>
+
+  <rect x="212" y="66" width="290" height="34" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="224" y="80" font-family="DejaVu Sans" font-size="8.6" fill="#4f8a37" font-weight="bold">CONDITION 2</text>
+  <text x="224" y="94" font-family="DejaVu Sans" font-size="8.6" fill="#1c2833">A is a prime attribute — it belongs to a candidate key</text>
+
+  <text x="24" y="112" font-family="DejaVu Sans" font-size="8.4" fill="#5d6d7e">Satisfying EITHER condition is enough. Failing both is a 3NF violation.</text>
+  <text x="24" y="20" font-family="DejaVu Sans" font-size="9.4" fill="#12294b" font-weight="bold">THE 3NF TEST</text>
+</svg>
+<figcaption class="figcap"><b>Figure 8.1</b> — The 3NF test in its two-condition form. The “A is prime” escape
+clause is what distinguishes 3NF from BCNF (Chapter 9).</figcaption>
+</figure>
+
+<h2 id="c8-2">8.2 Transitive Dependency in a Real Relation</h2>
+
+<p>The source's running example for 3NF is the Student_detail relation with attributes
+<span class="kv">Stu_ID</span>, <span class="kv">Stu_Name</span>, <span class="kv">Zip</span> and
+<span class="kv">City</span>. <span class="kv">Stu_ID</span> is the key and the only prime attribute.
+<span class="kv">City</span> can be identified by <span class="kv">Stu_ID</span>, but it can also be
+identified by <span class="kv">Zip</span> itself. Since neither <span class="kv">Zip</span> is a super key nor
+<span class="kv">City</span> a prime attribute, and since
+<span class="kv">Stu_ID → Zip → City</span>, there is a transitive dependency.</p>
+
+<figure>
+<svg viewBox="0 0 520 160" width="520" height="160" role="img"
+     aria-label="Transitive dependency Stu_ID to Zip to City in Student_detail">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.4" fill="#12294b" font-weight="bold">Student_detail :  Stu_ID → Zip → City</text>
+  <line x1="14" y1="22" x2="506" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="30" y="46" width="120" height="40" rx="4" fill="#1f4fbf"/>
+  <text x="58" y="71" font-family="DejaVu Sans Mono" font-size="10.5" fill="#fff" font-weight="bold">Stu_ID</text>
+  <text x="30" y="100" font-family="DejaVu Sans" font-size="7.8" fill="#1f4fbf">prime attribute / key</text>
+
+  <path d="M150,66 L206,66" stroke="#0e7c86" stroke-width="1.7"/><path d="M202,61 L214,66 L202,71 z" fill="#0e7c86"/>
+
+  <rect x="214" y="46" width="120" height="40" rx="4" fill="#b5481b"/>
+  <text x="252" y="71" font-family="DejaVu Sans Mono" font-size="10.5" fill="#fff" font-weight="bold">Zip</text>
+  <text x="214" y="100" font-family="DejaVu Sans" font-size="7.8" fill="#b5481b">non-prime, but a determinant</text>
+
+  <path d="M334,66 L390,66" stroke="#0e7c86" stroke-width="1.7"/><path d="M386,61 L398,66 L386,71 z" fill="#0e7c86"/>
+
+  <rect x="398" y="46" width="100" height="40" rx="4" fill="#a0522d"/>
+  <text x="428" y="71" font-family="DejaVu Sans Mono" font-size="10.5" fill="#fff" font-weight="bold">City</text>
+  <text x="398" y="100" font-family="DejaVu Sans" font-size="7.8" fill="#a0522d">non-prime</text>
+
+  <path d="M90,90 C140,132 420,132 448,90" fill="none" stroke="#b5481b" stroke-width="1.7" stroke-dasharray="5 3"/>
+  <text x="196" y="150" font-family="DejaVu Sans" font-size="8.4" fill="#b5481b">transitive dependency: Stu_ID → City (through Zip)</text>
+</svg>
+<figcaption class="figcap"><b>Figure 8.2</b> — Zip is not a super key, yet it determines City. That is the
+transitive dependency 3NF removes.</figcaption>
+</figure>
+
+<h2 id="c8-3">8.3 Worked 3NF Example</h2>
+
+<h3>The source's Employee relation</h3>
+<p>The source's larger example is an Employee relation with attributes
+<span class="kv">Emp_ID</span>, <span class="kv">Emp_Name</span>, <span class="kv">Emp_Zip</span>,
+<span class="kv">Emp_State</span>, <span class="kv">Emp_City</span> and <span class="kv">Emp_District</span>.
+The super keys include <span class="kv">{Emp_ID}</span>, <span class="kv">{Emp_ID, Emp_Name}</span>,
+<span class="kv">{Emp_ID, Emp_Name, Emp_Zip}</span> and many others; the candidate key is
+<span class="kv">{Emp_ID}</span>. So <span class="kv">Emp_ID</span> is the prime attribute and all the others
+are non-prime.</p>
+
+<table class="rel">
+<caption>Table 8.1 — Before: Employee violates 3NF.</caption>
+<thead><tr><th class="mono">Emp_ID</th><th class="mono">Emp_Name</th><th class="mono">Emp_Zip</th><th class="mono">Emp_State</th><th class="mono">Emp_City</th><th class="mono">Emp_District</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">E1</td><td class="mono">Amit</td><td class="mono">160017</td><td class="mono bad">Chandigarh</td><td class="mono bad">Chandigarh</td><td class="mono bad">Sector 17</td></tr>
+<tr><td class="mono pk">E2</td><td class="mono">Bhavna</td><td class="mono">160017</td><td class="mono bad">Chandigarh</td><td class="mono bad">Chandigarh</td><td class="mono bad">Sector 17</td></tr>
+<tr><td class="mono pk">E3</td><td class="mono">Chirag</td><td class="mono">140301</td><td class="mono bad">Punjab</td><td class="mono bad">Mohali</td><td class="mono bad">Kharar</td></tr>
+</tbody>
+</table>
+
+<p>The three attributes <span class="kv">Emp_State</span>, <span class="kv">Emp_City</span> and
+<span class="kv">Emp_District</span> are functionally dependent on <span class="kv">Emp_Zip</span>. We can find
+the zip number using <span class="kv">Emp_ID</span>, so <span class="kv">Emp_Zip</span> is dependent on
+<span class="kv">Emp_ID</span>. But the three location attributes are <b>non-prime</b> and are only
+<em>indirectly</em> dependent on <span class="kv">Emp_ID</span> — through
+<span class="kv">Emp_Zip</span>. That indirectness breaks the 3NF rule.</p>
+
+<div class="box amber"><span class="tag">Worked step — finding the violation</span>
+<p><b>Dependencies present:</b></p>
+<pre>Emp_ID   → Emp_Name, Emp_Zip, Emp_State, Emp_City, Emp_District   (the key determines all)
+Emp_Zip  → Emp_State, Emp_City, Emp_District                       (zip determines location)</pre>
+<p><b>Apply the 3NF test to</b> <span class="kv">Emp_Zip → Emp_State</span>: is
+<span class="kv">Emp_Zip</span> a super key? No — many employees share a zip. Is
+<span class="kv">Emp_State</span> prime? No — the only prime attribute is
+<span class="kv">Emp_ID</span>. Both conditions fail, so this dependency violates 3NF. The same reasoning
+applies to <span class="kv">Emp_Zip → Emp_City</span> and <span class="kv">Emp_Zip → Emp_District</span>.</p>
+</div>
+
+<p>The fix is to split the relation so that the location attributes sit with the determinant that governs them:</p>
+
+<table class="rel">
+<caption>Table 8.2 — After (relation 1): Employee_ID — key Emp_ID, no transitive dependency.</caption>
+<thead><tr><th class="mono">Emp_ID</th><th class="mono">Emp_Name</th><th class="mono">Emp_Zip</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">E1</td><td class="mono good">Amit</td><td class="mono good">160017</td></tr>
+<tr><td class="mono pk">E2</td><td class="mono good">Bhavna</td><td class="mono good">160017</td></tr>
+<tr><td class="mono pk">E3</td><td class="mono good">Chirag</td><td class="mono good">140301</td></tr>
+</tbody>
+</table>
+
+<table class="rel">
+<caption>Table 8.3 — After (relation 2): Employee_Zip — key Emp_Zip, location stored once per zip.</caption>
+<thead><tr><th class="mono">Emp_Zip</th><th class="mono">Emp_State</th><th class="mono">Emp_City</th><th class="mono">Emp_District</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">160017</td><td class="mono good">Chandigarh</td><td class="mono good">Chandigarh</td><td class="mono good">Sector 17</td></tr>
+<tr><td class="mono pk">140301</td><td class="mono good">Punjab</td><td class="mono good">Mohali</td><td class="mono good">Kharar</td></tr>
+</tbody>
+</table>
+
+<p>Both resulting tables are in 3NF. In the first, every non-prime attribute depends on the whole key and on
+nothing else. In the second, the key <span class="kv">Emp_Zip</span> determines the three location attributes
+directly, with no intermediate non-prime determinant. Notice the immediate practical benefit: the fact
+“160017 is in Chandigarh” is now stored <b>once</b> instead of once per employee, so changing it cannot leave
+the database inconsistent.</p>
+
+<div class="box tip"><span class="tag">Quick test for 3NF</span>
+<p>For every non-trivial dependency <span class="kv">X → A</span>, ask: is X a super key? If yes, fine. If no,
+ask: is A a prime attribute? If yes, fine. If the answer to both is no, the relation is not in 3NF, and that
+dependency is the transitive one to break.</p>
+</div>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 8</span>
+<ul>
+<li><b>3NF</b> requires 2NF plus: no non-prime attribute is transitively dependent on a key.</li>
+<li>Test form: for every non-trivial X → A, either X is a super key <b>or</b> A is prime.</li>
+<li>A transitive dependency is a chain key → non-prime → non-prime.</li>
+<li>The fix moves the second-hop attributes into a table keyed by the non-prime determinant.</li>
+</ul>
+</div>
+</section>
+
+<!-- ==================== CHAPTER 9 ==================== -->
+<section>
+<h1 class="chap" id="c9">9. Boyce-Codd Normal Form (BCNF)</h1>
+<div class="chapmeta">Part 3 &nbsp;•&nbsp; 3.5NF — the strictest functional form</div>
+<div class="chaprule"></div>
+
+<p>BCNF is 3NF with the escape clause removed. Where 3NF allowed “A is prime” as an excuse, BCNF does not.</p>
+
+<h2 id="c9-1">9.1 Why 3NF Is Not Always Enough</h2>
+
+<p>3NF permits a dependency <span class="kv">X → A</span> to stand even when X is not a super key, provided A
+is a prime attribute. That exception is usually harmless, but in one situation it leaves redundancy in place:
+when a <b>non-super-key determinant</b> determines a <b>prime attribute</b> that belongs to a different
+candidate key. BCNF closes that gap.</p>
+
+<div class="box note"><span class="tag">Explanation — the single difference</span>
+<p><b>3NF:</b> for every non-trivial X → A, <b>either</b> X is a super key <b>or</b> A is prime.<br>
+<b>BCNF:</b> for every non-trivial X → A, X <b>must</b> be a super key. (No second option.)</p>
+<p>Because BCNF is stricter, every relation in BCNF is automatically in 3NF, but not every 3NF relation is in
+BCNF. The source's own framing is exactly this: BCNF is “an extension of Third Normal Form on strict terms”.</p>
+</div>
+
+<h2 id="c9-2">9.2 The BCNF Rule</h2>
+
+<div class="box def"><span class="tag">Definition</span>
+<p><b>Boyce-Codd Normal Form</b> states that for any non-trivial functional dependency
+<span class="kv">X → A</span>, <b>X must be a super key</b>.</p>
+</div>
+
+<p>The source gives two further statements of the same rule, both worth recognising:</p>
+<ul>
+<li>A relation is in BCNF if it holds the following conditions: the relation must be in third normal form, and
+for any functional dependency <span class="kv">A → B</span> in the relation, A should be the super key.</li>
+<li>If there is a functional dependency <span class="kv">A → B</span>, then either A is a super key, or the
+dependency is <b>trivial</b> — that is, all the columns of B are contained in the columns of A.</li>
+</ul>
+
+<div class="box note"><span class="tag">Explanation — what the trivial clause means</span>
+<p>The source illustrates the trivial clause with <span class="kv">(course code, professor name) → (course
+code)</span>. This is trivially true because when you know the course code and the professor name, you
+obviously know the course code. Such a dependency cannot violate anything, so BCNF ignores it. Only
+<b>non-trivial</b> dependencies are tested.</p>
+</div>
+
+<p>The source explains the reasoning behind the rule in two sentences worth reproducing, because they show why
+the rule exists rather than merely what it says:</p>
+<ol>
+<li><b>A is a super key:</b> only on a super key column should it be the case that there is a dependency of
+other columns. If a set of columns B can be determined by knowing some other set of columns A, then A should
+be a super key — a super key determines each row uniquely.</li>
+<li><b>It is a trivial functional dependency:</b> there should be no non-trivial dependency of the kind that
+causes trouble. The source's example is that a professor's department depended on the professor's name; that
+creates integrity issues, because someone may edit the professor's name without changing the department,
+leaving the database inconsistent.</li>
+</ol>
+
+<h2 id="c9-3">9.3 Worked BCNF Example: Employees and Departments</h2>
+
+<p>The source's BCNF example is an Employee relation with attributes <span class="kv">Emp_ID</span>,
+<span class="kv">Emp_Nationality</span>, <span class="kv">Emp_Department</span>, <span class="kv">Dept_Type</span>
+and <span class="kv">No_of_Employees</span>.</p>
+
+<table class="rel">
+<caption>Table 9.1 — Before: Employee violates BCNF.</caption>
+<thead><tr><th class="mono">Emp_ID</th><th class="mono">Emp_Nationality</th><th class="mono">Emp_Department</th><th class="mono">Dept_Type</th><th class="mono">No_of_Employees</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">E1</td><td class="mono">Indian</td><td class="mono bad">CSE</td><td class="mono bad">Academic</td><td class="mono bad">40</td></tr>
+<tr><td class="mono pk">E2</td><td class="mono">Indian</td><td class="mono bad">CSE</td><td class="mono bad">Academic</td><td class="mono bad">40</td></tr>
+<tr><td class="mono pk">E3</td><td class="mono">British</td><td class="mono bad">HR</td><td class="mono bad">Administrative</td><td class="mono bad">12</td></tr>
+</tbody>
+</table>
+
+<p>The candidate key for this relation is <span class="kv">{Emp_ID, Emp_Dept}</span>. The source explains why
+the relation fails BCNF: neither <span class="kv">Emp_ID</span> alone can provide the department information,
+nor can <span class="kv">Emp_Dept</span> alone determine the employee information. Yet there are dependencies
+whose determinants are not super keys:</p>
+
+<pre>Emp_ID     → Emp_Nationality                  (determinant is only part of the key)
+Emp_Dept   → Dept_Type, No_of_Employees       (determinant is only part of the key)</pre>
+
+<p>Each of those determinants is only <em>part</em> of the candidate key, so neither is a super key. The
+relation therefore does not comply with BCNF. The source's fix is to divide it into three tables:</p>
+
+<table class="rel">
+<caption>Table 9.2 — After (relation 1): Employee_Nationality — key Emp_ID.</caption>
+<thead><tr><th class="mono">Emp_ID</th><th class="mono">Emp_Nationality</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">E1</td><td class="mono good">Indian</td></tr>
+<tr><td class="mono pk">E2</td><td class="mono good">Indian</td></tr>
+<tr><td class="mono pk">E3</td><td class="mono good">British</td></tr>
+</tbody>
+</table>
+
+<table class="rel">
+<caption>Table 9.3 — After (relation 2): Employee_Department — key Emp_Dept.</caption>
+<thead><tr><th class="mono">Emp_Dept</th><th class="mono">Dept_Type</th><th class="mono">No_of_Employees</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">CSE</td><td class="mono good">Academic</td><td class="mono good">40</td></tr>
+<tr><td class="mono pk">HR</td><td class="mono good">Administrative</td><td class="mono good">12</td></tr>
+</tbody>
+</table>
+
+<table class="rel">
+<caption>Table 9.4 — After (relation 3): Employee_ID_Dept — key (Emp_ID, Emp_Dept), the junction that preserves the assignment.</caption>
+<thead><tr><th class="mono">Emp_ID</th><th class="mono">Emp_Dept</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">E1</td><td class="mono pk">CSE</td></tr>
+<tr><td class="mono pk">E2</td><td class="mono pk">CSE</td></tr>
+<tr><td class="mono pk">E3</td><td class="mono pk">HR</td></tr>
+</tbody>
+</table>
+
+<p>In relation 1, <span class="kv">Emp_ID</span> is the candidate key and the only dependency is
+<span class="kv">Emp_ID → Emp_Nationality</span>, whose determinant is a super key — so it is in BCNF. In
+relation 2, <span class="kv">Emp_Dept</span> is the candidate key and the dependency is
+<span class="kv">Emp_Dept → Dept_Type, No_of_Employees</span>, again with a super-key determinant — so it is in
+BCNF too. Relation 3 has no non-key attributes, so it is trivially in BCNF. The source's conclusion is exactly
+this: “both the relations are in BCNF”.</p>
+
+<figure>
+<svg viewBox="0 0 540 230" width="540" height="230" role="img"
+     aria-label="BCNF decomposition of Employee into three relations">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">BCNF DECOMPOSITION — EACH DETERMINANT BECOMES A KEY</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="150" y="32" width="240" height="46" rx="4" fill="#fdf1ec" stroke="#b5481b"/>
+  <text x="162" y="50" font-family="DejaVu Sans" font-size="9.4" fill="#b5481b" font-weight="bold">EMPLOYEE  (before)</text>
+  <text x="162" y="66" font-family="DejaVu Sans Mono" font-size="7.8" fill="#1c2833">Emp_ID, Emp_Nationality, Emp_Dept,</text>
+  <text x="162" y="77" font-family="DejaVu Sans Mono" font-size="7.8" fill="#1c2833">Dept_Type, No_of_Employees</text>
+
+  <path d="M270,78 L270,92" stroke="#0e7c86" stroke-width="1.4"/>
+  <path d="M112,92 L428,92" stroke="#0e7c86" stroke-width="1.4"/>
+  <path d="M112,92 L112,104" stroke="#0e7c86" stroke-width="1.4"/>
+  <path d="M270,92 L270,104" stroke="#0e7c86" stroke-width="1.4"/>
+  <path d="M428,92 L428,104" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="24" y="104" width="176" height="52" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="34" y="120" font-family="DejaVu Sans" font-size="8.6" fill="#4f8a37" font-weight="bold">Employee_Nationality</text>
+  <text x="34" y="136" font-family="DejaVu Sans Mono" font-size="8" fill="#1f4fbf" font-weight="bold">Emp_ID</text>
+  <text x="80" y="136" font-family="DejaVu Sans Mono" font-size="8" fill="#1c2833">, Emp_Nationality</text>
+  <text x="34" y="150" font-family="DejaVu Sans" font-size="7.4" fill="#4f8a37">determinant = super key ✔</text>
+
+  <rect x="182" y="104" width="176" height="52" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="192" y="118" font-family="DejaVu Sans" font-size="8.6" fill="#4f8a37" font-weight="bold">Employee_Department</text>
+  <text x="192" y="132" font-family="DejaVu Sans Mono" font-size="8" fill="#1f4fbf" font-weight="bold">Emp_Dept</text>
+  <text x="252" y="132" font-family="DejaVu Sans Mono" font-size="8" fill="#1c2833">, Dept_Type</text>
+  <text x="192" y="143" font-family="DejaVu Sans Mono" font-size="8" fill="#1c2833">, No_of_Employees</text>
+  <text x="192" y="153" font-family="DejaVu Sans" font-size="7.4" fill="#4f8a37">determinant = super key ✔</text>
+
+  <rect x="340" y="104" width="176" height="52" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="350" y="120" font-family="DejaVu Sans" font-size="8.6" fill="#4f8a37" font-weight="bold">Employee_ID_Dept</text>
+  <text x="350" y="136" font-family="DejaVu Sans Mono" font-size="8" fill="#1f4fbf" font-weight="bold">Emp_ID, Emp_Dept</text>
+  <text x="350" y="150" font-family="DejaVu Sans" font-size="7.4" fill="#4f8a37">junction — no non-key attribute</text>
+
+  <rect x="24" y="172" width="492" height="48" rx="3" fill="#eef7f8" stroke="#0e7c86"/>
+  <text x="34" y="188" font-family="DejaVu Sans" font-size="8.4" fill="#0e7c86" font-weight="bold">WHY THIS WORKS:</text>
+  <text x="140" y="188" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">every dependency in the original relation had a determinant that was only part of the key.</text>
+  <text x="34" y="204" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">By making each of those determinants a key of its own relation, every determinant becomes a super key.</text>
+  <text x="34" y="216" font-family="DejaVu Sans" font-size="8.4" fill="#4f8a37">That is precisely the BCNF condition.</text>
+</svg>
+<figcaption class="figcap"><b>Figure 9.1</b> — The BCNF fix makes every determinant of every non-trivial dependency a
+super key, by giving each determinant its own relation.</figcaption>
+</figure>
+
+<h2 id="c9-4">9.4 BCNF and Lossless Join</h2>
+
+<p>One caution belongs here, because it is a favourite viva question. A BCNF decomposition is always
+<b>lossless</b>, but it is not always <b>dependency-preserving</b>: it is possible that some functional
+dependency of the original schema cannot be checked on any single resulting table. 3NF is the highest form
+that can always be achieved while preserving all dependencies. Chapter 12 defines both properties precisely
+and tests the example above for both.</p>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 9</span>
+<ul>
+<li><b>BCNF</b> is 3NF without the “A is prime” escape clause: every determinant of a non-trivial dependency
+must be a super key.</li>
+<li>It is also called 3.5NF, and it is strictly stronger than 3NF.</li>
+<li>Trivial dependencies are ignored by the test.</li>
+<li>The fix gives each non-super-key determinant its own relation, keeping a junction table for the original
+relationship.</li>
+<li>BCNF guarantees lossless join but not always dependency preservation.</li>
+</ul>
+</div>
+</section>
+
+<!-- ==================== CHAPTER 10 ==================== -->
+<section>
+<h1 class="chap" id="c10">10. Fourth Normal Form (4NF)</h1>
+<div class="chapmeta">Part 3 &nbsp;•&nbsp; removing multivalued dependencies</div>
+<div class="chaprule"></div>
+
+<p>Up to BCNF every rule has been about <em>functional</em> dependencies — “one value of X forces one value of
+Y”. 4NF is the first form that deals with a different situation: one value of X forcing <em>many</em> values
+of Y, independently of many values of Z.</p>
+
+<h2 id="c10-1">10.1 Multivalued Dependency Revisited</h2>
+
+<p>Section 5.2 defined the multivalued dependency. Restate it here in the form the 4NF rule needs, because the
+rule is stated in terms of it.</p>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>For a relation R(A, B, C), a <b>multivalued dependency</b> <span class="kv">A →→ B</span> holds when, for
+each value of A, the set of B values is independent of the set of C values. In other words, A determines a
+<em>set</em> of B values and a <em>set</em> of C values, and the two sets have no relationship to each other.
+The source's three conditions for a multivalued dependency are:</p>
+<ol>
+<li>For a dependency A → B, if for a single value of A multiple values of B exist, the table may have a
+multivalued dependency.</li>
+<li>The table must have at least three columns.</li>
+<li>For R(A, B, C), if there is a multivalued dependency between A and B, then B and C must be independent of
+each other.</li>
+</ol>
+</div>
+
+<h2 id="c10-2">10.2 The 4NF Rule</h2>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>A relation is in <b>Fourth Normal Form</b> if it holds all of the following conditions:</p>
+<ul>
+<li>The relation complies with <b>Boyce-Codd Normal Form</b>.</li>
+<li>There is <b>no multivalued dependency</b> between the table's attributes.</li>
+</ul>
+</div>
+
+<p>The source gives two further statements of the same rule, both useful for an exam answer:</p>
+<ul>
+<li>For a table to satisfy 4NF: it should be in BCNF, and the table should not have any multivalued
+dependency.</li>
+<li>In the fourth normal form: it should meet all the requirements of 3NF, and an attribute of one or more rows
+in the table should not result in more than one row of the same table, leading to multivalued dependencies.</li>
+</ul>
+
+<div class="box warn"><span class="tag">Common mistake</span>
+<p>Thinking that 4NF replaces BCNF. It does not — 4NF <em>includes</em> BCNF. A relation that is not in BCNF
+cannot be in 4NF, no matter how many multivalued dependencies you remove. State both conditions when answering.</p>
+</div>
+
+<h2 id="c10-3">10.3 Worked 4NF Example: Students</h2>
+
+<p>The source's first 4NF example is the Students relation with three attributes:
+<span class="kv">Stud_ID</span>, <span class="kv">Stud_Course</span> and <span class="kv">Stud_Hobby</span>.</p>
+
+<table class="rel">
+<caption>Table 10.1 — Before: Students violates 4NF. Stud_Course and Stud_Hobby are independent facts about Stud_ID.</caption>
+<thead><tr><th class="mono">Stud_ID</th><th class="mono">Stud_Course</th><th class="mono">Stud_Hobby</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">S1</td><td class="mono bad">DBMS</td><td class="mono bad">Cricket</td></tr>
+<tr><td class="mono pk">S1</td><td class="mono bad">DBMS</td><td class="mono bad">Music</td></tr>
+<tr><td class="mono pk">S1</td><td class="mono bad">OS</td><td class="mono bad">Cricket</td></tr>
+<tr><td class="mono pk">S1</td><td class="mono bad">OS</td><td class="mono bad">Music</td></tr>
+</tbody>
+</table>
+
+<p>The relation is not in 4NF because it has multivalued dependencies: both
+<span class="kv">Stud_Course</span> and <span class="kv">Stud_Hobby</span> depend on
+<span class="kv">Stud_ID</span> in a multi-valued way, producing the cross-product pattern visible above — two
+courses × two hobbies = four rows. To make the relation 4NF, break it into two relations:</p>
+
+<table class="rel">
+<caption>Table 10.2 — After (relation 1): StudentCourse.</caption>
+<thead><tr><th class="mono">Stud_ID</th><th class="mono">Stud_Course</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">S1</td><td class="mono good">DBMS</td></tr>
+<tr><td class="mono pk">S1</td><td class="mono good">OS</td></tr>
+</tbody>
+</table>
+
+<table class="rel">
+<caption>Table 10.3 — After (relation 2): StudentHobby.</caption>
+<thead><tr><th class="mono">Stud_ID</th><th class="mono">Stud_Hobby</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">S1</td><td class="mono good">Cricket</td></tr>
+<tr><td class="mono pk">S1</td><td class="mono good">Music</td></tr>
+</tbody>
+</table>
+
+<p>The two relations together carry exactly the same information as the original, but each now stores a single
+multi-valued fact about the student. The cross-product rows are gone.</p>
+
+<figure>
+<svg viewBox="0 0 540 200" width="540" height="200" role="img"
+     aria-label="4NF: multivalued dependency cross product removed by decomposition">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">4NF — ONE TABLE HOLDING TWO INDEPENDENT MULTI-VALUED FACTS</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="20" y="36" width="150" height="90" rx="3" fill="#fdf1ec" stroke="#b5481b"/>
+  <text x="30" y="52" font-family="DejaVu Sans" font-size="8.6" fill="#b5481b" font-weight="bold">BEFORE (not 4NF)</text>
+  <text x="30" y="68" font-family="DejaVu Sans Mono" font-size="7.6" fill="#1c2833">S1 DBMS Cricket</text>
+  <text x="30" y="80" font-family="DejaVu Sans Mono" font-size="7.6" fill="#1c2833">S1 DBMS Music</text>
+  <text x="30" y="92" font-family="DejaVu Sans Mono" font-size="7.6" fill="#1c2833">S1 OS   Cricket</text>
+  <text x="30" y="104" font-family="DejaVu Sans Mono" font-size="7.6" fill="#1c2833">S1 OS   Music</text>
+  <text x="30" y="120" font-family="DejaVu Sans" font-size="7.4" fill="#b5481b">2 courses × 2 hobbies = 4 rows</text>
+
+  <path d="M170,80 L212,80" stroke="#0e7c86" stroke-width="1.6"/><path d="M208,75 L220,80 L208,85 z" fill="#0e7c86"/>
+
+  <rect x="224" y="36" width="146" height="66" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="234" y="52" font-family="DejaVu Sans" font-size="8.6" fill="#4f8a37" font-weight="bold">StudentCourse</text>
+  <text x="234" y="70" font-family="DejaVu Sans Mono" font-size="8" fill="#1c2833">S1 DBMS</text>
+  <text x="234" y="84" font-family="DejaVu Sans Mono" font-size="8" fill="#1c2833">S1 OS</text>
+
+  <rect x="382" y="36" width="146" height="66" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="392" y="52" font-family="DejaVu Sans" font-size="8.6" fill="#4f8a37" font-weight="bold">StudentHobby</text>
+  <text x="392" y="70" font-family="DejaVu Sans Mono" font-size="8" fill="#1c2833">S1 Cricket</text>
+  <text x="392" y="84" font-family="DejaVu Sans Mono" font-size="8" fill="#1c2833">S1 Music</text>
+
+  <rect x="20" y="140" width="508" height="52" rx="3" fill="#eef7f8" stroke="#0e7c86"/>
+  <text x="30" y="156" font-family="DejaVu Sans" font-size="8.4" fill="#0e7c86" font-weight="bold">THE DEPENDENCIES:</text>
+  <text x="156" y="156" font-family="DejaVu Sans Mono" font-size="8.4" fill="#1c2833">Stud_ID →→ Stud_Course      and      Stud_ID →→ Stud_Hobby</text>
+  <text x="30" y="174" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">Each arrow forces a whole set of values, and the two sets are independent. Splitting them removes the cross product.</text>
+  <text x="30" y="186" font-family="DejaVu Sans" font-size="8.4" fill="#4f8a37">After splitting, each dependency is a simple functional dependency on a two-column key — and the relation is in 4NF.</text>
+</svg>
+<figcaption class="figcap"><b>Figure 10.1</b> — A multivalued dependency makes one table hold a cross product of two
+independent facts. 4NF splits them into one table per fact.</figcaption>
+</figure>
+
+<h2 id="c10-4">10.4 Worked 4NF Example: Subject, Lecturer, Books</h2>
+
+<p>The source's second 4NF example is a Course relation with a <span class="kv">SUBJECT</span>, the
+<span class="kv">LECTURER</span> who teaches it, and the recommended <span class="kv">BOOKS</span> for it.</p>
+
+<table class="rel">
+<caption>Table 10.4 — Before: the Course relation. LECTURER and BOOKS are independent of each other.</caption>
+<thead><tr><th class="mono">SUBJECT</th><th class="mono">LECTURER</th><th class="mono">BOOKS</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">Mathematics</td><td class="mono bad">Alex</td><td class="mono bad">Maths Book1</td></tr>
+<tr><td class="mono pk">Mathematics</td><td class="mono bad">Alex</td><td class="mono bad">Maths Book2</td></tr>
+<tr><td class="mono pk">Mathematics</td><td class="mono bad">Bosco</td><td class="mono bad">Maths Book1</td></tr>
+<tr><td class="mono pk">Mathematics</td><td class="mono bad">Bosco</td><td class="mono bad">Maths Book2</td></tr>
+</tbody>
+</table>
+
+<p>The source's analysis is precise and worth following step by step. The data satisfies 3NF. But
+<span class="kv">LECTURER</span> and <span class="kv">BOOKS</span> are two independent entities here: there is
+no relationship between a lecturer and a book. Either Alex or Bosco can teach Mathematics, and for Mathematics
+a student can refer to either Maths Book1 or Maths Book2. So:</p>
+<pre>SUBJECT →→ LECTURER
+SUBJECT →→ BOOKS</pre>
+<p>This is a multivalued dependency on <span class="kv">SUBJECT</span>. The source then makes the crucial
+observation: if you select both the lecturer and the books recommended for a subject, the query returns a
+(lecturer, books) <em>combination</em>, which wrongly implies that a particular lecturer recommends a
+particular book. That implication is not in the data at all — it is an artefact of storing the two facts
+together.</p>
+
+<div class="box amber"><span class="tag">Worked step — the misleading query</span>
+<pre>SELECT c.LECTURER, c.BOOKS
+FROM   COURSE c
+WHERE  SUBJECT = 'Mathematics';</pre>
+<p>This returns four rows: (Alex, Maths Book1), (Alex, Maths Book2), (Bosco, Maths Book1),
+(Bosco, Maths Book2). Reading the result, a user could conclude that Bosco recommends Maths Book2. Nothing in
+the data supports that conclusion — the two facts are simply independent.</p>
+</div>
+
+<p>The source's remedy is to split the single table into two, and to query them independently:</p>
+
+<pre>-- Select the lecturer names
+SELECT c.SUBJECT, c.LECTURER
+FROM   COURSE c
+WHERE  c.SUBJECT = 'Mathematics';
+
+-- Select the recommended book names
+SELECT c.SUBJECT, c.BOOKS
+FROM   COURSE c
+WHERE  c.SUBJECT = 'Mathematics';</pre>
+
+<p>Firing two independent queries removes the multivalued dependency and the confusion around the data, and the
+table is then in 4NF. This is the same fix as Section 10.3 in a different setting: <b>one table, one
+multi-valued fact</b>.</p>
+
+<div class="box tip"><span class="tag">Quick test for 4NF</span>
+<p>Look for the cross-product pattern. If a table has three columns A, B, C and, for a single A value, every
+B value is paired with every C value, then B and C are independent multi-valued facts and the table is not in
+4NF. The fix is always to split B and C into two tables, each keyed by A.</p>
+</div>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 10</span>
+<ul>
+<li><b>4NF</b> requires BCNF plus: no multivalued dependency among the attributes.</li>
+<li>A multivalued dependency <span class="kv">A →→ B</span> exists when, for each A, the B values and the C
+values are independent sets. It needs at least three columns.</li>
+<li>Its signature is a cross product in the data, and its cost is a misleading join.</li>
+<li>The fix splits the table into one table per multi-valued fact, each keyed by the determinant.</li>
+</ul>
+</div>
+</section>
+
+
+<!-- ==================== CHAPTER 11 ==================== -->
+<section>
+<h1 class="chap" id="c11">11. Fifth Normal Form (5NF) and Join Dependency</h1>
+<div class="chapmeta">Part 3 &nbsp;•&nbsp; project–join normal form</div>
+<div class="chaprule"></div>
+
+<p>5NF is also called the <b>Projected Normal Form</b> or <b>Project–Join Normal Form (PJNF)</b>. It is the
+last of the six forms, and the one the source describes as “largely of academic interest” — and it explains
+exactly why, which is worth understanding.</p>
+
+<h2 id="c11-1">11.1 The 5NF Rule</h2>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>A relation R is in <b>Fifth Normal Form</b> if and only if <b>every join dependency in R is implied by the
+candidate keys of R</b>.</p>
+</div>
+
+<p>The source gives the equivalent property list, and it is the clearest way to remember the rule:</p>
+<ol>
+<li>R should already be in 4NF.</li>
+<li>R cannot be further non-loss decomposed — that is, it has no join dependency beyond those implied by its
+keys.</li>
+</ol>
+
+<p>The source also states it in the “table” form: <em>a table T is in fifth normal form if every join
+dependency in T is a consequence only of the candidate keys of T.</em> And in plain language: <em>a table is
+in 5NF if it is in 4NF and it cannot be subdivided into any smaller tables without losing some form of
+information.</em></p>
+
+<div class="box note"><span class="tag">Explanation — the phrase that matters</span>
+<p>The whole of 5NF turns on one phrase: <b>“implied by the candidate keys”</b>. A table can always be split
+into projections and joined back — the question is whether the split is <em>forced by the keys</em> or whether
+it depends on an extra business rule. If the split is forced by the keys, the join dependency carries no new
+information and the table is in 5NF. If the split depends on a separate rule, that rule is a genuine
+constraint and the table is not in 5NF until it is decomposed.</p>
+</div>
+
+<h2 id="c11-2">11.2 Worked 5NF Example: Agent, Company, Product</h2>
+
+<p>The source's 5NF example is the table it calls <span class="kv">agent_company product</span>, and its
+explanation of the two versions of that table is the most important passage in the chapter.</p>
+
+<p>The table records which agents sell which products for which companies. Suppose the business rule is:</p>
+<pre>If an agent sells a product, and the agent works for a company,
+and the company makes that product — then the agent sells that product for that company.</pre>
+<p>That rule is a <b>tuple-formation rule</b>. It is not a key; it is an extra constraint on which rows may
+exist. Because such a rule exists, the join dependency</p>
+<p style="text-align:center"><span class="kv">*(agent, company, product_name)</span></p>
+<p>is <em>not</em> a consequence only of the primary key — it is also a consequence of that extra rule. That is
+exactly the condition the source names for a 5NF violation.</p>
+
+<div class="box violet"><span class="tag">From the source — the two versions of the table</span>
+<p>The source distinguishes two versions clearly, and the distinction is the whole point:</p>
+<p><b>Version 1 — no tuple-formation rule applied.</b> In the first example of the
+<span class="kv">agent_company Product</span> table there was no application of this rule, hence no join
+dependency other than that on the primary key. <b>That table was in 5NF.</b></p>
+<p><b>Version 2 — the rule applied.</b> The second version of the same table <em>violated</em> 5NF, because
+the join dependency *(agent, company, product_name) was not a consequence only of the primary key, but also a
+consequence of the tuple-formation rule given earlier.</p>
+<p>The lesson is precise: <b>the same three columns can be in 5NF or not, depending on whether a
+tuple-formation rule exists.</b> 5NF is about business rules, not about column lists.</p>
+</div>
+
+<figure>
+<svg viewBox="0 0 540 200" width="540" height="200" role="img"
+     aria-label="5NF: one relation split into three projections that join back losslessly">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">5NF — ONE RELATION, THREE PROJECTIONS, ONE LOSSLESS JOIN</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="180" y="34" width="180" height="40" rx="4" fill="#fdf1ec" stroke="#b5481b"/>
+  <text x="192" y="52" font-family="DejaVu Sans" font-size="8.8" fill="#b5481b" font-weight="bold">EMPLOYEE (before)</text>
+  <text x="192" y="67" font-family="DejaVu Sans Mono" font-size="7.6" fill="#1c2833">EmpName, EmpSkills, EmpJob</text>
+
+  <path d="M270,74 L270,88" stroke="#0e7c86" stroke-width="1.4"/>
+  <path d="M92,88 L448,88" stroke="#0e7c86" stroke-width="1.4"/>
+  <path d="M92,88 L92,100" stroke="#0e7c86" stroke-width="1.4"/>
+  <path d="M270,88 L270,100" stroke="#0e7c86" stroke-width="1.4"/>
+  <path d="M448,88 L448,100" stroke="#0e7c86" stroke-width="1.4"/>
+  <text x="278" y="86" font-family="DejaVu Sans" font-size="7.4" fill="#5d6d7e">project</text>
+
+  <rect x="24" y="100" width="136" height="46" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="34" y="116" font-family="DejaVu Sans" font-size="8.4" fill="#4f8a37" font-weight="bold">EmployeeSkills</text>
+  <text x="34" y="132" font-family="DejaVu Sans Mono" font-size="7.8" fill="#1f4fbf" font-weight="bold">EmpName</text>
+  <text x="86" y="132" font-family="DejaVu Sans Mono" font-size="7.8" fill="#1c2833">, EmpSkills</text>
+
+  <rect x="202" y="100" width="136" height="46" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="212" y="116" font-family="DejaVu Sans" font-size="8.4" fill="#4f8a37" font-weight="bold">EmployeeJob</text>
+  <text x="212" y="132" font-family="DejaVu Sans Mono" font-size="7.8" fill="#1f4fbf" font-weight="bold">EmpName</text>
+  <text x="264" y="132" font-family="DejaVu Sans Mono" font-size="7.8" fill="#1c2833">, EmpJob</text>
+
+  <rect x="380" y="100" width="136" height="46" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="390" y="116" font-family="DejaVu Sans" font-size="8.4" fill="#4f8a37" font-weight="bold">JobSkills</text>
+  <text x="390" y="132" font-family="DejaVu Sans Mono" font-size="7.8" fill="#1f4fbf" font-weight="bold">EmpSkills</text>
+  <text x="450" y="132" font-family="DejaVu Sans Mono" font-size="7.8" fill="#1c2833">, EmpJob</text>
+
+  <path d="M92,146 L92,160 L270,160 L270,168" fill="none" stroke="#0e7c86" stroke-width="1.4"/>
+  <path d="M448,146 L448,160 L270,160" fill="none" stroke="#0e7c86" stroke-width="1.4"/>
+  <path d="M266,164 L270,174 L274,164 z" fill="#0e7c86"/>
+  <rect x="190" y="174" width="160" height="22" rx="3" fill="#eef7f8" stroke="#0e7c86"/>
+  <text x="200" y="189" font-family="DejaVu Sans" font-size="8.2" fill="#0e7c86" font-weight="bold">natural join → original rows</text>
+  <text x="24" y="196" font-family="DejaVu Sans" font-size="7.6" fill="#5d6d7e">The join dependency *(EmpName, EmpSkills, EmpJob) is the set of these three projections.</text>
+</svg>
+<figcaption class="figcap"><b>Figure 11.1</b> — A join dependency: the relation is reconstructed by joining three
+projections. 5NF asks whether that dependency follows from the keys alone.</figcaption>
+</figure>
+
+
+<h3>Illustrating the decomposition</h3>
+<p>Section 5.3 showed how such a table is decomposed into three projections. Reproduced here with each
+relation's own key marked, which is what makes the “implied by the candidate keys” test applicable.</p>
+
+<table class="rel">
+<caption>Table 11.1 — The three-column relation, before decomposition.</caption>
+<thead><tr><th class="mono">EmpName</th><th class="mono">EmpSkills</th><th class="mono">EmpJob</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">Tom</td><td class="mono">Networking</td><td class="mono">EJ001</td></tr>
+<tr><td class="mono pk">Harry</td><td class="mono">Web Development</td><td class="mono">EJ002</td></tr>
+<tr><td class="mono pk">Katie</td><td class="mono">Programming</td><td class="mono">EJ002</td></tr>
+</tbody>
+</table>
+
+<table class="rel">
+<caption>Table 11.2 — Projection 1: EmployeeSkills.</caption>
+<thead><tr><th class="mono">EmpName</th><th class="mono">EmpSkills</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">Tom</td><td class="mono">Networking</td></tr>
+<tr><td class="mono pk">Harry</td><td class="mono">Web Development</td></tr>
+<tr><td class="mono pk">Katie</td><td class="mono">Programming</td></tr>
+</tbody>
+</table>
+
+<table class="rel">
+<caption>Table 11.3 — Projection 2: EmployeeJob.</caption>
+<thead><tr><th class="mono">EmpName</th><th class="mono">EmpJob</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">Tom</td><td class="mono">EJ001</td></tr>
+<tr><td class="mono pk">Harry</td><td class="mono">EJ002</td></tr>
+<tr><td class="mono pk">Katie</td><td class="mono">EJ002</td></tr>
+</tbody>
+</table>
+
+<table class="rel">
+<caption>Table 11.4 — Projection 3: JobSkills.</caption>
+<thead><tr><th class="mono">EmpSkills</th><th class="mono">EmpJob</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">Networking</td><td class="mono">EJ001</td></tr>
+<tr><td class="mono pk">Web Development</td><td class="mono">EJ002</td></tr>
+<tr><td class="mono pk">Programming</td><td class="mono">EJ002</td></tr>
+</tbody>
+</table>
+
+<p>The join dependency is the set of three projections:</p>
+<p style="text-align:center"><span class="kv">{ (EmpName, EmpSkills), (EmpName, EmpJob), (EmpSkills, EmpJob) }</span></p>
+<p>and the source's conclusion is that a join of the three relations above is equal to the original relation.
+The rows of Tables 11.2–11.4 are the source's rows.</p>
+
+<h2 id="c11-3">11.3 Why 5NF Is Largely of Academic Interest</h2>
+
+<p>The source's closing assessment is refreshingly honest and should be quoted in any exam answer on 5NF:</p>
+
+<div class="box note"><span class="tag">The source's own assessment</span>
+<p>“It can be shown that if a table is in 5NF, then, because join dependencies are the ‘ultimate’ form of
+dependency, it must also be in 4NF and thus conform to all the further normal forms. The problem with this is
+that <b>detecting join dependencies is, in practice, very difficult</b>. For this reason, 5NF is largely of
+academic interest.”</p>
+</div>
+
+<p>Two consequences follow. First, 5NF sits at the top of the ladder:
+5NF ⟹ 4NF ⟹ BCNF ⟹ 3NF ⟹ 2NF ⟹ 1NF. Second, in ordinary application design, reaching BCNF or 3NF is usually
+enough; 4NF matters when independent multi-valued facts are present, and 5NF matters only when a
+tuple-formation rule of the kind above is in force. The source's own summary of the whole normalization
+chapter makes the same practical point:</p>
+
+<div class="box tip"><span class="tag">Source summary of normalization</span>
+<p>“The various forms of database normalization are useful while designing the schema of a database in such a
+way that there is no data replication which may possibly lead to inconsistencies. While designing the schema
+for applications, we should always think about how we can make use of these forms.”</p>
+</div>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 11</span>
+<ul>
+<li><b>5NF</b> (also projected normal form / PJNF): every join dependency must be implied by the candidate
+keys.</li>
+<li>It requires 4NF, and it means the relation cannot be non-loss decomposed further.</li>
+<li>The same three columns can be in 5NF or not, depending on whether a tuple-formation rule exists — that is
+why the source's two versions of the agent/company/product table differ.</li>
+<li>Detecting join dependencies is hard in practice, so 5NF is mainly of academic interest.</li>
+</ul>
+</div>
+</section>
+
+<!-- ==================== CHAPTER 12 ==================== -->
+<section>
+<h1 class="chap" id="c12">12. Lossless Decomposition</h1>
+<div class="chapmeta">Part 3 &nbsp;•&nbsp; the property that makes decomposition safe</div>
+<div class="chaprule"></div>
+
+<p>Every normal form in Part 3 has been reached by splitting a relation. That raises an obvious danger: if you
+split a table badly, you can lose information, and no amount of tidiness in the resulting schema will
+compensate. The property that rules this out is <b>lossless decomposition</b>, and the source names it in its
+own definition of normalization — “decomposition which is lossless”.</p>
+
+<h2 id="c12-1">12.1 What Lossless Means</h2>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>A decomposition of relation R into relations R1, R2, …, Rn is <b>lossless</b> (more precisely,
+lossless-join) if joining the decomposed relations back together reproduces <b>exactly</b> the original
+relation — no rows lost, and no spurious rows created.</p>
+</div>
+
+<p>The word “lossless” is slightly misleading, because the danger is not only losing rows. A bad decomposition
+can also <em>invent</em> rows: the natural join of the pieces produces combinations that never existed in the
+original. The source's phrasing of the goal captures both directions: <em>a relation decomposed into relations
+must have the lossless-join property, which ensures that no spurious or extra tuples are generated when the
+relations are reunited through a natural join.</em></p>
+
+<figure>
+<svg viewBox="0 0 540 210" width="540" height="210" role="img"
+     aria-label="Lossless versus lossy decomposition">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">DECOMPOSE, THEN JOIN BACK — DID YOU GET THE SAME RELATION?</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="180" y="34" width="180" height="40" rx="4" fill="#1f4fbf"/>
+  <text x="216" y="52" font-family="DejaVu Sans" font-size="9.6" fill="#fff" font-weight="bold">ORIGINAL  R</text>
+  <text x="240" y="67" font-family="DejaVu Sans Mono" font-size="8" fill="#dbe6f3">(A, B, C)</text>
+
+  <path d="M270,74 L270,88" stroke="#0e7c86" stroke-width="1.4"/>
+  <path d="M120,88 L420,88" stroke="#0e7c86" stroke-width="1.4"/>
+  <path d="M120,88 L120,100" stroke="#0e7c86" stroke-width="1.4"/>
+  <path d="M420,88 L420,100" stroke="#0e7c86" stroke-width="1.4"/>
+  <text x="278" y="86" font-family="DejaVu Sans" font-size="8" fill="#5d6d7e">decompose</text>
+
+  <rect x="30" y="100" width="180" height="40" rx="3" fill="#e8f1fb" stroke="#1f4fbf"/>
+  <text x="60" y="118" font-family="DejaVu Sans Mono" font-size="9" fill="#1c2833">R1 (A, B)</text>
+  <text x="60" y="132" font-family="DejaVu Sans Mono" font-size="9" fill="#1c2833">R2 (A, C)</text>
+
+  <rect x="330" y="100" width="180" height="40" rx="3" fill="#fdf1ec" stroke="#b5481b"/>
+  <text x="360" y="118" font-family="DejaVu Sans Mono" font-size="9" fill="#1c2833">R1 (A, B)</text>
+  <text x="360" y="132" font-family="DejaVu Sans Mono" font-size="9" fill="#1c2833">R2 (B, C)</text>
+
+  <path d="M120,140 L120,156" stroke="#0e7c86" stroke-width="1.4"/><path d="M420,140 L420,156" stroke="#0e7c86" stroke-width="1.4"/>
+  <text x="60" y="156" font-family="DejaVu Sans" font-size="8" fill="#5d6d7e">natural join on A</text>
+  <text x="360" y="156" font-family="DejaVu Sans" font-size="8" fill="#5d6d7e">natural join on B</text>
+
+  <rect x="30" y="162" width="180" height="38" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="42" y="180" font-family="DejaVu Sans" font-size="9" fill="#4f8a37" font-weight="bold">LOSSLESS</text>
+  <text x="42" y="194" font-family="DejaVu Sans" font-size="8" fill="#1c2833">join gives back exactly R</text>
+
+  <rect x="330" y="162" width="180" height="38" rx="3" fill="#fdf1ec" stroke="#b5481b"/>
+  <text x="342" y="180" font-family="DejaVu Sans" font-size="9" fill="#b5481b" font-weight="bold">LOSSY</text>
+  <text x="342" y="194" font-family="DejaVu Sans" font-size="8" fill="#1c2833">join creates spurious tuples</text>
+
+  <text x="30" y="208" font-family="DejaVu Sans" font-size="7.8" fill="#5d6d7e">The shared attribute must be a key of at least one of the two relations — that is the test in Section 12.2.</text>
+</svg>
+<figcaption class="figcap"><b>Figure 12.1</b> — A decomposition is lossless when the shared attribute is a key of
+one of the pieces. If it is not, the join invents rows.</figcaption>
+</figure>
+
+<h2 id="c12-2">12.2 The Lossless-Join Test</h2>
+
+<div class="box def"><span class="tag">The test for a binary decomposition</span>
+<p>Let R be decomposed into R1 and R2. The decomposition is <b>lossless</b> if and only if the <b>common
+attributes</b> R1 ∩ R2 form a <b>super key</b> of at least one of R1 or R2.</p>
+<p>That is: (R1 ∩ R2) → R1 &nbsp;or&nbsp; (R1 ∩ R2) → R2.</p>
+</div>
+
+<p>The intuition is worth stating plainly. The join can only match rows on the shared attributes. If those
+shared attributes identify a row uniquely in at least one of the pieces, the join cannot create a false match,
+so no spurious tuple can appear. If the shared attributes identify nothing, several rows can match each other
+and the cross product appears.</p>
+
+<h2 id="c12-3">12.3 Worked Test on a Student Relation</h2>
+
+<div class="box amber"><span class="tag">Worked step — testing two decompositions</span>
+<p><b>Relation:</b> <span class="kv">R ( Stu_ID, Stu_Name, Zip, City )</span>, with dependencies
+<span class="kv">Stu_ID → Stu_Name, Zip</span> and <span class="kv">Zip → City</span>.</p>
+
+<p><b>Decomposition A (the correct 3NF split):</b>
+<span class="kv">R1 ( Stu_ID, Stu_Name, Zip )</span> and <span class="kv">R2 ( Zip, City )</span>.</p>
+<table>
+<thead><tr><th>Step</th><th>Check</th><th>Result</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Common attributes R1 ∩ R2</td><td class="mono">{ Zip }</td></tr>
+<tr><td>2</td><td>Is Zip a super key of R2?</td><td class="mono">Yes — Zip → City, and R2 = {Zip, City}</td></tr>
+<tr><td>3</td><td>Verdict</td><td class="ok">Lossless ✔</td></tr>
+</tbody>
+</table>
+
+<p><b>Decomposition B (a deliberately wrong split):</b>
+<span class="kv">R1 ( Stu_ID, Stu_Name )</span> and <span class="kv">R2 ( Stu_Name, Zip, City )</span>.</p>
+<table>
+<thead><tr><th>Step</th><th>Check</th><th>Result</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Common attributes R1 ∩ R2</td><td class="mono">{ Stu_Name }</td></tr>
+<tr><td>2</td><td>Is Stu_Name a super key of R1?</td><td class="mono">No — Stu_ID → Stu_Name, not the reverse</td></tr>
+<tr><td>3</td><td>Is Stu_Name a super key of R2?</td><td class="mono">No — Zip → City, and Stu_Name → nothing here</td></tr>
+<tr><td>4</td><td>Verdict</td><td class="no">Lossy ✘</td></tr>
+</tbody>
+</table>
+<p>Two students with the same name would produce a false match, and the join would pair each student with the
+other's zip and city. Decomposition B is therefore rejected.</p>
+</div>
+
+<h2 id="c12-4">12.4 Dependency Preservation</h2>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>A decomposition is <b>dependency-preserving</b> if every functional dependency of the original relation can
+be checked using only the resulting relations — that is, the union of the dependencies projected onto each new
+relation is equivalent to the original set.</p>
+</div>
+
+<p>Lossless join and dependency preservation are different properties, and a decomposition can have one without
+the other. The practical consequences are worth remembering:</p>
+
+<table>
+<caption>Table 12.1 — The two properties and what each guarantees.</caption>
+<thead><tr><th>Property</th><th>What it guarantees</th><th>If it is missing</th></tr></thead>
+<tbody>
+<tr><td>Lossless join</td><td>No information is lost or invented</td><td>The database now holds wrong data</td></tr>
+<tr><td>Dependency preservation</td><td>Every rule can be enforced by a table constraint</td><td>Rules must be enforced by application code, or go unchecked</td></tr>
+</tbody>
+</table>
+
+<div class="box note"><span class="tag">Explanation — the practical trade-off</span>
+<p>3NF can always be achieved while preserving all dependencies. BCNF can always be achieved losslessly, but
+sometimes at the cost of a dependency that no single table can enforce. This is the real reason some designers
+stop at 3NF even though BCNF is stricter: an unenforceable rule is a worse problem than the small redundancy
+BCNF would have removed.</p>
+</div>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 12</span>
+<ul>
+<li>A decomposition is <b>lossless</b> if the natural join of the pieces reproduces the original relation
+exactly — no rows lost, no rows invented.</li>
+<li><b>Test:</b> the common attributes R1 ∩ R2 must be a super key of at least one piece.</li>
+<li>A decomposition is <b>dependency-preserving</b> if every original dependency can be checked on the new
+relations.</li>
+<li>3NF can always give both properties; BCNF always gives losslessness but not always dependency
+preservation.</li>
+</ul>
+</div>
+</section>
+
+
+<!-- ==================== CHAPTER 13 ==================== -->
+<section>
+<h1 class="chap" id="c13">13. A Complete Worked Normalization Case Study</h1>
+<div class="chapmeta">Part 3 &nbsp;•&nbsp; one relation, driven from UNF all the way to BCNF and 4NF</div>
+<div class="chaprule"></div>
+
+<p>Parts 3.1 to 3.6 taught the forms one at a time, each on its own small example. This chapter does what an
+exam question usually asks: take <b>one</b> messy relation and drive it down the ladder, showing at each step
+which rule is broken, what dependency causes the break, and what the decomposition does about it. Every table
+here is built from the source's own examples; the synthesis is new and is labelled as such.</p>
+
+<div class="box violet"><span class="tag">A note on provenance</span>
+<p>The relation below is an <b>illustrative case study</b> assembled from the source's schemas (Student,
+Student_Project, Employee, Department). It is not a table printed in the source. It is included because the
+source teaches each normal form separately and never works one relation all the way down, and because that is
+exactly the form an examination question takes.</p>
+</div>
+
+<h2 id="c13-1">13.1 The Unnormalized Relation</h2>
+
+<p>Consider the following relation, which a college might naively use to keep track of student projects.</p>
+
+<pre>PROJECT_RECORD ( Stu_ID, Stu_Name, Dept, Proj_ID, Proj_Name, Guide_Name, Guide_Phone )</pre>
+
+<p>And suppose the following business rules hold. These are the functional dependencies; without them no
+normalization is possible.</p>
+
+<pre>F = {
+   Stu_ID   → Stu_Name, Dept
+   Proj_ID  → Proj_Name, Guide_Name
+   Guide_Name → Guide_Phone
+}</pre>
+
+<p>The source's rule for finding the key applies directly: attributes appearing only on the right side cannot
+be in any key; attributes appearing on the left must be. <span class="kv">Stu_ID</span> and
+<span class="kv">Proj_ID</span> both appear on the left, so both are needed. Compute the closure:</p>
+
+<div class="box amber"><span class="tag">Worked step — finding the key</span>
+<table>
+<thead><tr><th>Pass</th><th>Result set</th><th>Dependency used</th></tr></thead>
+<tbody>
+<tr><td>start</td><td class="mono">{ Stu_ID, Proj_ID }</td><td>—</td></tr>
+<tr><td>1</td><td class="mono">{ Stu_ID, Proj_ID, Stu_Name, Dept }</td><td>Stu_ID → Stu_Name, Dept</td></tr>
+<tr><td>2</td><td class="mono">{ … , Proj_Name, Guide_Name }</td><td>Proj_ID → Proj_Name, Guide_Name</td></tr>
+<tr><td>3</td><td class="mono">{ … , Guide_Phone }</td><td>Guide_Name → Guide_Phone</td></tr>
+</tbody>
+</table>
+<p><b>Result:</b> (Stu_ID, Proj_ID)⁺ contains every attribute, and neither Stu_ID⁺ nor Proj_ID⁺ does. So
+<span class="kv">( Stu_ID, Proj_ID )</span> is the only candidate key, and therefore the primary key.</p>
+</div>
+
+<table class="rel">
+<caption>Table 13.1 — The unnormalized relation. Key = (Stu_ID, Proj_ID). Several columns are repeated.</caption>
+<thead><tr><th class="mono">Stu_ID</th><th class="mono">Stu_Name</th><th class="mono">Dept</th><th class="mono">Proj_ID</th><th class="mono">Proj_Name</th><th class="mono">Guide_Name</th><th class="mono">Guide_Phone</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">S1</td><td class="mono bad">Ananya</td><td class="mono bad">CSE</td><td class="mono pk">P1</td><td class="mono">Library System</td><td class="mono bad">Dr. Rao</td><td class="mono bad">98100</td></tr>
+<tr><td class="mono pk">S1</td><td class="mono bad">Ananya</td><td class="mono bad">CSE</td><td class="mono pk">P2</td><td class="mono">Hostel Portal</td><td class="mono bad">Dr. Nair</td><td class="mono bad">98200</td></tr>
+<tr><td class="mono pk">S2</td><td class="mono bad">Rohit</td><td class="mono bad">CSE</td><td class="mono pk">P1</td><td class="mono">Library System</td><td class="mono bad">Dr. Rao</td><td class="mono bad">98100</td></tr>
+<tr><td class="mono pk">S3</td><td class="mono bad">Meera</td><td class="mono bad">ECE</td><td class="mono pk">P3</td><td class="mono">Antenna Array</td><td class="mono bad">Dr. Rao</td><td class="mono bad">98100</td></tr>
+</tbody>
+</table>
+
+<p>Everything is wrong with this table at once: “Ananya / CSE” is stored twice, “Library System / Dr. Rao /
+98100” twice, and “Dr. Rao / 98100” three times. Each repetition is an opportunity for inconsistency.</p>
+
+<h2 id="c13-2">13.2 Step 1: To 1NF</h2>
+<p><b>Rule to check:</b> are all values atomic? <b>Result:</b> yes — every cell holds one value, so the
+relation is already in 1NF. This is worth stating explicitly in an answer: 1NF is about atomicity, and nothing
+here is a list.</p>
+
+<h2 id="c13-3">13.3 Step 2: To 2NF</h2>
+<p><b>Rule to check:</b> does every non-prime attribute depend on the <b>whole</b> key?</p>
+
+<div class="box amber"><span class="tag">Worked step — the partial dependencies</span>
+<p>The key is <span class="kv">( Stu_ID, Proj_ID )</span>. Test each non-prime attribute:</p>
+<table>
+<thead><tr><th>Attribute</th><th>Determined by</th><th>Whole key needed?</th><th>Verdict</th></tr></thead>
+<tbody>
+<tr><td class="mono">Stu_Name</td><td class="mono">Stu_ID</td><td>No — half the key suffices</td><td class="no">Partial ✘</td></tr>
+<tr><td class="mono">Dept</td><td class="mono">Stu_ID</td><td>No</td><td class="no">Partial ✘</td></tr>
+<tr><td class="mono">Proj_Name</td><td class="mono">Proj_ID</td><td>No</td><td class="no">Partial ✘</td></tr>
+<tr><td class="mono">Guide_Name</td><td class="mono">Proj_ID</td><td>No</td><td class="no">Partial ✘</td></tr>
+<tr><td class="mono">Guide_Phone</td><td class="mono">Proj_ID</td><td>No</td><td class="no">Partial ✘</td></tr>
+</tbody>
+</table>
+<p>Every non-prime attribute depends on only half the key. The relation is emphatically not in 2NF.</p>
+</div>
+
+<p><b>Fix:</b> split along the dependency lines. The student facts move to a Student relation, the project
+facts to a Project relation, and a junction relation keeps the many-to-many fact that a student works on a
+project.</p>
+
+<table class="rel">
+<caption>Table 13.2 — Student (Stu_ID, Stu_Name, Dept).</caption>
+<thead><tr><th class="mono">Stu_ID</th><th class="mono">Stu_Name</th><th class="mono">Dept</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">S1</td><td class="mono good">Ananya</td><td class="mono good">CSE</td></tr>
+<tr><td class="mono pk">S2</td><td class="mono good">Rohit</td><td class="mono good">CSE</td></tr>
+<tr><td class="mono pk">S3</td><td class="mono good">Meera</td><td class="mono good">ECE</td></tr>
+</tbody>
+</table>
+
+<table class="rel">
+<caption>Table 13.3 — Project (Proj_ID, Proj_Name, Guide_Name).</caption>
+<thead><tr><th class="mono">Proj_ID</th><th class="mono">Proj_Name</th><th class="mono">Guide_Name</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">P1</td><td class="mono good">Library System</td><td class="mono good">Dr. Rao</td></tr>
+<tr><td class="mono pk">P2</td><td class="mono good">Hostel Portal</td><td class="mono good">Dr. Nair</td></tr>
+<tr><td class="mono pk">P3</td><td class="mono good">Antenna Array</td><td class="mono good">Dr. Rao</td></tr>
+</tbody>
+</table>
+
+<table class="rel">
+<caption>Table 13.4 — Works_On (Stu_ID, Proj_ID), the junction that preserves the original fact.</caption>
+<thead><tr><th class="mono">Stu_ID</th><th class="mono">Proj_ID</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">S1</td><td class="mono pk">P1</td></tr>
+<tr><td class="mono pk">S1</td><td class="mono pk">P2</td></tr>
+<tr><td class="mono pk">S2</td><td class="mono pk">P1</td></tr>
+<tr><td class="mono pk">S3</td><td class="mono pk">P3</td></tr>
+</tbody>
+</table>
+
+<p>Every non-prime attribute now depends on the whole key of its own relation, so all three are in 2NF.</p>
+
+<h2 id="c13-4">13.4 Step 3: To 3NF</h2>
+<p><b>Rule to check:</b> is any non-prime attribute transitively dependent on a key?</p>
+
+<div class="box amber"><span class="tag">Worked step — the transitive dependency</span>
+<p>Look at Table 13.3, <span class="kv">Project ( Proj_ID, Proj_Name, Guide_Name )</span>. Apply the 3NF test
+to the dependency chain:</p>
+<pre>Proj_ID    → Guide_Name        (part of the key determines the guide — fine, Proj_ID is the key)
+Guide_Name → Guide_Phone       (the guide determines the phone)</pre>
+<p>Is <span class="kv">Guide_Name</span> a super key of Project? No. Is <span class="kv">Guide_Phone</span>
+prime? No. Both conditions fail — so once <span class="kv">Guide_Phone</span> is present,
+<span class="kv">Proj_ID → Guide_Name → Guide_Phone</span> is a transitive dependency and Project would violate
+3NF.</p>
+</div>
+
+<p>At this point in our decomposition the phone number has already been moved out with the project facts, so the
+Project relation as written (without <span class="kv">Guide_Phone</span>) is in 3NF. But the correct schema must
+store the phone somewhere, and the right place is a relation keyed by the guide:</p>
+
+<table class="rel">
+<caption>Table 13.5 — Guide (Guide_Name, Guide_Phone) — the second-hop relation that 3NF demands.</caption>
+<thead><tr><th class="mono">Guide_Name</th><th class="mono">Guide_Phone</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">Dr. Rao</td><td class="mono good">98100</td></tr>
+<tr><td class="mono pk">Dr. Nair</td><td class="mono good">98200</td></tr>
+</tbody>
+</table>
+
+<p>Notice the payoff: “Dr. Rao's phone is 98100” is now stored <b>once</b> rather than once per project.</p>
+
+<h2 id="c13-5">13.5 Step 4: To BCNF</h2>
+<p><b>Rule to check:</b> is every determinant of a non-trivial dependency a super key?</p>
+
+<div class="box amber"><span class="tag">Worked step — checking each relation</span>
+<table>
+<thead><tr><th>Relation</th><th>Key</th><th>Non-trivial dependencies</th><th>Determinant a super key?</th><th>BCNF</th></tr></thead>
+<tbody>
+<tr><td class="mono">Student</td><td class="mono">Stu_ID</td><td class="mono">Stu_ID → Stu_Name, Dept</td><td>Yes</td><td class="ok">✔</td></tr>
+<tr><td class="mono">Project</td><td class="mono">Proj_ID</td><td class="mono">Proj_ID → Proj_Name, Guide_Name</td><td>Yes</td><td class="ok">✔</td></tr>
+<tr><td class="mono">Works_On</td><td class="mono">(Stu_ID, Proj_ID)</td><td>none (no non-key attributes)</td><td>—</td><td class="ok">✔</td></tr>
+<tr><td class="mono">Guide</td><td class="mono">Guide_Name</td><td class="mono">Guide_Name → Guide_Phone</td><td>Yes</td><td class="ok">✔</td></tr>
+</tbody>
+</table>
+<p>Every determinant is now the key of its own relation, so the schema is in BCNF.</p>
+</div>
+
+<h2 id="c13-6">13.6 Step 5: To 4NF</h2>
+<p><b>Rule to check:</b> does any relation hold two independent multi-valued facts?</p>
+
+<p>Now consider what the Project relation does <em>not</em> capture. A project may have several guides, and a
+guide may have several contact numbers. If a designer tried to store both in one relation:</p>
+
+<pre>Project_Guide ( Proj_ID, Guide_Name, Guide_Phone )   ← would violate 4NF</pre>
+
+<p>because <span class="kv">Proj_ID →→ Guide_Name</span> and <span class="kv">Guide_Name →→ Guide_Phone</span>
+are independent, producing a cross product. The fix, exactly as in Chapter 10, is two relations — which is what
+Tables 13.3 and 13.5 already are. This is why the schema above reaches 4NF as well as BCNF.</p>
+
+<h2 id="c13-7">13.7 The Final Schema</h2>
+
+<figure>
+<svg viewBox="0 0 540 240" width="540" height="240" role="img"
+     aria-label="Final normalized schema with four relations and their foreign keys">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">FINAL SCHEMA — FOUR RELATIONS, EACH IN BCNF AND 4NF</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="24" y="40" width="220" height="74" rx="4" fill="#fff" stroke="#1f4fbf" stroke-width="1.4"/>
+  <rect x="24" y="40" width="220" height="20" rx="4" fill="#1b6e8a"/>
+  <text x="34" y="54" font-family="DejaVu Sans" font-size="9" fill="#fff" font-weight="bold">STUDENT</text>
+  <text x="34" y="76" font-family="DejaVu Sans Mono" font-size="8.4" fill="#1f4fbf" font-weight="bold">Stu_ID</text>
+  <text x="86" y="76" font-family="DejaVu Sans" font-size="7.4" fill="#1f4fbf">PK</text>
+  <text x="34" y="90" font-family="DejaVu Sans Mono" font-size="8.4" fill="#1c2833">Stu_Name</text>
+  <text x="34" y="104" font-family="DejaVu Sans Mono" font-size="8.4" fill="#1c2833">Dept</text>
+
+  <rect x="296" y="40" width="220" height="74" rx="4" fill="#fff" stroke="#1f4fbf" stroke-width="1.4"/>
+  <rect x="296" y="40" width="220" height="20" rx="4" fill="#1b6e8a"/>
+  <text x="306" y="54" font-family="DejaVu Sans" font-size="9" fill="#fff" font-weight="bold">PROJECT</text>
+  <text x="306" y="76" font-family="DejaVu Sans Mono" font-size="8.4" fill="#1f4fbf" font-weight="bold">Proj_ID</text>
+  <text x="360" y="76" font-family="DejaVu Sans" font-size="7.4" fill="#1f4fbf">PK</text>
+  <text x="306" y="90" font-family="DejaVu Sans Mono" font-size="8.4" fill="#1c2833">Proj_Name</text>
+  <text x="306" y="104" font-family="DejaVu Sans Mono" font-size="8.4" fill="#a0522d" font-weight="bold">Guide_Name</text>
+  <text x="410" y="104" font-family="DejaVu Sans" font-size="7.4" fill="#a0522d">FK</text>
+
+  <rect x="160" y="150" width="220" height="70" rx="4" fill="#fff" stroke="#a0522d" stroke-width="1.4"/>
+  <rect x="160" y="150" width="220" height="20" rx="4" fill="#1b6e8a"/>
+  <text x="170" y="164" font-family="DejaVu Sans" font-size="9" fill="#fff" font-weight="bold">WORKS_ON</text>
+  <text x="170" y="186" font-family="DejaVu Sans Mono" font-size="8.4" fill="#a0522d" font-weight="bold">Stu_ID</text>
+  <text x="222" y="186" font-family="DejaVu Sans" font-size="7.4" fill="#a0522d">FK</text>
+  <text x="170" y="202" font-family="DejaVu Sans Mono" font-size="8.4" fill="#a0522d" font-weight="bold">Proj_ID</text>
+  <text x="226" y="202" font-family="DejaVu Sans" font-size="7.4" fill="#a0522d">FK</text>
+  <text x="276" y="196" font-family="DejaVu Sans" font-size="7.4" fill="#5d6d7e">PK = (Stu_ID, Proj_ID)</text>
+
+  <rect x="410" y="150" width="110" height="70" rx="4" fill="#fff" stroke="#1f4fbf" stroke-width="1.4"/>
+  <rect x="410" y="150" width="110" height="20" rx="4" fill="#1b6e8a"/>
+  <text x="420" y="164" font-family="DejaVu Sans" font-size="9" fill="#fff" font-weight="bold">GUIDE</text>
+  <text x="420" y="186" font-family="DejaVu Sans Mono" font-size="8.4" fill="#1f4fbf" font-weight="bold">Guide_Name</text>
+  <text x="420" y="202" font-family="DejaVu Sans Mono" font-size="8.4" fill="#1c2833">Guide_Phone</text>
+
+  <path d="M140,114 L200,150" stroke="#a0522d" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <path d="M360,114 L300,150" stroke="#a0522d" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <path d="M410,114 L440,150" stroke="#a0522d" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="24" y="232" font-family="DejaVu Sans" font-size="8" fill="#4f8a37">All redundancy removed: each fact is stored once. The junction table preserves the many-to-many relationship.</text>
+</svg>
+<figcaption class="figcap"><b>Figure 13.1</b> — The final schema. Four relations, each keyed by exactly the
+determinant that governs its attributes, and a junction table for the many-to-many relationship.</figcaption>
+</figure>
+
+<table>
+<caption>Table 13.6 — What each step achieved.</caption>
+<thead><tr><th>Step</th><th>Problem found</th><th>Action</th><th>Result</th></tr></thead>
+<tbody>
+<tr><td>1NF</td><td>None — all values atomic</td><td>No change</td><td>Already atomic</td></tr>
+<tr><td>2NF</td><td>Every non-prime attribute depended on half the key</td><td>Split into Student, Project, Works_On</td><td>Full dependencies only</td></tr>
+<tr><td>3NF</td><td>Guide_Name → Guide_Phone is transitive from Proj_ID</td><td>Move the phone to a Guide relation</td><td>No transitive dependencies</td></tr>
+<tr><td>BCNF</td><td>None remaining</td><td>Verified every determinant is a key</td><td>All relations in BCNF</td></tr>
+<tr><td>4NF</td><td>None remaining — guides and phones already separated</td><td>Verified no independent multi-valued facts share a table</td><td>All relations in 4NF</td></tr>
+</tbody>
+</table>
+
+<div class="box tip"><span class="tag">The pattern to remember</span>
+<p>Every step of this case study did the same thing: <b>find a determinant that is not the key, and make it the
+key of its own relation.</b> 2NF does it for determinants that are <em>part</em> of a composite key; 3NF does
+it for determinants that are <em>non-prime</em>; BCNF does it for <em>any</em> determinant; 4NF does it for
+<em>multi-valued</em> determinants. One idea, four applications.</p>
+</div>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 13</span>
+<ul>
+<li>Normalization is driven by dependencies, not by column lists: state the FDs first, then test.</li>
+<li>Find the key by closure; then test each non-prime attribute for partial dependency (2NF), each
+non-prime-to-non-prime chain for transitivity (3NF), each determinant for super-key status (BCNF), and each
+independent multi-valued fact for 4NF.</li>
+<li>Keep a junction relation whenever the original relation held a many-to-many fact.</li>
+<li>Verify losslessness at the end with the R1 ∩ R2 super-key test of Chapter 12.</li>
+</ul>
+</div>
+</section>
+
+<!-- ==================== CHAPTER 14 ==================== -->
+<section>
+<h1 class="chap" id="c14">14. Denormalization</h1>
+<div class="chapmeta">Part 3 &nbsp;•&nbsp; deliberately adding redundancy back</div>
+<div class="chaprule"></div>
+
+<p>Normalization is not an end in itself. It is a means to correctness, and it is paid for with joins. When
+joins become the bottleneck, a designer may deliberately reverse part of the normalization. The source covers
+this under the heading “Denormalization in Databases”, and its first sentence is the one that matters most.</p>
+
+<h2 id="c14-1">14.1 Definition and Motivation</h2>
+
+<div class="box def"><span class="tag">Definition (source)</span>
+<p><b>Denormalization</b> is a database optimization technique in which we add redundant data to one or more
+tables. This can help us avoid costly joins in a relational database.</p>
+<p>The source adds an essential clarification: <b>denormalization does not mean not doing normalization. It is
+an optimization technique that is applied after doing normalization.</b></p>
+</div>
+
+<p>The source's reasoning runs as follows. In a traditional normalized database we store data in separate
+logical tables and try to minimise redundant data, striving to keep only one copy of each piece of data. The
+benefit is obvious: if a fact changes, it changes in one place. The drawback is equally obvious: when a query
+needs data from several tables, the database must join them, and if the tables are large that join can take an
+unnecessarily long time.</p>
+
+<h2 id="c14-2">14.2 A Concrete Example</h2>
+
+<p>The source's example is a Courses table and a Teachers table. In a normalized design each Courses row stores
+the <span class="kv">teacherID</span> for a course but <b>not</b> the <span class="kv">teacherName</span>. To
+list all courses with the teacher's name, the database joins the two tables.</p>
+
+<table class="rel">
+<caption>Table 14.1 — The normalized design (source's example).</caption>
+<thead><tr><th class="mono">Course</th><th class="mono">TeacherID</th></tr></thead>
+<tbody>
+<tr><td class="mono">DBMS</td><td class="mono fk">T1</td></tr>
+<tr><td class="mono">Operating Systems</td><td class="mono fk">T2</td></tr>
+<tr><td class="mono">Networks</td><td class="mono fk">T1</td></tr>
+</tbody>
+</table>
+
+<table class="rel">
+<caption>Table 14.2 — The referenced Teachers table.</caption>
+<thead><tr><th class="mono">TeacherID</th><th class="mono">TeacherName</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">T1</td><td class="mono">Dr. Dhakar</td></tr>
+<tr><td class="mono pk">T2</td><td class="mono">Dr. Verma</td></tr>
+</tbody>
+</table>
+
+<p>The query “list every course with its teacher's name” requires a join on
+<span class="kv">TeacherID</span>. The source states the trade-off in one line: <em>in some ways this is great;
+if a teacher changes his or her name, we only have to update the name in one place. The drawback is that if
+tables are large, we may spend an unnecessarily long time doing joins on tables.</em></p>
+
+<p>Denormalizing the Courses table means storing <span class="kv">TeacherName</span> directly in it:</p>
+
+<table class="rel">
+<caption>Table 14.3 — The denormalized design: TeacherName is now stored in Courses as well.</caption>
+<thead><tr><th class="mono">Course</th><th class="mono">TeacherID</th><th class="mono">TeacherName</th></tr></thead>
+<tbody>
+<tr><td class="mono">DBMS</td><td class="mono fk">T1</td><td class="mono">Dr. Dhakar</td></tr>
+<tr><td class="mono">Operating Systems</td><td class="mono fk">T2</td><td class="mono">Dr. Verma</td></tr>
+<tr><td class="mono">Networks</td><td class="mono fk">T1</td><td class="mono">Dr. Dhakar</td></tr>
+</tbody>
+</table>
+
+<p>Now the course list can be produced with no join at all — at the cost that “Dr. Dhakar” appears twice, and a
+name change must update every occurrence.</p>
+
+<figure>
+<svg viewBox="0 0 540 190" width="540" height="190" role="img"
+     aria-label="Normalized versus denormalized design and the read-write trade-off">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="9.6" fill="#12294b" font-weight="bold">NORMALIZE OR DENORMALIZE — A READ / WRITE TRADE-OFF</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.4"/>
+
+  <rect x="24" y="34" width="236" height="86" rx="4" fill="#e8f1fb" stroke="#1f4fbf"/>
+  <text x="34" y="52" font-family="DejaVu Sans" font-size="9.2" fill="#1f4fbf" font-weight="bold">NORMALIZED</text>
+  <text x="34" y="70" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">Courses (Course, TeacherID)</text>
+  <text x="34" y="84" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">Teachers (TeacherID, TeacherName)</text>
+  <text x="34" y="102" font-family="DejaVu Sans" font-size="8.2" fill="#4f8a37">✔ one copy of each fact</text>
+  <text x="34" y="114" font-family="DejaVu Sans" font-size="8.2" fill="#b5481b">✘ every course list needs a join</text>
+
+  <rect x="280" y="34" width="236" height="86" rx="4" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="290" y="52" font-family="DejaVu Sans" font-size="9.2" fill="#a0522d" font-weight="bold">DENORMALIZED</text>
+  <text x="290" y="70" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">Courses (Course, TeacherID,</text>
+  <text x="290" y="82" font-family="DejaVu Sans" font-size="8.2" fill="#1c2833">         TeacherName)</text>
+  <text x="290" y="102" font-family="DejaVu Sans" font-size="8.2" fill="#4f8a37">✔ reads need no join — much faster</text>
+  <text x="290" y="114" font-family="DejaVu Sans" font-size="8.2" fill="#b5481b">✘ the name is repeated; updates multiply</text>
+
+  <rect x="24" y="134" width="492" height="46" rx="3" fill="#eef7f8" stroke="#0e7c86"/>
+  <text x="34" y="150" font-family="DejaVu Sans" font-size="8.4" fill="#0e7c86" font-weight="bold">RULE OF THUMB:</text>
+  <text x="134" y="150" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">normalize first, for correctness; denormalize later, only for measured performance, and only where the read load justifies it.</text>
+  <text x="34" y="168" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">Denormalization does not undo normalization — it is applied on top of a normalized schema.</text>
+</svg>
+<figcaption class="figcap"><b>Figure 14.1</b> — Denormalization trades storage and update cost for read speed. It is
+an optimization applied after normalization, never instead of it.</figcaption>
+</figure>
+
+<h2 id="c14-3">14.3 Benefits and Trade-Offs</h2>
+
+<table>
+<caption>Table 14.4 — Denormalization: what it buys and what it costs.</caption>
+<thead><tr><th>Aspect</th><th>Normalized</th><th>Denormalized</th></tr></thead>
+<tbody>
+<tr><td>Redundant data</td><td>Minimal — one copy per fact</td><td>Deliberately increased</td></tr>
+<tr><td>Read queries needing joins</td><td>Many</td><td>Fewer or none</td></tr>
+<tr><td>Query speed on large tables</td><td>Slower when joins are involved</td><td>Faster</td></tr>
+<tr><td>Update cost</td><td>Low — change one row</td><td>High — change every copy</td></tr>
+<tr><td>Risk of inconsistency</td><td>Low</td><td>Higher — copies can diverge</td></tr>
+<tr><td>Storage</td><td>Smaller</td><td>Larger</td></tr>
+<tr><td>When to use</td><td>Default for design</td><td>After measurement shows joins dominate</td></tr>
+</tbody>
+</table>
+
+<div class="box warn"><span class="tag">Common mistake</span>
+<p>Using denormalization as an excuse to skip normalization. The source is explicit: denormalization is applied
+<b>after</b> doing normalization. Designing a redundant schema from the start means you never had a correct
+design to optimize, and you inherit every anomaly of Chapter 6 with none of the justification.</p>
+</div>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Chapter 14</span>
+<ul>
+<li><b>Denormalization</b> adds redundant data to avoid costly joins; it is an optimization, not a substitute
+for normalization.</li>
+<li>It is applied after normalization, when large-table joins dominate the workload.</li>
+<li>It buys read speed and costs update cost, storage and consistency risk.</li>
+<li>The source's example: storing <span class="kv">TeacherName</span> in the Courses table so a course list
+needs no join.</li>
+</ul>
+</div>
+</section>

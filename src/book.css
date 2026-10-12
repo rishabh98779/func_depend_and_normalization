@@ -1,0 +1,153 @@
+/* ============================================================
+   DATABASE MANAGEMENT SYSTEMS — COMPLETE EXAM-READY NOTES
+   Print theme (WeasyPrint).  Palette follows the reference PDF:
+     navy  #12294b  part titles / chapter numbers
+     teal  #0e7c86  section headings, structural rules
+     blue  #1f4fbf  explanatory notes / definitions
+     amber #a0522d  intermediate reasoning, worked steps, formulas
+     red   #b5481b  warnings and common mistakes
+     green #4f8a37  correct results, successful execution
+     ink   #1c2833  body text
+     grey  #5d6d7e  captions, running heads
+   ============================================================ */
+
+@page {
+  size: A4;
+  margin: 20mm 16mm 18mm 16mm;
+  @top-left  { content: "Database Management Systems — Complete Exam-Ready Notes"; font-family: "DejaVu Sans"; font-size: 7.5pt; color: #9aa5b1; }
+  @top-right { content: string(partname);  font-family: "DejaVu Sans"; font-size: 7.5pt; color: #0e7c86; }
+  @bottom-center { content: counter(page); font-family: "DejaVu Sans"; font-size: 8pt; color: #5d6d7e; }
+}
+@page cover { margin: 0; @top-left{content:none} @top-right{content:none} @bottom-center{content:none} }
+@page frontmatter { @bottom-center { content: counter(page, lower-roman); font-family:"DejaVu Sans"; font-size:8pt; color:#5d6d7e; } }
+@page partdiv  { margin: 0; @top-left{content:none} @top-right{content:none} @bottom-center{content:none} }
+
+html { font-family: "DejaVu Serif", serif; font-size: 9.6pt; line-height: 1.44; color: #1c2833; }
+body { margin: 0; padding: 0; }
+p { margin: 0 0 6pt 0; text-align: justify; hyphens: auto; }
+strong { color: #12294b; }
+em { color: #7a3e9d; font-style: italic; }
+code, pre, kbd { font-family: "DejaVu Sans Mono", monospace; }
+
+/* ---------- Part divider pages ---------- */
+.partdiv { page: partdiv; break-before: page; height: 297mm; background: #12294b; color: #ffffff;
+           padding: 62mm 22mm 0 22mm; box-sizing: border-box; position: relative; }
+.partdiv .plabel { font-family:"DejaVu Sans"; font-size: 11pt; letter-spacing: 3pt; color:#7fd1d8; text-transform: uppercase; }
+.partdiv h1 { font-family:"DejaVu Sans"; font-size: 30pt; line-height:1.15; margin: 6mm 0 6mm 0; color:#ffffff; border:none; }
+.partdiv .psub { font-family:"DejaVu Sans"; font-size: 11.5pt; color:#b8c7dc; line-height:1.5; }
+.partdiv .prule { width: 46mm; height: 2.6pt; background:#0e7c86; margin: 0 0 7mm 0; }
+.partdiv .pfoot { position:absolute; bottom: 24mm; left: 22mm; right: 22mm; font-family:"DejaVu Sans"; font-size:8.5pt; color:#9fb6d4; border-top:0.6pt solid #34495e; padding-top:3mm;}
+
+/* ---------- Cover ---------- */
+.cover { page: cover; height: 297mm; width:210mm; box-sizing: border-box; background:#12294b; color:#fff;
+         padding: 0; position: relative; overflow: hidden; }
+.cover .band { position:absolute; top:0; left:0; right:0; height: 8mm; background:#0e7c86; }
+.cover .kicker { position:absolute; top: 26mm; left: 20mm; right: 20mm; font-family:"DejaVu Sans"; font-size: 10pt; letter-spacing: 2.4pt; color:#7fd1d8; text-transform: uppercase;}
+.cover h1 { position:absolute; top: 40mm; left: 20mm; right: 20mm; font-family:"DejaVu Sans"; font-size: 33pt; line-height:1.12; color:#fff; border:none; margin:0;}
+.cover .rule { position:absolute; top: 74mm; left: 20mm; width: 60mm; height: 3pt; background:#0e7c86; }
+.cover .sub { position:absolute; top: 78mm; left: 20mm; right: 24mm; font-family:"DejaVu Serif"; font-style: italic; font-size: 12.5pt; line-height:1.45; color:#dbe6f3;}
+.cover .art { position:absolute; top: 98mm; left: 20mm; right: 20mm; }
+.cover .feat { position:absolute; top: 168mm; left: 20mm; right: 20mm; font-family:"DejaVu Sans"; font-size: 10pt; line-height:1.75; color:#e8f1fb; }
+.cover .feat b { color:#7fd1d8; }
+.cover .foot { position:absolute; bottom: 18mm; left: 20mm; right: 20mm; font-family:"DejaVu Sans"; font-size: 8.6pt; color:#9fb6d4; line-height:1.5; border-top:0.6pt solid #34495e; padding-top: 4mm;}
+.cover .foot b{color:#e8f1fb;}
+
+/* ---------- Headings ---------- */
+h1.chap { break-before: page; font-family:"DejaVu Sans"; font-size: 21pt; color:#12294b; margin: 0 0 2mm 0; line-height:1.16; }
+.chapmeta { font-family:"DejaVu Sans"; font-size: 8.2pt; color:#5d6d7e; margin: 0 0 3mm 0; }
+.chaprule { height: 2.2pt; background:#0e7c86; margin: 0 0 5mm 0; width: 100%; }
+h2 { font-family:"DejaVu Sans"; font-size: 13pt; color:#0e7c86; margin: 7mm 0 2.5mm 0; break-after: avoid; }
+h3 { font-family:"DejaVu Sans"; font-size: 10.6pt; color:#12294b; margin: 5mm 0 1.8mm 0; break-after: avoid; }
+h4 { font-family:"DejaVu Sans"; font-size: 9.6pt; color:#a0522d; margin: 4mm 0 1.4mm 0; break-after: avoid; }
+h2 + p, h3 + p, h4 + p { margin-top: 0; }
+
+/* ---------- Callout boxes ---------- */
+.box { break-inside: avoid; padding: 3.2mm 4mm; margin: 3.4mm 0; border-radius: 1mm; font-size: 9.3pt; }
+.box p:last-child { margin-bottom: 0; }
+/* Program/work-through boxes are long and may contain code + tables; let them
+   flow across a page break so that a heading is never stranded alone. */
+.amber { break-inside: auto; }
+.amber pre, .amber table, .amber .box { break-inside: avoid; }
+.def  { background:#e8f1fb; border-left: 3.4pt solid #1f4fbf; }
+.def  .tag { color:#1f4fbf; }
+.note { background:#eef7f8; border-left: 3.4pt solid #0e7c86; }
+.note .tag { color:#0e7c86; }
+.warn { background:#fdf1ec; border-left: 3.4pt solid #b5481b; }
+.warn .tag { color:#b5481b; }
+.tip  { background:#f2f8ee; border-left: 3.4pt solid #4f8a37; }
+.tip  .tag { color:#4f8a37; }
+.amber{ background:#fbf4ec; border-left: 3.4pt solid #a0522d; }
+.amber .tag { color:#a0522d; }
+.violet{ background:#f6f0fa; border-left: 3.4pt solid #7a3e9d; }
+.violet .tag { color:#7a3e9d; }
+.tag { font-family:"DejaVu Sans"; font-weight: bold; font-size: 8.1pt; letter-spacing: 0.7pt; text-transform: uppercase; display:block; margin-bottom: 1mm; }
+.src { font-family:"DejaVu Sans"; font-size: 8.1pt; color:#7a3e9d; }
+.flag { font-family:"DejaVu Sans"; font-size: 8.1pt; color:#b5481b; font-weight:bold; }
+
+/* ---------- Code ---------- */
+pre { font-size: 8.2pt; line-height: 1.34; background:#f7f9fc; border: 0.6pt solid #c8d4e3;
+      border-left: 3pt solid #1f4fbf; padding: 2.6mm 3mm; margin: 3mm 0; white-space: pre-wrap;
+      break-inside: avoid; overflow-wrap: break-word; }
+pre.output { background:#f2f8ee; border-left-color:#4f8a37; border-color:#cfe0c6; }
+pre.term   { background:#1c2833; color:#e8f1fb; border-left-color:#0e7c86; border-color:#1c2833; }
+code { font-size: 8.6pt; background:#eef2f8; padding: 0 0.6mm; border-radius:0.6mm; }
+.caption { font-family:"DejaVu Sans"; font-size: 8.1pt; color:#5d6d7e; margin: -1.6mm 0 4mm 0; text-align:center; }
+.figcap { font-family:"DejaVu Sans"; font-size: 8.2pt; color:#34495e; margin: 1.4mm 0 4.5mm 0; text-align:center; }
+.figcap b { color:#12294b; }
+
+/* ---------- Tables ---------- */
+table { border-collapse: collapse; width: 100%; margin: 3mm 0 2mm 0; font-size: 8.6pt; break-inside: avoid; }
+/* Long reference tables (question banks, MCQ banks, checklists) should flow across
+   pages rather than being pushed wholesale onto a new one, leaving a gap behind. */
+table.qbank, table.rel { break-inside: auto; }
+table.qbank tr, table.rel tr { break-inside: avoid; }
+table.qbank thead, table.rel thead { display: table-header-group; }
+caption { caption-side: top; font-family:"DejaVu Sans"; font-size: 8.2pt; color:#34495e; text-align:left; margin-bottom: 1.4mm; font-weight:bold; }
+th { background:#12294b; color:#fff; font-family:"DejaVu Sans"; font-size: 8.2pt; text-align:left; padding: 1.7mm 2mm; border: 0.5pt solid #12294b; }
+td { padding: 1.5mm 2mm; border: 0.5pt solid #c8d4e3; vertical-align: top; }
+tbody tr:nth-child(even) { background:#f4f7fb; }
+td.mono, th.mono { font-family:"DejaVu Sans Mono", monospace; font-size: 8.1pt; }
+.ok { color:#4f8a37; font-weight:bold; }
+.no { color:#b5481b; font-weight:bold; }
+mark { background:#fff3bf; padding:0 0.5mm; }
+
+/* ---------- Tables-as-diagrams (relation illustrations) ---------- */
+.rel { border-collapse: collapse; margin: 2mm auto 1mm auto; font-size: 8.4pt; width: auto; }
+.rel th { background:#1b6e8a; border:0.5pt solid #1b6e8a; }
+.rel td { border:0.5pt solid #9fb6d4; padding: 1.4mm 2.6mm; text-align:left; }
+.rel td.pk { background:#e8f1fb; font-weight:bold; color:#1f4fbf; }
+.rel td.fk { background:#fbf4ec; font-weight:bold; color:#a0522d; }
+.rel td.bad { background:#fdf1ec; color:#b5481b; }
+.rel td.good{ background:#f2f8ee; color:#4f8a37; }
+.relcaption { font-family:"DejaVu Sans"; font-size:8.1pt; color:#34495e; text-align:center; margin: 1mm 0 4.5mm 0; }
+.relcaption b{color:#12294b;}
+
+/* ---------- SVG figure wrapper ---------- */
+figure { margin: 3.5mm 0 4mm 0; break-inside: avoid; text-align:center; }
+figure svg { max-width: 100%; height: auto; }
+
+/* ---------- TOC ---------- */
+.toc { break-before: page; }
+.toc h1 { font-family:"DejaVu Sans"; font-size: 19pt; color:#12294b; margin:0 0 3mm 0; }
+.toc ul { list-style:none; margin:0; padding:0; }
+.toc li { margin: 0.4mm 0; font-size: 9.3pt; }
+.toc a { text-decoration:none; color:#1c2833; }
+.toc a::after { content: leader('.') target-counter(attr(href), page); color:#5d6d7e; font-family:"DejaVu Sans"; font-size:8.2pt; }
+.toc .lvl1 { font-family:"DejaVu Sans"; font-weight:bold; color:#12294b; margin-top: 3.4mm; font-size: 10pt; }
+.tocnote { font-size: 8.4pt; color:#5d6d7e; margin-top: 4mm; border-top: 0.6pt solid #cbd5e0; padding-top: 2.4mm; }
+.toc .lvl1 a { color:#12294b; }
+.toc .lvl2 { padding-left: 6mm; }
+.toc .lvl3 { padding-left: 12mm; color:#34495e; font-size:8.7pt; }
+
+/* ---------- misc ---------- */
+.qbank td:first-child { width: 8mm; text-align:center; font-family:"DejaVu Sans"; color:#1f4fbf; font-weight:bold; }
+.qa { break-inside: avoid; margin: 2.6mm 0; }
+.qa .q { font-family:"DejaVu Sans"; font-weight:bold; color:#12294b; font-size: 9.2pt; }
+.qa .a { margin-top: 0.8mm; }
+.small { font-size: 8.4pt; color:#5d6d7e; }
+.kv { font-family:"DejaVu Sans Mono", monospace; font-size: 8.4pt; color:#a0522d; }
+.avoid { break-inside: avoid; }
+hr.thin { border:none; border-top:0.6pt solid #c8d4e3; margin: 4mm 0; }
+.legend { font-family:"DejaVu Sans"; font-size:8pt; color:#5d6d7e; }
+.legend span { display:inline-block; margin-right:5mm; }
+.sw { display:inline-block; width:2.6mm; height:2.6mm; border-radius:0.4mm; vertical-align:middle; margin-right:1mm; }

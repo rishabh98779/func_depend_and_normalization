@@ -1,0 +1,2189 @@
+UNIT	2
+CHAPTER	2.3.5
+LECTURE	3.5(Views)
+SQL View
+An SQL View is a specific representation of data from one or more tables. The tables referred 
+in the views are known as Base tables. Creating a view does not take any storage space as only 
+the query is stored in the data dictionary and the actual data is not stored anywhere.
+The maximum number of columns that can be defined in a SQL View are 1000 as in tables.
+Benefits / Advantages of SQL Views
+The reasons for using views (benefits / advantages of views) in applications can be many like;
+• Reducing complexity.
+• Improving security.
+• Renaming the table columns.
+Views in SQL are kind of virtual tables. A view also has rows and columns as they are in a real 
+table in the database. We can create a view by selecting fields from one or more tables present 
+in the database. A View can either have all the rows of a table or specific rows based on certain 
+condition.
+In this article we will learn about creating , deleting and updating Views.
+Sample Tables:
+StudentDetails
+StudentMarks
+CREATING VIEWS
+We can create View using CREATE VIEW statement. A View can be created from a single 
+table or multiple tables.
+Syntax:
+CREATE VIEW view_name AS
+SELECT column1, column2.....
+
+FROM table_name
+WHERE condition;
+view_name: Name for the View
+table_name: Name of the table
+condition: Condition to select rows
+Examples:
+Creating View from a single table:
+In this example we will create a View named DetailsView from the table StudentDetails.
+Query:
+CREATE VIEW DetailsView AS
+SELECT NAME, ADDRESS
+FROM StudentDetails
+WHERE S_ID < 5;
+To see the data in the View, we can query the view in the same manner as we query a table.
+SELECT * FROM DetailsView;
+Output:
+In this example, we will create a view named StudentNames from the table StudentDetails.
+Query:
+CREATE VIEW StudentNames AS
+SELECT S_ID, NAME
+FROM StudentDetails
+ORDER BY NAME;
+
+If we now query the view as,
+SELECT * FROM StudentNames;
+Output:
+Creating View from multiple tables: In this example we will create a View named 
+MarksView from two tables StudentDetails and StudentMarks. To create a View from multiple 
+tables we can simply include multiple tables in the SELECT statement.
+Query:
+CREATE VIEW MarksView AS
+SELECT StudentDetails.NAME, StudentDetails.ADDRESS, StudentMarks.MARKS
+FROM StudentDetails, StudentMarks
+WHERE StudentDetails.NAME = StudentMarks.NAME;
+To display data of View MarksView:
+SELECT * FROM MarksView;
+Output:
+DELETING VIEWS
+We have learned about creating a View, but what if a created View is not needed any more? 
+Obviously we will want to delete it. SQL allows us to delete an existing View. We can delete 
+or drop a View using the DROP statement.
+Syntax:
+DROP VIEW view_name;
+view_name: Name of the View which we want to delete.
+For example, if we want to delete the View MarksView, we can do this as:
+DROP VIEW MarksView;
+UPDATING VIEWS
+There are certain conditions needed to be satisfied to update a view. If any one of these 
+conditions is not met, then we will not be allowed to update the view.
+
+1. The SELECT statement which is used to create the view should not include GROUP BY 
+clause or ORDER BY clause.
+2. The SELECT statement should not have the DISTINCT keyword.
+3. The View should have all NOT NULL values.
+4. The view should not be created using nested queries or complex queries.
+5. The view should be created from a single table. If the view is created using multiple tables 
+then we will not be allowed to update the view.
+We can use the CREATE OR REPLACE VIEW statement to add or remove fields from a 
+view.
+Syntax:
+CREATE OR REPLACE VIEW view_name AS
+SELECT column1,coulmn2,..
+FROM table_name
+WHERE condition;
+For example, if we want to update the view MarksView and add the field AGE to this View 
+from StudentMarks Table, we can do this as:
+CREATE OR REPLACE VIEW MarksView AS
+SELECT StudentDetails.NAME, StudentDetails.ADDRESS, StudentMarks.MARKS, 
+StudentMarks.AGE
+FROM StudentDetails, StudentMarks
+WHERE StudentDetails.NAME = StudentMarks.NAME;
+If we fetch all the data from MarksView now as:
+SELECT * FROM MarksView;
+Output:
+Inserting a row in a view:
+We can insert a row in a View in a same way as we do in a table. We can use the INSERT 
+INTO statement of SQL to insert a row in a View.
+
+Syntax:
+INSERT INTO view_name(column1, column2 , column3,..) 
+VALUES(value1, value2, value3..);
+view_name: Name of the View
+Example:
+In the below example we will insert a new row in the View DetailsView which we have created 
+above in the example of “creating views from a single table”.
+INSERT INTO DetailsView(NAME, ADDRESS)
+VALUES("Suresh","Gurgaon");
+If we fetch all the data from DetailsView now as,
+SELECT * FROM DetailsView;
+Output:
+Deleting a row from a View:
+Deleting rows from a view is also as simple as deleting rows from a table. We can use the 
+DELETE statement of SQL to delete rows from a view. Also deleting a row from a view first 
+delete the row from the actual table and the change is then reflected in the view.
+Syntax:
+DELETE FROM view_name
+WHERE condition;
+view_name: Name of view from where we want to delete rows
+condition: Condition to select rows 
+Example:
+In this example we will delete the last row from the view DetailsView which we just added in 
+the above example of inserting rows.
+DELETE FROM DetailsView
+WHERE NAME="Suresh";
+
+If we fetch all the data from DetailsView now as,
+SELECT * FROM DetailsView;
+Output:
+WITH CHECK OPTION
+The WITH CHECK OPTION clause in SQL is a very useful clause for views. It is applicable 
+to a updatable view. If the view is not updatable, then there is no meaning of including this 
+clause in the CREATE VIEW statement.
+Ø The WITH CHECK OPTION clause is used to prevent the insertion of rows in the view 
+where the condition in the WHERE clause in CREATE VIEW statement is not satisfied.
+Ø If we have used the WITH CHECK OPTION clause in the CREATE VIEW statement, 
+and if the UPDATE or INSERT clause does not satisfy the conditions then they will 
+return an error.
+Example:
+In the below example we are creating a View SampleView from StudentDetails Table with 
+WITH CHECK OPTION clause.
+CREATE VIEW SampleView AS
+SELECT S_ID, NAME
+FROM StudentDetails
+WHERE NAME IS NOT NULL
+WITH CHECK OPTION;
+In this View if we now try to insert a new row with null value in the NAME column then it 
+will give an error because the view is created with the condition for NAME column as NOT 
+NULL.
+For example,though the View is updatable but then also the below query for this View is not 
+valid:
+
+INSERT INTO SampleView(S_ID)
+VALUES(6);
+NOTE: The default value of NAME column is null.
+Uses of a View :
+A good database should contain views due to the given reasons:
+1. Restricting data access –
+Views provide an additional level of table security by restricting access to a predetermined set 
+of rows and columns of a table.
+2. Hiding data complexity –
+A view can hide the complexity that exists in a multiple table join.
+3. Simplify commands for the user –
+Views allows the user to select information from multiple tables without requiring the users to 
+actually know how to perform a join.
+4. Store complex queries –
+Views can be used to store complex queries.
+5. Rename Columns –
+Views can also be used to rename the columns without affecting the base tables provided the 
+number of columns in view must match the number of columns specified in select statement. 
+Thus, renaming helps to to hide the names of the columns of the base tables.
+6. Multiple view facility –
+Different views can be created on the same table for different users.
+
+Other References
+• •SQL | Views -GeeksforGeeks
+• Oracle SQL &PL/SQL: SQL Views (sql-plsql.blogspot.com)
+• PL/SQL Create View
+Suggested Book References
+• C.J.Date, “An Introduction to DatabaseSystems”, Addison Wesley.
+• Thomas M. Connolly, Carolyn & E.Begg,“Database Systems: A Practical Approach to 
+Design, Implementationand Management”, 5/E, University of Paisley, AddisonWesley.
+• Rob,”Database Principal Fundamental Design, Cengage Learning.
+
+UNIT	2
+CHAPTER	2.3.4
+Introduction to PL/SQL Cursor
+When you work with Oracle database, you work with a complete set of rows returned from 
+an SELECT statement. However the application in some cases cannot work effectively with 
+the entire result set, therefore, the database server needs to provide a mechanism for the 
+application to work with one row or a subset of the result set at a time. As the result, Oracle 
+created PL/SQL cursor to provide these extensions.
+A PL/SQL cursor is a pointer that points to the result set of an SQL query against database 
+tables.
+Working with PL/SQL Cursor
+The following picture describes steps that you need to follow when you work with a PL/SQL 
+cursor:
+Fig 1: PL/SQL Cursor
+Oracle has dedicated memory locations for executing SQL statements and then it holds that 
+processed information, for example, the total number of rows updated.
+A cursor in PL/SQL gives a name and acts as a pointer to the area of work called a context area 
+and then uses its information. It keeps the number of rows processed by the SQL statement. 
+These rows are called as an active set. The size of the active set is equal to the count of the 
+rows that meet the condition.
+
+There are two types of cursors which are listed below:
+1. Implicit Cursor
+2. Explicit cursor
+Implicit cursors are automatically created by Oracle whenever an SQL statement is executed, 
+when there is no explicit cursor for the statement. Programmers cannot control the implicit 
+cursors and the information in it.
+Whenever a DML statement (INSERT, UPDATE and DELETE) is issued, an implicit cursor 
+is associated with this statement. For INSERT operations, the cursor holds the data that needs 
+to be inserted. For UPDATE and DELETE operations, the cursor identifies the rows that would 
+be affected.
+In PL/SQL, you can refer to the most recent implicit cursor as the SQL cursor, which always 
+has attributes such as %FOUND, %ISOPEN, %NOTFOUND, and %ROWCOUNT. The SQL 
+cursor has additional attributes, %BULK_ROWCOUNT and %BULK_EXCEPTIONS, 
+designed for use with the FORALL statement. The following table provides the description of 
+the most used attributes −
+1. %FOUND
+Returns TRUE if an INSERT, UPDATE, or DELETE statement affected one or more rows or 
+a SELECT INTO statement returned one or more rows. Otherwise, it returns FALSE.
+2. %NOTFOUND
+The logical opposite of %FOUND. It returns TRUE if an INSERT, UPDATE, or DELETE 
+statement affected no rows, or a SELECT INTO statement returned no rows. Otherwise, it 
+returns FALSE.
+3. %ISOPEN
+Always returns FALSE for implicit cursors, because Oracle closes the SQL cursor 
+automatically after executing its associated SQL statement.
+4. %ROWCOUNT
+Returns the number of rows affected by an INSERT, UPDATE, or DELETE statement, or 
+returned by a SELECT INTO statement.
+Any SQL cursor attribute will be accessed as sql%attribute_name
+
+Example
+We will be using the CUSTOMERS table
+The following program will update the table and increase the salary of each customer by 500 
+and use the SQL%ROWCOUNT attribute to determine the number of rows affected –
+DECLARE 
+total_rows number(2); 
+BEGIN 
+UPDATE customers 
+SET salary = salary + 500; 
+IF sql%notfound THEN 
+dbms_output.put_line('no customers selected'); 
+ELSIF sql%found THEN 
+total_rows := sql%rowcount;
+dbms_output.put_line( total_rows || ' customers selected '); 
+END IF; 
+
+END; 
+/ 
+When the above code is executed at the SQL prompt, it produces the following result −
+6 customers selected 
+PL/SQL procedure successfully completed. 
+If you check the records in customers table, you will find that the rows have been updated −
+Explicit Cursors
+Explicit cursors are programmer-defined cursors for gaining more control over the context 
+area. An explicit cursor should be defined in the declaration section of the PL/SQL Block. It is 
+created on a SELECT Statement which returns more than one row.
+The syntax for creating an explicit cursor is –
+CURSOR cursor_name IS select_statement; 
+Working with an explicit cursor includes the following steps −
+● Declaring the cursor for initializing the memory
+● Opening the cursor for allocating the memory
+
+● Fetching the cursor for retrieving the data
+● Closing the cursor to release the allocated memory
+Declaring the Cursor
+Declaring the cursor defines the cursor with a name and the associated SELECT statement. For 
+example −
+CURSOR c_customers IS 
+SELECT id, name, address FROM customers;
+Opening the Cursor
+Opening the cursor allocates the memory for the cursor and makes it ready for fetching the 
+rows returned by the SQL statement into it. For example, we will open the above defined cursor 
+as follows −
+OPEN c_customers;
+Fetching the Cursor
+Fetching the cursor involves accessing one row at a time. For example, we will fetch rows from 
+the above-opened cursor as follows −
+FETCH c_customers INTO c_id, c_name, c_addr;
+Closing the Cursor
+Closing the cursor means releasing the allocated memory. For example, we will close the 
+above-opened cursor as follows −
+CLOSE c_customers;
+Example
+Following is a complete example to illustrate the concepts of explicit cursors &minua;
+DECLARE 
+c_id customers.id%type; 
+c_name customer.name%type; 
+c_addr customers.address%type; 
+CURSOR c_customers is 
+
+SELECT id, name, address FROM customers; 
+BEGIN 
+OPEN c_customers; 
+LOOP 
+FETCH c_customers into c_id, c_name, c_addr; 
+EXIT WHEN c_customers%notfound; 
+dbms_output.put_line(c_id || ' ' || c_name || ' ' || c_addr); 
+END LOOP; 
+CLOSE c_customers; 
+END; 
+/
+When the above code is executed at the SQL prompt, it produces the following result −
+1 Ramesh Ahmedabad 
+2 Khilan Delhi 
+3 kaushik Kota 
+4 Chaitali Mumbai 
+5 Hardik Bhopal 
+6 Komal MP 
+PL/SQL procedure successfully completed. 
+
+Other References
+● PL/SQL - Cursors - Tutorialspoint
+● PL/SQL Cursor - javatpoint
+● PL/SQL Cursor (plsqltutorial.com)
+Suggested Book References
+● C.J.Date, “An Introduction to DatabaseSystems”, Addison Wesley.
+● Thomas M. Connolly, Carolyn & E.Begg,“Database Systems: A Practical Approach to 
+Design, Implementationand Management”, 5/E, University of Paisley, AddisonWesley.
+● Rob,”Database Principal Fundamental Design, Cengage Learning.
+
+UNIT	2
+CHAPTER	2.3.3
+LECTURE	3.3(Sequential	Control	Structure)
+Sequential Control: GOTO and NULL Statements
+The GOTO statement is seldom needed. Occasionally, it can simplify logic enough to warrant 
+its use. The NULL statement can improve readability by making the meaning and action of 
+conditional statements clear.
+Overuse of GOTO statements can result in code that is hard to understand and maintain. Use 
+GOTO statements sparingly. For example, to branch from a deeply nested structure to an errorhandling routine, raise an exception rather than use a GOTO statement.
+• Using the GOTO Statement
+The GOTO statement branches to a label unconditionally. The label must be unique within its 
+scope and must precede an executable statement or a PL/SQL block. When executed, the 
+GOTO statement transfers control to the labeled statement or block. The labeled statement or 
+block can be down or up in the sequence of statements.
+Example: Using a Simple GOTO Statement
+DECLARE
+p VARCHAR2(30);
+n PLS_INTEGER := 37; -- test any integer > 2 for prime
+BEGIN
+FOR j in 2..ROUND(SQRT(n)) LOOP
+IF n MOD j = 0 THEN -- test for prime
+p := ' is not a prime number'; -- not a prime number
+GOTO print_now;
+END IF;
+END LOOP;
+p := ' is a prime number';
+
+<<print_now>>
+DBMS_OUTPUT.PUT_LINE(TO_CHAR(n) || p);
+END;
+/
+A GOTO statement in PL/SQL programming language provides an unconditional jump from 
+the GOTO to a labeled statement in the same subprogram.
+NOTE − The use of GOTO statement is not recommended in any programming language 
+because it makes it difficult to trace the control flow of a program, making the program hard 
+to understand and hard to modify. Any program that uses a GOTO can be rewritten so that it 
+doesn't need the GOTO.
+Syntax
+The syntax for a GOTO statement in PL/SQL is as follows −
+GOTO label;
+..
+..
+<< label >>
+statement;
+Flow Diagram
+
+Example
+DECLARE 
+a number(2) := 10; 
+BEGIN 
+<<loopstart>> 
+-- while loop execution 
+WHILE a < 20 LOOP
+dbms_output.put_line ('value of a: ' || a); 
+a := a + 1; 
+IF a = 15 THEN 
+a := a + 1; 
+GOTO loopstart; 
+END IF; 
+END LOOP; 
+END; 
+/
+When the above code is executed at the SQL prompt, it produces the following result −
+value of a: 10
+value of a: 11
+value of a: 12
+value of a: 13
+value of a: 14
+value of a: 16
+value of a: 17
+value of a: 18
+value of a: 19
+
+PL/SQL procedure successfully completed.
+Restrictions with GOTO Statement
+GOTO Statement in PL/SQL imposes the following restrictions −
+• A GOTO statement cannot branch into an IF statement, CASE statement, LOOP 
+statement or sub-block.
+• A GOTO statement cannot branch from one IF statement clause to another or from one 
+CASE statement WHEN clause to another.
+• A GOTO statement cannot branch from an outer block into a sub-block (i.e., an inner 
+BEGIN-END block).
+• A GOTO statement cannot branch out of a subprogram. To end a subprogram early, 
+either use the RETURN statement or have GOTO branch to a place right before the end 
+of the subprogram.
+• A GOTO statement cannot branch from an exception handler back into the current 
+BEGIN-END block. However, a GOTO statement can branch from an exception 
+handler into an enclosing block.
+• Using the NULL Statement
+The NULL statement does nothing and passes control to the next statement. Some languages 
+refer to such instruction as a no-op (no operation).
+Example: Using the NULL Statement to Show No Action
+DECLARE
+v_job_id VARCHAR2(10);
+v_emp_id NUMBER(6) := 110;
+BEGIN
+SELECT job_id INTO v_job_id FROM employees WHERE employee_id = v_emp_id;
+IF v_job_id = 'SA_REP' THEN
+UPDATE employees SET commission_pct = commission_pct * 1.2;
+ELSE
+NULL; -- do nothing if not a sales representative
+
+END IF;
+END;
+/
+Example: GoTo and NULL
+DECLARE
+ v_count NUMBER;
+BEGIN
+ SELECT count(JOB_ID) INTO v_count FROM i_jobs WHERE 
+job_name='DEVELOPER';
+ IF v_count = 0 THEN
+ GOTO insert_row;
+ ELSE
+ GOTO null_row;
+ END IF; 
+ <<insert_row>>
+ INSERT INTO i_jobs VALUES (1,'DEVELOPER',10);
+ <<null_row>>
+ DBMS_OUTPUT.PUT_LINE('NULL statement example');
+ NULL;
+END;
+
+Other References
+• PL/SQL Control Structures - Oracle PL/SQL Tutorial | Intellipaat.com
+• tutorialink.com
+• PL/SQL - GOTO Statement - Tutorialspoint
+Suggested Book References
+• C.J.Date, “An Introduction to DatabaseSystems”, Addison Wesley.
+• Thomas M. Connolly, Carolyn & E.Begg,“Database Systems: A Practical Approach to 
+Design, Implementationand Management”, 5/E, University of Paisley, AddisonWesley.
+• Rob,”Database Principal Fundamental Design, Cengage Learning.
+
+UNIT	2
+CHAPTER	2.3.2
+LECTURE	3.2(	Iterative	Control	Structure)
+Iterative Control: LOOPING Statements
+LOOP statements let you execute a sequence of statements multiple times. There are three 
+forms of LOOP statements: LOOP, WHILE-LOOP, and FOR-LOOP.
+LOOP
+The simplest form of LOOP statement is the basic (or infinite) loop, which encloses a sequence 
+of statements between the keywords LOOP and END LOOP, as follows:
+LOOP
+sequence_of_statements
+END LOOP;
+With each iteration of the loop, the sequence of statements is executed, then control resumes 
+at the top of the loop. If further processing is undesirable or impossible, you can use 
+an EXIT statement to complete the loop. You can place one or more EXIT statements 
+anywhere inside a loop, but nowhere outside a loop. There are two forms 
+of EXIT statements: EXIT and EXIT-WHEN.
+EXIT
+The EXIT statement forces a loop to complete unconditionally. When an EXIT statement is 
+encountered, the loop completes immediately and control passes to the next statement. An 
+example follows:
+LOOP
+...
+IF credit_rating < 3 THEN
+...
+EXIT; -- exit loop immediately
+END IF;
+
+END LOOP;
+-- control resumes here
+The next example shows that you cannot use the EXIT statement to complete a PL/SQL block:
+BEGIN
+...
+IF credit_rating < 3 THEN
+...
+EXIT; -- not allowed
+END IF;
+END;
+Remember, the EXIT statement must be placed inside a loop. To complete a PL/SQL block 
+before its normal end is reached, you can use the RETURN statement.
+EXIT-WHEN
+The EXIT-WHEN statement lets a loop complete conditionally. When the EXIT statement is 
+encountered, the condition in the WHEN clause is evaluated. If the condition is true, the loop 
+completes and control passes to the next statement after the loop. An example follows:
+LOOP
+FETCH c1 INTO ...
+EXIT WHEN c1%NOTFOUND; -- exit loop if condition is true
+...
+END LOOP;
+CLOSE c1;
+Until the condition is true, the loop cannot complete. So, a statement inside the loop must 
+change the value of the condition. In the last example, if the FETCH statement returns a row, 
+the condition is false. When the FETCH statement fails to return a row, the condition is true, 
+the loop completes, and control passes to the CLOSE statement.
+The EXIT-WHEN statement replaces a simple IF statement. For example, compare the 
+following statements:
+
+IF count > 100 THEN | EXIT WHEN count > 100;
+EXIT;
+END IF;
+These statements are logically equivalent, but the EXIT-WHEN statement is easier to read and 
+understand.
+Loop Labels
+Like PL/SQL blocks, loops can be labeled. The label, an undeclared identifier enclosed by 
+double angle brackets, must appear at the beginning of the LOOP statement, as follows:
+<<label_name>>
+LOOP
+sequence_of_statements
+END LOOP;
+Optionally, the label name can also appear at the end of the LOOP statement, as the following 
+example shows:
+<<my_loop>>
+LOOP
+...
+END LOOP my_loop;
+When you nest labeled loops, use ending label names to improve readability.
+With either form of EXIT statement, you can complete not only the current loop, but any 
+enclosing loop. Simply label the enclosing loop that you want to complete. Then, use the label 
+in an EXIT statement, as follows:
+<<outer>>
+LOOP
+...
+LOOP
+...
+
+EXIT outer WHEN ... -- exit both loops
+END LOOP;
+...
+END LOOP outer;
+Every enclosing loop up to and including the labeled loop is exited.
+WHILE-LOOP
+The WHILE-LOOP statement associates a condition with a sequence of statements enclosed 
+by the keywords LOOP and END LOOP, as follows:
+WHILE condition LOOP
+sequence_of_statements
+END LOOP;
+Before each iteration of the loop, the condition is evaluated. If the condition is true, the 
+sequence of statements is executed, then control resumes at the top of the loop. If the condition 
+is false or null, the loop is bypassed and control passes to the next statement. An example 
+follows:
+WHILE total <= 25000 LOOP
+...
+SELECT sal INTO salary FROM emp WHERE ...
+total := total + salary;
+END LOOP;
+The number of iterations depends on the condition and is unknown until the loop completes. 
+The condition is tested at the top of the loop, so the sequence might execute zero times. In the 
+last example, if the initial value of total is larger than 25000, the condition is false and the loop 
+is bypassed.
+Some languages have a LOOP UNTIL or REPEAT UNTIL structure, which tests the 
+condition at the bottom of the loop instead of at the top. Therefore, the sequence of statements 
+is executed at least once. PL/SQL has no such structure, but you can easily build one, as 
+follows:
+
+LOOP
+sequence_of_statements
+EXIT WHEN boolean_expression;
+END LOOP;
+To ensure that a WHILE loop executes at least once, use an initialized Boolean variable in the 
+condition, as follows:
+done := FALSE;
+WHILE NOT done LOOP
+sequence_of_statements
+done := boolean_expression;
+END LOOP;
+A statement inside the loop must assign a new value to the Boolean variable. Otherwise, you 
+have an infinite loop. For example, the following LOOP statements are logically equivalent:
+WHILE TRUE LOOP | LOOP
+... | ...
+END LOOP; | END LOOP;
+WHILE loop
+The while loop executes commands in its body as long as the condtion remains true
+Syntax :
+WHILE < condition >
+LOOP
+< Action >
+END LOOP
+Example 1 : Find reverse of given number using while loop
+DECLARE
+num Number(3) :=123;
+ans Number(3) :=0;
+
+i Number(3) :=0;
+BEGIN
+WHILE num != 0
+LOOP
+i:=mod(num,10);
+ans:=(ans * 10 ) + i;
+num:=floor(num/10);
+END LOOP;
+dbms_output.put_line('reverse of given number is: ' || ans);
+END;
+/
+Output :
+Run SQL Command Line
+SQL>set serveroutput on
+SQL>start d://rev.sql
+reverse of given number is: 321
+PL/SQL successfully completed.
+Example 2:Write a program in PL/SQL to print the value of a variable inside and outside 
+a loop using LOOP EXIT statement.
+DECLARE
+n NUMBER := 0;
+BEGIN
+LOOP
+
+DBMS_OUTPUT.PUT_LINE ('The value of n inside the loop is: ' || TO_CHAR(n));
+n := n + 1;
+IF n > 5 THEN
+EXIT;
+END IF;
+END LOOP;
+DBMS_OUTPUT.PUT_LINE('The value of n outside the loop is: ' || TO_CHAR(n));
+END;
+/
+Sample Output:
+SQL> /
+The value of n inside the loop is: 0
+The value of n inside the loop is: 1
+The value of n inside the loop is: 2
+The value of n inside the loop is: 3
+The value of n inside the loop is: 4
+The value of n inside the loop is: 5
+The value of n outside the loop is: 6
+PL/SQL procedure successfully completed.
+FOR-LOOP
+Whereas the number of iterations through a WHILE loop is unknown until the loop completes, 
+the number of iterations through a FOR loop is known before the loop is entered. FOR loops 
+iterate over a specified range of integers. The range is part of an iteration scheme, which is 
+enclosed by the keywords FOR and LOOP. A double dot (..) serves as the range operator. The 
+syntax follows:
+
+FOR counter IN [REVERSE] lower_bound..higher_bound LOOP
+sequence_of_statements
+END LOOP;
+The range is evaluated when the FOR loop is first entered and is never re-evaluated.
+As the next example shows, the sequence of statements is executed once for each integer in the 
+range. After each iteration, the loop counter is incremented.
+FOR i IN 1..3 LOOP -- assign the values 1,2,3 to i
+sequence_of_statements -- executes three times
+END LOOP;
+The following example shows that if the lower bound equals the higher bound, the sequence 
+of statements is executed once:
+FOR i IN 3..3 LOOP -- assign the value 3 to i
+sequence_of_statements -- executes one time
+END LOOP;
+By default, iteration proceeds upward from the lower bound to the higher bound. However, as 
+the example below shows, if you use the keyword REVERSE, iteration proceeds downward 
+from the higher bound to the lower bound. After each iteration, the loop counter is decremented. 
+Nevertheless, you write the range bounds in ascending (not descending) order.
+FOR i IN REVERSE 1..3 LOOP -- assign the values 3,2,1 to i
+sequence_of_statements -- executes three times
+END LOOP;
+Inside a FOR loop, the loop counter can be referenced like a constant but cannot be assigned 
+values, as the following example shows:
+FOR ctr IN 1..10 LOOP
+IF NOT finished THEN
+INSERT INTO ... VALUES (ctr, ...); -- legal
+factor := ctr * 2; -- legal
+
+ELSE
+ctr := 10; -- not allowed
+END IF;
+END LOOP;
+Using the FOR-LOOP Statement
+Simple FOR loops iterate over a specified range of integers. The number of iterations is known 
+before the loop is entered. A double dot (..) serves as the range operator. The range is evaluated 
+when the FOR loop is first entered and is never re-evaluated. If the lower bound equals the 
+higher bound, the loop body is executed once.
+Example 1: Using a Simple FOR LOOP Statement
+DECLARE
+p NUMBER := 0;
+BEGIN
+FOR k IN 1..500 LOOP -- calculate pi with 500 terms
+p := p + ( ( (-1) ** (k + 1) ) / ((2 * k) - 1) );
+END LOOP;
+p := 4 * p;
+DBMS_OUTPUT.PUT_LINE( 'pi is approximately : ' || p ); -- print result
+END;
+/
+Example 2: Write a program in PL/SQL to print 1st n numbers with a difference of 3 and 
+starting from 1. 
+DECLARE
+n number:= &first_n_number;
+i number:=1;
+m number:=1;
+BEGIN
+
+DBMS_OUTPUT.PUT_LINE ('The first '||n||' numbers are: ');
+DBMS_OUTPUT.PUT (i||' ');
+for i in 1..n-1 loop
+m:=m+3;
+dbms_output.put(m||' ');
+END LOOP;
+dbms_output.new_line;
+END;
+/
+Sample Output:
+Enter value for first_n_number: 10
+old 2: n number:= &first_n_number;
+new 2: n number:= 10;
+The first 10 numbers are:
+1 4 7 10 13 16 19 22 25 28
+PL/SQL procedure successfully completed.
+
+Other References
+• PL/SQL Control Statement Exercises with Solution - w3resource
+• Control Structures | DBMS | Tutorialink.com
+• PL/SQL Control Structures - Oracle PL/SQL Tutorial | Intellipaat.com
+Suggested References
+• C.J.Date, “An Introduction to DatabaseSystems”, Addison Wesley.
+• Thomas M. Connolly, Carolyn & E.Begg,“Database Systems: A Practical Approach to 
+Design, Implementationand Management”, 5/E, University of Paisley, AddisonWesley.
+• Rob,”Database Principal Fundamental Design, Cengage Learning.
+
+UNIT	2
+CHAPTER	2.3.1
+LECTURE	3.1	(Introduction	to	Control	Structures:	Conditional	
+Control)
+Control Structures
+PL/SQL Control Structures are used to control flow of execution. PL/SQL provides different 
+kinds of statements to provide such type of procedural capabilities. These statements are almost 
+same as that of provided by other languages.
+The flow of control statements can be classified into the following categories:
+• Conditional Control
+• Iterative Control
+• Sequential Control
+Conditional Control :
+PL/SQL allows the use of an IF statement to control the execution of a block of code.
+In PL/SQL, the IF -THEN - ELSIF - ELSE - END IF construct in code blocks allow specifying 
+certain conditions under which a specific block of code should be executed.
+PL/SQL IF Statements
+1. IF-THEN Statement
+Syntax
+IF condition
+THEN
+Statement;
+END IF;
+This syntax is used when user needs to execute statements when condition is true.
+
+2. IF-THEN-ELSE Statement
+Syntax
+IF condition
+THEN
+[Statements to execute when condition is TRUE]
+ELSE
+[Statements to execute when condition is FALSE]
+END IF;
+This syntax is used to execute one set of statements when condition is TRUE or different set 
+of statements when condition is FALSE.
+3. IF-THEN-ELSIF statement
+Syntax
+IF Condition1
+THEN
+Statements to execute when condition1 is TRUE
+ELSIF condition2
+THEN
+Statements to execute when condition2 is TRUE
+END IF;
+This syntax is used to execute one set of statements when condition1 is TRUE or a different 
+set of statements when condition is FALSE.
+4. IF-THEN-ELS-IF-ELSE Statement
+Syntax
+IF condition1
+THEN
+Statements to execute when condition1 is TRUE
+ELSIF condition2
+
+THEN
+Statements to execute when condition2 is TRUE
+ELSE
+Statements to execute when both condition1 and condition2 are FALSE
+END IF;
+This syntax is used to execute one set of statements if condition1 is TRUE, a different set of 
+statements when condition2 is TRUE or a third set of statements when both condition1 and 
+condition2 are false.
+Lets take an example to understand the IF-THEN statement.
+Example 1:
+DECLARE 
+a number(3) := 200; 
+BEGIN 
+-- check the boolean condition using if statement 
+IF( a < 10 ) THEN 
+-- if condition is true then print the following 
+dbms_output.put_line('a is less than 10 ' ); 
+ELSE 
+dbms_output.put_line('a is not less than 10 ' ); 
+END IF; 
+dbms_output.put_line('value of a is : ' || a); 
+END;
+Output:
+a is not less than 10
+value of a is : 200
+PL/SQL procedure successfully completed.
+
+Example 2: Write a PL/SQL program to check whether a number is even or odd.
+DECLARE
+n1 NUMBER := &num1;
+BEGIN
+-- test if the number provided by the user is even
+IF MOD(n1,2) = 0 THEN
+DBMS_OUTPUT.PUT_LINE ('The number. '||n1||
+' is even number');
+ELSE
+DBMS_OUTPUT.PUT_LINE ('The number '||n1||' is odd number.');
+END IF;
+DBMS_OUTPUT.PUT_LINE ('Done Successfully');
+END;
+/
+Copy
+Sample Output:
+Enter value for num1: 19
+old 2: n1 NUMBER := &num1;
+new 2: n1 NUMBER := 19;
+The number 19 is odd number.
+Done Successfully
+Example 3: Write a PL/SQL program to check whether a given number is positive, 
+negative or zero.
+DECLARE
+num1 NUMBER := &get_num;
+
+BEGIN
+IF num1 < 0 THEN
+DBMS_OUTPUT.PUT_LINE ('The number '||num1||' is a negative number');
+ELSIF num1 = 0 THEN
+DBMS_OUTPUT.PUT_LINE ('The number '||num1||' is equal to zero');
+ELSE
+DBMS_OUTPUT.PUT_LINE ('The number '||num1||' is a positive number');
+END IF;
+END;
+/
+Sample Output:
+SQL> /
+Enter value for get_num: 45
+old 2: num1 NUMBER := &get_num;
+new 2: num1 NUMBER := 45;
+The number 45 is a positive number
+PL/SQL procedure successfully completed
+Sample Output:
+SQL> /
+Enter value for get_num: 0
+old 2: num1 NUMBER := &get_num;
+new 2: num1 NUMBER := 0;
+The number 0 is equal to zero
+PL/SQL procedure successfully completed.
+Sample Output:
+SQL> /
+
+Enter value for get_num: -15
+old 2: num1 NUMBER := &get_num;
+new 2: num1 NUMBER := -15;
+The number -15 is a negative number
+PL/SQL procedure successfully completed.
+PL/SQL Case statement
+The PL/SQL CASE Statement provides facility to execute a sequence of statements based on 
+a selector. A selector may be variable, function or an expression.
+Syntax
+CASE [expression]
+WHEN condition1 THEN result1
+WHEN condition2 THEN result2
+…....................
+WHEN condition_n THEN result_n
+ELSE result
+END;
+Example 1:
+DECLARE 
+ grade char(1) := 'C'; 
+BEGIN 
+ CASE grade 
+ when 'A' then dbms_output.put_line('Distinction'); 
+ when 'B' then dbms_output.put_line('First class'); 
+ when 'C' then dbms_output.put_line('Second class'); 
+ when 'D' then dbms_output.put_line('Pass class'); 
+ else dbms_output.put_line('Failed'); 
+
+ END CASE; 
+END; 
+/
+Output:
+Second class
+Example 2: Write a PL/SQL program to display the description against a grade using 
+CASE statement.
+DECLARE
+grd CHAR(1);
+BEGIN
+-- Accept value for grade
+grd := '&new_grd';
+CASE grd
+WHEN 'A' THEN dbms_output.Put_line('Your Grade is: Outstanding');
+WHEN 'B' THEN dbms_output.Put_line('Your Grade is: Excellent');
+WHEN 'C' THEN dbms_output.Put_line('Your Grade is: Very Good');
+WHEN 'D' THEN dbms_output. Put_line('Your Grade is: Average');
+WHEN 'F' THEN dbms_output.Put_line('Your Grade is: Poor');
+ELSE dbms_output.Put_line('No such grade in the list.');
+END CASE; 
+END;
+/
+Sample Output:
+Enter value for new_grd: D
+old 5: grd := '&new_grd';
+new 5: grd := 'D';
+
+Your Grade is: Average
+PL/SQL procedure successfully completed.
+Example 3: Write a PL/SQL program to display which day is a specific date.
+SET serveroutput ON
+DECLARE
+t_dt DATE := To_date('&input_a_date', 'DD-MON-YYYY');
+t_day VARCHAR2(1);
+BEGIN
+t_day := To_char(t_dt, 'D');
+CASE t_day
+WHEN '1' THEN
+dbms_output.Put_line ('The date you entered is Sunday.');
+WHEN '2' THEN
+dbms_output.Put_line ('The date you entered is Monday.');
+WHEN '3' THEN
+dbms_output.Put_line ('The date you entered is Tuesday.');
+WHEN '4' THEN
+dbms_output.Put_line ('The date you entered is Wednesday.');
+WHEN '5' THEN
+dbms_output.Put_line ('The date you entered is Thursday.');
+WHEN '6' THEN
+dbms_output.Put_line ('The date you entered is Friday.');
+WHEN '7' THEN
+dbms_output.Put_line ('The date you entered is Saturday.');
+END CASE;
+END; 
+
+/
+Sample Output:
+SQL> /
+SQL> /
+Enter value for input_a_date: 15-may-2018
+old 2: t_dt DATE := To_date('&input_a_date', 'DD-MON-YYYY');
+new 2: t_dt DATE := To_date('15-may-2018', 'DD-MON-YYYY');
+The date you entered is Tuesday.
+PL/SQL procedure successfully completed.
+Sample Output:
+Enter value for input_a_date: 14-sep-2017
+old 2: t_dt DATE := To_date('&input_a_date', 'DD-MON-YYYY');
+new 2: t_dt DATE := To_date('14-sep-2017', 'DD-MON-YYYY');
+The date you entered is Thursday.
+PL/SQL procedure successfully completed.
+Other References
+• Control Structures | DBMS | Tutorialink.com
+• PL/SQL Control Structures - Oracle PL/SQL Tutorial | Intellipaat.com
+• Writing PL/SQL Control Structures(Introduction) (relationaldbdesign.com)
+Suggested Book References
+• C.J.Date, “An Introduction to DatabaseSystems”, Addison Wesley.
+• Thomas M. Connolly, Carolyn & E.Begg,“Database Systems: A Practical Approach to 
+Design, Implementationand Management”, 5/E, University of Paisley, AddisonWesley.
+• Rob,”Database Principal Fundamental Design, Cengage Learning.
+
+Dr. Dinesh Singh Dhakar
+Assistant Professor, Computer Science and Engineering 
+(CSE)
+Post Doctorate (Canada) | Ph.D. | M.Tech. | CDAC, 
+Pune | B.Tech. DISCOVER . LEARN . EMPOWER
+UNIVERSITY INSTITUTE OF 
+ENGINEERING
+Department of Computer Science & Engineering
+Database Management System
+(24CSH-204/24ITH-204)
+Academic Session 2026-27
+ODD Semester Jul-Dec 2026
+
+ABOUT COURSE
+• The main DBMS course, we learn about the structural formation of data, maintain data 
+integrity, multitasking with concurrent access and recovery without occurring crashes, 
+data structures, data models etc. and their working in which every organization is 
+based. 
+• At the end of the course, the students may understand the concepts of data structures, 
+data models and design, construction of queries by using SQL, uses and applications of 
+database design etc
+07/09/2026 Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+CO No. Title BT Level
+CO1 Students will be able to understand the database system 
+concepts and design databases for different applications. B1, B2,B3
+CO2
+Students will be able to identify different types of DDL, DML, 
+DCL and TCL commands and their usage. B3, B4
+CO3
+Students will be able to classifying Normalization, 
+Dependencies and Denormalization along with their 
+requirements.
+B6
+CO4 Students will be able to analyse and Compare Transaction 
+Processing techniques and Recovery techniques. B5, B6
+CO5
+Students will be able to evaluate database performance after 
+implementing Triggers, procedures, packages, cursors and 
+views.
+B6
+COURSE OUTCOMES 
+07/09/2026
+Will be covered in this 
+lecture
+Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+1. To have good understanding of database system concepts and design databases for 
+different applications.
+2. To learn how to use a DBMS and RDBMS.
+3. To implement and understand different types of DDL, DML and DCL statements.
+4. To understand transaction concepts related to databases and recovery/backup 
+techniques required for the proper storage of data.
+This course will enable students to,
+COURSE OBJECTIVES 
+07/09/2026 Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+Topics covered
+Database Security: 
+Introduction, Threats, Counter Measures.
+07/09/2026 Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+07/09/2026
+• Database Security - protection from malicious attempts to steal (view) 
+or modify data.
+Database Security
+Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+Database Security
+Security of databases refers to the array of controls, tools, and procedures 
+designed to ensure and safeguard confidentiality, integrity, and accessibility. 
+Security for databases must cover and safeguard 
+the following aspects:
+• The database containing data.
+• Database management systems (DBMS)
+• Any applications that are associated with it.
+• Physical database servers or the database 
+server virtual, and the hardware that runs it.
+• The infrastructure for computing or network 
+that is used to connect to the database.
+07/09/2026 Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+Database Security
+Security of databases is a complicated and challenging task that requires all 
+aspects of security practices and technologies. This is inherently at odds with 
+the accessibility of databases. The more usable and accessible the database 
+is, the more susceptible we are to threats from security. The more vulnerable it 
+is to attacks and threats, the more difficult it is to access and utilize.
+• Database security ensures that sensitive and 
+critical data stored in a database is secure from 
+unauthorized access, misuse, or corruption.
+• Security measures include access controls, 
+encryption, authentication, and auditing 
+mechanisms.
+07/09/2026 Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+Why Database Security is Important?
+Intellectual property that is compromised: Our intellectual property--trade 
+secrets, inventions, or proprietary methods -- could be vital for our ability to 
+maintain an advantage in our industry. If our intellectual property has been 
+stolen or disclosed and our competitive advantage is lost, it could be difficult to 
+keep or recover.
+The damage to our brand's reputation: Customers or partners may not want 
+to purchase goods or services from us (or deal with our business) If they do not 
+feel they can trust our company to protect their data or their own.
+The concept of business continuity (or lack of it): Some businesses cannot 
+continue to function until a breach has been resolved.
+Costs for repairing breaches and notifying consumers about them:
+Alongside notifying customers of a breach, the company that has been 
+breached is required to cover the investigation and forensic services such as 
+crisis management, triage repairs to the affected systems, and much more.
+07/09/2026 Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+07/09/2026
+Types of Security
+Database security is a broad area that addresses many issues, including the following: 
+■ Various legal and ethical issues regarding the right to access certain information—
+for example, some information may be deemed to be private and cannot be accessed 
+legally by unauthorized organizations or persons. 
+■ Policy issues at the governmental, institutional, or corporate level as to what kinds of 
+information should not be made publicly available—for example, credit ratings and 
+personal medical records. 
+■ System-related issues such as the system levels at which various security functions 
+should be enforced—for example, whether a security function should be handled at the 
+physical hardware level, the operating system level, or the DBMS level. 
+■ The need in some organizations to identify multiple security levels and to categorize 
+the data and users based on these classifications—for example, top secret, secret, 
+confidential, and unclassified. 
+Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+07/09/2026
+Levels of Data Security
+• Human level: Corrupt/careless User
+• Network/User Interface
+• Database application program
+• Database system
+• Operating System
+• Physical level
+Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+07/09/2026
+Physical/OS Security
+• Physical level
+– Traditional lock-and-key security
+– Protection from floods, fire, etc. 
+• E.g. WTC (9/11), fires in IITM, WWW conf website, etc.
+– Protection from administrator error
+• E.g. delete critical files
+– Solution
+• Remote backup for disaster recovery
+• Plus archival backup (e.g. DVDs/tapes)
+• Operating system level
+– Protection from virus/worm attacks critical
+Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+07/09/2026
+Database Encryption
+• E.g. What if a laptop/disk/USB key with critical data is lost?
+• Partial solution: encrypt the database at storage level, transparent to 
+application
+– Main issue: key management
+• E.g. user provides decryption key (password) when database is 
+started up
+– Supported by many database systems
+• Standard practice now to encrypt credit card information, and 
+other sensitive information
+Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+07/09/2026
+Database/Application Program
+• Authentication and authorization 
+mechanisms to allow specific 
+users access only to required data
+• Authentication: 
+– who are you? Prove it!
+• Authorization: 
+– what you are allowed to do
+Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+07/09/2026
+Network Security
+• Network level: must use encryption to prevent
+– Eavesdropping: unauthorized reading of messages
+– Masquerading: 
+• pretending to be an authorized user or legitimate site, or
+• sending messages supposedly from authorized users 
+– Handled by secure http - https://
+• Must prevent person-in-the-middle attacks 
+– E.g. someone impersonates seller or bank/credit card company 
+and fool's buyer into revealing information 
+Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+07/09/2026
+Human level /User Authentication
+• Password
+– Most users abuse passwords. For e.g.
+• Easy to guess password
+• Share passwords with others
+• Smartcards
+– Need smartcard
+– + a PIN or password Bill Gates
+Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+07/09/2026
+Threats
+Threat is any intentional or accidental event that may adversely affect the system.
+Examples of threats:
+- Using another person’s log-in name to access data
+- Unauthorized copying data
+- Program/Data alteration
+- Illegal entry by hacker
+- Viruses
+- Etc.
+Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+07/09/2026
+Threats to databases
+• Loss of integrity. Database integrity refers to the requirement that information 
+be protected from improper modification. Modification of data includes creation, 
+insertion, updating, changing the status of data, and deletion. Integrity is lost if 
+unauthorized changes are made to the data by either intentional or accidental 
+acts. If the loss of system or data integrity is not corrected, continued use of the 
+contaminated system or corrupted data could result in inaccuracy, fraud, or 
+erroneous decisions. 
+• Loss of availability. Database availability refers to making objects available to 
+a human user or a program to which they have a legitimate right. 
+• Loss of confidentiality. Database confidentiality refers to the protection of data 
+from unauthorized disclosure. The impact of unauthorized disclosure of 
+confidential information can range from violation of the Data Privacy Act to the 
+jeopardization of national security. Unauthorized, unanticipated, or unintentional 
+disclosure could result in loss of public confidence, embarrassment, or legal 
+action against the organization.
+Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+The following are the main control measures are used to provide security of 
+data in databases:
+1. Authentication
+2. Access control
+3. Inference control
+4. Flow control
+5. Database Security applying Statistical Method
+6. Encryption 
+Control methods of Database Security
+07/09/2026 Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+Authentication:
+Authentication is the process of confirmation that whether the user log in only according to the 
+rights provided to him to perform the activities of data base. A particular user can login only up 
+to his privilege but he can’t access the other sensitive data. The privilege of accessing 
+sensitive data is restricted by using Authentication. 
+By using these authentication tools for biometrics such as retina and figure prints can prevent 
+the data base from unauthorized/malicious users.
+Access Control: 
+The security mechanism of DBMS must include some provisions for restricting access to the 
+data base by unauthorized users. Access control is done by creating user accounts and to 
+control login process by the DBMS. So, that database access of sensitive data is possible only 
+to those people (database users) who are allowed to access such data and to restrict access 
+to unauthorized persons. 
+The database system must also keep the track of all operations performed by certain user 
+throughout the entire login time.
+07/09/2026 Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+07/09/2026
+Access Control Models
+1. Discretionary Access Control (DAC)
+• Users have control over their own data
+• Permissions granted using Access Control Lists (ACLs)
+2. Mandatory Access Control (MAC)
+• Access decisions based on security labels (classification levels)
+• Used in military and government systems
+3. Role-Based Access Control (RBAC)
+• Permissions assigned based on job roles (e.g., admin, user, guest)
+• Reduces administrative overhead
+Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+07/09/2026
+Discretionary Access Control
+• The typical method of enforcing discretionary access control in a 
+database system is based on the granting and revoking privileges. 
+These are used to grant privileges to users, including the capability to 
+access specific data files, records, or fields in a specified mode (such 
+as read, insert, delete, or update).
+Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+07/09/2026
+• Mandatory Access Control (MAC) in a database system is based on a 
+central authority assigning security labels to data and users. These labels 
+define access levels, ensuring that users can only access data classified 
+within their clearance level. MAC is commonly used in government and 
+military applications, where strict control over data access is required.
+Mandatory Access Control
+Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+07/09/2026
+Role Based Access Control
+• Role-Based Access Control (RBAC) in a database system is based 
+on predefined roles assigned to users. Each role has specific 
+privileges, including the ability to read, insert, delete, or update
+data. Instead of granting permissions to individual users, RBAC 
+assigns access based on job responsibilities, making it efficient 
+for large organizations.
+Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+Differences between Authentication and Authorization.
+Authentication Authorization
+It helps decide whether users are what they claim they 
+are.
+It helps to decide which user is allowed to access what.
+User identity has to be verified via a username and 
+password or answering a security question.
+It verifies whether the given access is allowed by following 
+rules and policies.
+Typically, this process takes place before Authorization. It takes place once Authentication is completed.
+Different ways of Authentication are:
+Captcha test
+Biometric Authentication
+Passwords
+Other forms of Authorization are:
+Permissions – Read & Write access to files and allowing 
+access to the database.
+Deciding the roles of users for accessing data
+It’s controlled through the server for finding out who’s 
+accessing what data or site.
+The server helps to decide that client has the authority to 
+access a resource or not.
+Example: Employees authenticating through the network 
+before opening the company mails.
+Example: Once an employee is authenticated, the different 
+system decides which information will be accessed by 
+which employee.
+07/09/2026 Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+Inference Control:
+This method is known as the countermeasures to 
+statistical database security problem. It is used to 
+prevent the user from completing any inference 
+channel. This method protect sensitive 
+information from indirect disclosure. 
+Inferences are of two types, identity disclosure or 
+attribute disclosure.
+Flow Control: 
+This prevents information from flowing in a way 
+that it reaches unauthorized users. Channels are 
+the pathways for information to flow implicitly in 
+ways that violate the privacy policy of a company 
+are called convert channels.
+07/09/2026 Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+Database Security applying Statistical Method: 
+Statistical database security focuses on the protection of 
+confidential individual values stored in and used for statistical 
+purposes and used to retrieve the summaries of values based on 
+categories. They do not permit to retrieve the individual 
+information. 
+This allows to access the database to get statistical information 
+about the number of employees in the company but not to access 
+the detailed confidential/personal information about the specific 
+individual employee.
+Encryption: 
+This method is mainly used to protect sensitive data (such as 
+credit card numbers, OTP numbers) and other sensitive numbers. 
+The data is encoded using some encoding algorithms.
+07/09/2026 Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+07/09/2026
+Database Security and DBA 
+• The database administrator (DBA) is the central authority for managing a database 
+system.
+– The DBA’s responsibilities include
+• granting privileges to users who need to use the system
+• classifying users and data in accordance with the policy of the organization
+• The DBA is responsible for the overall security of the database system.
+Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+07/09/2026
+Database Security and DBA 
+• The DBA has a DBA account in the DBMS
+– Sometimes these are called a system or superuser account
+– These accounts provide powerful capabilities such as:
+• 1. Account creation
+• 2. Privilege granting
+• 3. Privilege revocation
+• 4. Security level assignment
+– Action 1 is access control, whereas 2 and 3 are discretionary 
+access and 4 is used to control mandatory authorization
+Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+THANK YOU 
+07/09/2026 Dr. Dinesh Singh Dhakar, Asst. Prof., UIE-CSE, Chandigarh University
+
+UNIT-2
+CHAPTER	2.1.7
+(Keys	in	detail)
+What are Keys in DBMS?
+KEYS in DBMS is an attribute or set of attributes which helps you to identify a row(tuple) in 
+a relation(table). They allow you to find the relation between two tables. Keys help you 
+uniquely identify a row in a table by a combination of one or more columns in that table. Key 
+is also helpful for finding unique record or row from the table. Database key is also helpful for 
+finding unique record or row from the table.
+Why we need a Key?
+Here are some reasons for using sql key in the DBMS system.
+● Keys help you to identify any row of data in a table. In a real-world application, a table 
+could contain thousands of records. Moreover, the records could be duplicated. Keys 
+ensure that you can uniquely identify a table record despite these challenges.
+● Allows you to establish a relationship between and identify the relation between tables
+● Help you to enforce identity and integrity in the relationship.
+Different Types Of Keys in DBMSThere are following 10 important keys in DBMS-
+
+1. Super key
+2. Candidate key
+3. Primary key
+4. Alternate key
+5. Foreign key
+6. Partial key
+7. Composite key
+8. Unique key
+9. Surrogate key
+10. Secondary key
+Types of Keys in Database Management System intro
+There are mainly seven different types of Keys in DBMS and each key has it’s different 
+functionality:
+● Super Key - A super key is a group of single or multiple keys which identifies rows 
+in a table.
+● Primary Key - is a column or group of columns in a table that uniquely identify every 
+row in that table.
+
+● Candidate Key - is a set of attributes that uniquely identify tuples in a table. Candidate 
+Key is a super key with no repeated attributes.
+● Alternate Key - is a column or group of columns in a table that uniquely identify every 
+row in that table.
+● Foreign Key - is a column that creates a relationship between two tables. The purpose 
+of Foreign keys is to maintain data integrity and allow navigation between two different 
+instances of an entity.
+● Compound Key - has two or more attributes that allow you to uniquely recognize a 
+specific record. It is possible that each column may not be unique by itself within the 
+database.
+● Composite Key - An artificial key which aims to uniquely identify each record is 
+called a surrogate key. These kind of key are unique because they are created when you 
+don't have any natural primary key.
+● Surrogate Key - An artificial key which aims to uniquely identify each record is called 
+a surrogate key. These kind of key are unique because they are created when you don't 
+have any natural primary key.
+NOTEBefore proceeding further, Kindly note-
+● The terms ‘relation’ and ‘table’ are used interchangeably.
+● The terms ‘tuple’ and ‘record’ are used interchangeably.
+So, don’t get confused!
+1. Super Key-
+● A super key is a set of attributes that can identify each tuple uniquely in the given 
+relation.
+● A super key is not restricted to have any specific number of attributes.
+● Thus, a super key may consist of any number of attributes.
+● A superkey is a group of single or multiple keys which identifies rows in a table. A 
+Super key may have additional attributes that are not needed for unique identification.
+Example 1-
+
+Consider the following Student schemaStudent ( roll , name , sex , age , address , class , section )
+Given below are the examples of super keys since each set can uniquely identify each student 
+in the Student table-
+● ( roll , name , sex , age , address , class , section )
+● ( class , section , roll )
+● (class , section , roll , sex )
+● ( name , address )
+Example 2-
+In the above-given example, EmpSSN and EmpNum name are superkeys.
+NOTEAll the attributes in a super key are definitely sufficient to identify each tuple uniquely in the 
+given relation but all of them may not be necessary.
+2. Candidate KeyA minimal super key is called as a candidate key.
+OR
+A set of minimal attribute(s) that can identify each tuple uniquely in the given relation is called 
+as a candidate key.
+CANDIDATE KEY is a set of attributes that uniquely identify tuples in a table. Candidate 
+Key is a super key with no repeated attributes. The Primary key should be selected from the 
+candidate keys. Every table must have at least a single candidate key. A table can have multiple 
+candidate keys but only a single primary key.
+Properties of Candidate key:
+● It must contain unique values
+● Candidate key may have multiple attributes
+● Must not contain null values
+● It should contain minimum fields to ensure uniqueness
+
+● Uniquely identify each record in a table
+Example 1-
+Consider the following Student schemaStudent ( roll , name , sex , age , address , class , section )
+Given below are the examples of candidate keys since each set consists of minimal attributes 
+required to identify each student uniquely in the Student table-
+● ( class , section , roll )
+● ( name , address )
+Example 2-
+In the given table Stud ID, Roll No, and email are candidate keys which help us to uniquely 
+identify the student record in the table.
+NOTES-
+● All the attributes in a candidate key are sufficient as well as necessary to identify each 
+tuple uniquely.
+● Removing any attribute from the candidate key fails in identifying each tuple uniquely.
+● The value of candidate key must always be unique.
+● The value of candidate key can never be NULL.
+● It is possible to have multiple candidate keys in a relation.
+● Those attributes which appears in some candidate key are called as prime attributes.
+3. Primary KeyA primary key is a candidate key that the database designer selects while designing the 
+database.
+OR
+Candidate key that the database designer implements is called as a primary key.
+PRIMARY KEY is a column or group of columns in a table that uniquely identify every row 
+in that table. The Primary Key can't be a duplicate meaning the same value can't appear more 
+than once in the table. A table cannot have more than one primary key.
+
+Rules for defining Primary key:
+● Two rows can't have the same primary key value
+● It must for every row to have a primary key value.
+● The primary key field cannot be null.
+● The value in a primary key column can never be modified or updated if any foreign key 
+refers to that primary key.
+NOTES-
+● The value of primary key can never be NULL.
+● The value of primary key must always be unique.
+● The values of primary key can never be changed i.e. no updation is possible.
+● The value of primary key must be assigned when inserting a record.
+● A relation is allowed to have only one primary key.
+Remember4. Alternate KeyCandidate keys that are left unimplemented or unused after implementing the primary key are 
+called as alternate keys.
+OR
+Unimplemented candidate keys are called as alternate keys.
+
+ALTERNATE KEYS is a column or group of columns in a table that uniquely identify every 
+row in that table. A table can have multiple choices for a primary key but only one can be set 
+as the primary key. All the keys which are not primary key are called an Alternate Key.
+Example:
+In this table, StudID, Roll No, Email are qualified to become a primary key. But since StudID 
+is the primary key, Roll No, Email becomes the alternative key.
+5. Foreign Key-
+● An attribute ‘X’ is called as a foreign key to some other attribute ‘Y’ when its values 
+are dependent on the values of attribute ‘Y’.
+● The attribute ‘X’ can assume only those values which are assumed by the attribute ‘Y’.
+● Here, the relation in which attribute ‘Y’ is present is called as the referenced relation.
+● The relation in which attribute ‘X’ is present is called as the referencing relation.
+● The attribute ‘Y’ might be present in the same table or in some other table.
+ExampleConsider the following two schemasHere, t_dept can take only those values which are present in dept_no in Department table since 
+only those departments actually exist.
+NOTES-
+● Foreign key references the primary key of the table.
+● Foreign key can take only those values which are present in the primary key of the 
+referenced relation.
+● Foreign key may have a name other than that of a primary key.
+
+● Foreign key can take the NULL value.
+● There is no restriction on a foreign key to be unique.
+● In fact, foreign key is not unique most of the time.
+● Referenced relation may also be called as the master table or primary table.
+● Referencing relation may also be called as the foreign table.
+FOREIGN KEY is a column that creates a relationship between two tables. The purpose of 
+Foreign keys is to maintain data integrity and allow navigation between two different instances 
+of an entity. It acts as a cross-reference between two tables as it references the primary key of 
+another table.
+This concept is also known as Referential Integrity.
+6. Partial Key-
+● Partial key is a key using which all the records of the table can not be identified 
+uniquely.
+● However, a bunch of related tuples can be selected from the table using the partial key.
+ExampleConsider the following schemaDepartment ( Emp_no , Dependent_name , Relation )
+Emp_no Dependent_name Relation
+E1 Suman Mother
+E1 Ajay Father
+E2 Vijay Father
+E2 Ankush Son
+Here, using partial key Emp_no, we can not identify a tuple uniquely but we can select a bunch 
+of tuples from the table.
+7. Composite KeyA primary key comprising of multiple attributes and not just a single attribute is called as a 
+composite key.
+
+COMPOSITE KEY is a combination of two or more columns that uniquely identify rows in 
+a table. The combination of columns guarantees uniqueness, though individually uniqueness is 
+not guaranteed. Hence, they are combined to uniquely identify records in a table.
+The difference between compound and the composite key is that any part of the compound key 
+can be a foreign key, but the composite key may or maybe not a part of the foreign key.
+8. Unique KeyUnique key is a key with the following properties-
+● It is unique for all the records of the table.
+● Once assigned, its value can not be changed i.e. it is non-updatable.
+● It may have a NULL value.
+ExampleThe best example of unique key is Adhaar Card Numbers.
+● The Adhaar Card Number is unique for all the citizens (tuples) of India (table).
+● If it gets lost and another duplicate copy is issued, then the duplicate copy always has 
+the same number as before.
+● Thus, it is non-updatable.
+● Few citizens may not have got their Adhaar cards, so for them its value is NULL.
+9. Surrogate KeySurrogate key is a key with the following properties-
+● It is unique for all the records of the table.
+● It is updatable.
+● It can not be NULL i.e. it must have some value.
+ExampleMobile Number of students in a class where every student owns a mobile phone.
+SURROGATE KEYS is An artificial key which aims to uniquely identify each record is 
+called a surrogate key. This kind of partial key in dbms is unique because it is created when 
+you don't have any natural primary key. They do not lend any meaning to the data in the table. 
+
+Surrogate key is usually an integer. A surrogate key is a value generated right before the record 
+is inserted into a table.
+Above, given example, shown shift timings of the different employee. In this example, a 
+surrogate key is needed to uniquely identify each employee.
+Surrogate keys in sql are allowed when
+● No property has the parameter of the primary key.
+● In the table when the primary key is too big or complicated.
+10. Secondary KeySecondary key is required for the indexing purpose for better and faster searching.
+Other References
+● DBMS Keys: Candidate, Super, Primary, Foreign (Example) (guru99.com)
+● DBMS Keys: Primary, Foreign, Candidate and Super Key - javatpoint
+● Types of Keys in DBMS | Definitions | Examples | Gate Vidyalay
+Suggested Book References
+1. J. Date, “An Introduction to Database Systems”,Addison Wesley.
+2. Navathe,“Fundamentals of Database System”, The Benjamin / Cummings Publishing 
+Co.
+
+UNIT-2
+CHAPTER	2.1.6
+(5NF	)
+Fifth Normal Form / Projected Normal Form (5NF):
+A relation R is in 5NF if and only if every join dependency in R is implied by the candidate 
+keys of R. A relation decomposed into two relations must have loss-less join Property, which 
+ensures that no spurious or extra tuples are generated, when relations are reunited through a 
+natural join.
+Properties – A relation R is in 5NF if and only if it satisfies following conditions:
+1. R should be already in 4NF.
+2. It cannot be further non loss decomposed (join dependency)
+Fifth normal form
+A table is in fifth Normal Form if:
+● It is in fourth normal form.
+● It cannot be subdivided into any smaller tables without losing some form of 
+information.
+5NF is defined by the statement
+A table T is in fifth normal form if every join dependency in T is a consequence only of the 
+candidate keys of T.
+The second version of the table ‘agent_company product’ illustrated earlier’ violated
+5NF, because the join dependency *(agent, company, product_name) was not a consequence 
+only of the primary key for the table, but also a consequence of the tuple formation rule which 
+was given earlier,
+In the first, example of ‘agent_company Product’ there was no application of this rule, hence 
+no join dependency other than that on the primary key. Thus, the table was in 5NF.
+
+It can be shown that if a table is in 5NF, then, because join dependencies are the ‘ultimate’ 
+form of dependency, it must also be in 4NF and thus confirm to all the further normal forms. 
+The problem with this is that detecting join dependencies is, in practice, very difficult. For this 
+reason, 5NF is largely of academic interest.
+Summary
+The various forms of database normalization are useful while designing the schema of a 
+database in such a way that there is no data replication which may possibly lead to 
+inconsistencies. While designing the schema for applications, we should always think about 
+how can we make use of these forms.
+Denormalization in Databases
+Denormalization is a database optimization technique in which we add redundant data to one 
+or more tables. This can help us avoid costly joins in a relational database. Note that 
+denormalization does not mean not doing normalization. It is an optimization technique that is 
+applied after doing normalization.
+In a traditional normalized database, we store data in separate logical tables and attempt to 
+minimize redundant data. We may strive to have only one copy of each piece of data in 
+database.
+For example, in a normalized database, we might have a Courses table and a Teachers table. 
+Each entry in Courses would store the teacherID for a Course but not the teacherName. When 
+we need to retrieve a list of all Courses with the Teacher name, we would do a join between 
+these two tables.
+In some ways, this is great; if a teacher changes his or her name, we only have to update the 
+name in one place.
+The drawback is that if tables are large, we may spend an unnecessarily long time doing joins 
+on tables.
+
+Other References
+• Fifth Normal Form(5NF) - Computer Notes (ecomputernotes.com)
+• Denormalization in Databases - GeeksforGeeks
+• Introduction of 4th and 5th Normal form in DBMS - GeeksforGeeks
+Suggested Book References
+1. J. Date, “An Introduction to Database Systems”,Addison Wesley.
+2. Navathe,“Fundamentals of Database System”, The Benjamin / Cummings Publishing 
+Co.
+
+UNIT-2
+CHAPTER	2.1.5
+(BCNF	and	4NF)
+Boyce-Codd Normal Form
+Boyce-Codd Normal Form (BCNF) is an extension of Third Normal Form on strict terms. 
+BCNF states that −
+● For any non-trivial functional dependency, X → A, X must be a super-key
+In the above image, Stu_ID is the super-key in the relation Student_Detail and Zip is the superkey in the relation ZipCodes. So,
+Stu_ID → Stu_Name, Zip
+and
+Zip → City
+Which confirms that both the relations are in BCNF.
+The Boyce Codd Normal form of the database normalization is an extended version of the 
+3NF. It is referred to as the 3.5NF. Any table or relation complies with the BCNF if it holds 
+the following conditions:
+● The relation must be in the third normal form (3NF).
+● For any functional dependency A -> B in the relation, A should be the superkey.
+You can clearly understand the BCNF concept through an example of employees working in 
+multiple companies’ departments. Consider an Employee relation having Emp_ID, 
+
+Emp_Nationality, Emp_Department, Dept_Type, No_of_Employees as attributes. The relation 
+holds the following values:
+Employee
+The candidate for the above relation is {Emp_ID, Emp_Dept}. Neither the single Emp_ID 
+attribute can provide the department information, nor the Emp_Dept can determine the 
+employee information. So, the above relation does not comply with the BCNF. To make the 
+above table in BCNF, divide it into three tables as follows:
+Employee_Nationality
+Here, Emp_ID is the candidate key. The functional dependency is Emp_ID -> 
+Emp_Nationality. Hence, it is in the BCNF.
+Employee_Department
+Here, Emp_Dept is the candidate key, and the functional dependency is {Emp_Dept -> 
+Dept_Type, No_of_Employees}. Therefore, the above relation also complies with BCNF.
+Employee_ID_Dept
+Boyce-Codd Normal Form says that if there is a functional dependency A → B, then either A 
+is a superkey or it is a trivial functional dependency. A trivial functional dependency means 
+that all columns of B are contained in the columns of A. For instance, (course code, professor 
+name) → (course code) is a trivial functional dependency because when we know the value of 
+course code and professor name, we do know the value of course code and so, the dependency 
+becomes trivial.
+Let us understand what’s going on:
+A is a superkey: this means that only and only on a superkey column should it be the case that 
+there is a dependency of other columns. Basically, if a set of columns (B) can be determined 
+knowing some other set of columns (A), then A should be a superkey. Superkey basically 
+determines each row uniquely.
+It is a trivial functional dependency: this means that there should be no non-trivial 
+dependency. For instance, we saw how the professor’s department was dependent on the 
+professor’s name. This may create integrity issues since someone may edit the professor’s 
+name without changing the department. This may lead to an inconsistent database.
+
+Fourth Normal Form (4NF):
+We have seen the multi-valued dependency in the above section. The table is said to be in the 
+fourth normal form if it holds all the below conditions:
+● The relation should comply with the Boyce Codd Normal Form.
+● There should be no multi-valued dependencies between the table’s attributes.
+We shall talk about the fourth normal form using Students relation. The Students relation has 
+three attributes. Stud_ID, Stud_Course, and Stud_Hobby. The table values are as below:
+Students
+The above relation is not in the fourth normal form (4NF), as it has multi-valued dependencies 
+in it. The attributes Stud_Course and Stud_Hobby are dependent on the Stud_ID attribute, 
+which ends in multi-valued dependency. Therefore, to make the above relation in 4NF, we need 
+to break the relation into two different relations.
+Rules for 4th Normal Form
+For a table to satisfy the Fourth Normal Form, it should satisfy the following two conditions:
+1. It should be in the Boyce-Codd Normal Form.
+2. And, the table should not have any Multi-valued Dependency.
+Let's try to understand what multi-valued dependency is in the next section.
+What is Multi-valued Dependency?
+A table is said to have multi-valued dependency, if the following conditions are true,
+1. For a dependency A → B, if for a single value of A, multiple value of B exists, then the 
+table may have multi-valued dependency.
+2. Also, a table should have at-least 3 columns for it to have a multi-valued dependency.
+3. And, for a relation R(A,B,C), if there is a multi-valued dependency between, A and B, 
+then B and C should be independent of each other.
+If all these conditions are true for any relation(table), it is said to have multi-valued 
+dependency.
+In the fourth normal form,
+
+● It should meet all the requirement of 3NF
+● Attribute of one or more rows in the table should not result in more than one rows of 
+the same table leading to multi-valued dependencies
+To understand it clearly, consider a table with Subject, Lecturer who teaches each subject and 
+recommended Books for each subject.
+If we observe the data in the table above it satisfies 3NF. But LECTURER and BOOKS are 
+two independent entities here. There is no relationship between Lecturer and Books. In the 
+above example, either Alex or Bosco can teach Mathematics. For Mathematics subject , student 
+can refer either ‘Maths Book1’ or ‘Maths Book2’. i.e.;
+SUBJECT –> LECTURER
+SUBJECT–>BOOKS
+This is a multivalued dependency on SUBJECT. If we need to select both lecturer and books 
+recommended for any of the subject, it will show up (lecturer, books) combination, which 
+implies lecturer who recommends which book. This is not correct.
+SELECT c.LECTURER, c.BOOKS FROM COURSE c WHERE SUBJECT = 'Mathematics';
+Now if we want to know the lecturer names and books recommended for any of the subject, 
+we will fire two independent queries. Hence it removes the multi-valued dependency and 
+confusion around the data. Thus the table is in 4NF.
+--Select the lecturer namesSELECT c.SUBJECT , c.LECTURER FROM COURSE c 
+WHERE c.SUBJECT = 'Mathematics'; --Select the recommended book namesSELECT 
+c.SUBJECT , c.BOOKS FROM COURSE c WHERE c.SUBJECT = 'Mathematics';
+
+Other References
+• Fourth Normal Form (4NF) - 4NF in DBMS - 4NF in Database (tutorialcup.com)
+• DBMS - Joins - Tutorialspoint
+• Introduction to Database Normalization (softwaretesttips.com)
+Suggested Book References
+1. J. Date, “An Introduction to Database Systems”,Addison Wesley.
+2. Navathe,“Fundamentals of Database System”, The Benjamin / Cummings Publishing 
+Co.
+
+UNIT-2
+CHAPTER	2.1.4
+(Third	Normal	Form	3NF)
+Third Normal Form
+For a relation to be in Third Normal Form, it must be in Second Normal form and the following 
+must satisfy −
+● No non-prime attribute is transitively dependent on prime key attribute.
+● For any non-trivial functional dependency, X → A, then either −
+● X is a superkey or,
+● A is prime attribute.
+We find that in the above Student_detail relation, Stu_ID is the key and only prime key 
+attribute. We find that City can be identified by Stu_ID as well as Zip itself. Neither Zip is a 
+superkey nor is City a prime attribute. Additionally, Stu_ID → Zip → City, so there 
+exists transitive dependency.
+To bring this relation into third normal form, we break the relation into two relations as follows 
+−
+
+The third normal form is the nest database normalization form. Any relation is said to be in 
+the third normal is it satisfies the below conditions:
+● The relation should comply with the second normal form (2NF).
+● Any non-prime attribute should not have a transitive functional dependency on the 
+super key.
+You can also define the third normal form of database normalization as the table should be 
+in the 2NF and the functional dependency X -> Y should follow any one of the following 
+conditions:
+● X should be the superkey of the relation.
+● Y should be the prime-attribute of the relation.
+We shall see how the table complies with the third normal form. Consider an Employee 
+relation having Emp_ID, Emp_Name, Emp_Zip, Emp_State, Emp_City, and 
+Emp_District. This relation is represented as follows:
+Employee
+The super keys of the Employee relation are {Emp_ID}, {Emp_ID, Emp_Name}, {Emp_ID, 
+Emp_Name, Emp_Zip}, and many others. The candidate key is {Emp_ID}. Hence, the 
+EMP_ID is the prime attribute and all other are non-prime attributes.
+You can see that the three attributes, Emp_State, Emp_City, and Emp_District, are functionally 
+dependent on the Emp_Zip attribute. We can find the zip number using the Emp_ID attribute. 
+Hence, Emp_Zip is dependent on Emp_ID.
+The three attributes, Emp_State, Emp_City, and Emp_District, are non-prime attributes. They 
+are indirectly dependent on the Emp_ID attribute, which breaks 3NF rules. To make the 
+Employee relation comply with the third normal form (3NF), we need to break the table into 
+smaller tables as below:
+Employee_ID
+Employee_Zip
+The above two tables are in the third normal form.
+
+Other References
+• Introduction to Database Normalization (softwaretesttips.com)
+• DBMS - Normalization - Tutorialspoint
+• Normalization in DBMS: 1NF, 2NF, 3NF and BCNF with Examples (hackr.io)
+Suggested Book References
+1. J. Date, “An Introduction to Database Systems”,Addison Wesley.
+2. Navathe,“Fundamentals of Database System”, The Benjamin / Cummings Publishing 
+Co.
+
+UNIT-2
+CHAPTER	2.1.3
+(Second	Normal	Form(2NF))
+Second Normal Form
+Before we learn about the second normal form, we need to understand the following −
+● Prime attribute − An attribute, which is a part of the candidate-key, is known as a 
+prime attribute.
+● Non-prime attribute − An attribute, which is not a part of the prime-key, is said to be 
+a non-prime attribute.
+If we follow second normal form, then every non-prime attribute should be fully functionally 
+dependent on prime key attribute. That is, if X → A holds, then there should not be any proper 
+subset Y of X, for which Y → A also holds true.
+We see here in We see here in Student_Project relation that the prime key attributes are Stu_ID 
+and Proj_ID. According to the rule, non-key attributes, i.e. Stu_Name and Proj_Name must be 
+dependent upon both and not on any of the prime key attribute individually. But we find that 
+Stu_Name can be identified by Stu_ID and Proj_Name can be identified by Proj_ID 
+independently. This is called partial dependency, which is not allowed in Second Normal Form.
+
+We broke the relation in two as depicted in the above picture. So there exists no partial 
+dependency.
+For a table to be in second normal form, the following 2 conditions are to be met:
+1. The table should be in the first normal form.
+2. The primary key of the table should compose of exactly 1 column.
+The first point is obviously straightforward since we just studied 1NF. Let us understand the 
+first point - 1 column primary key. Well, a primary key is a set of columns that uniquely 
+identifies a row. Basically, no 2 rows have the same primary keys. Let us take an example.
+Course
+Here, in this table, the course code is unique. So, that becomes our primary key.
+Let us take another example of storing student enrollment in various courses. Each student may 
+enroll in multiple courses. Similarly, each course may have multiple enrollments. A sample 
+table may look like this (student name and course code):
+Here, the first column is the student name and the second column is the course taken by the 
+student.
+Clearly, the student name column isn’t unique as we can see that there are 2 entries 
+corresponding to the name ‘Rahul’ in row 1 and row 3. Similarly, the course code column is 
+not unique as we can see that there are 2 entries corresponding to course code CS101 in row 2 
+and row 4.
+However, the tuple (student name, course code) is unique since a student cannot enroll in the 
+same course more than once. So, these 2 columns when combined form the primary key for the 
+database.
+
+As per the second normal form definition, our enrollment table above isn’t in the second normal 
+form. To achieve the same (1NF to 2NF), we can rather break it into 2 tables:
+Here the second column is unique and it indicates the enrollment number for the student. 
+Clearly, the enrollment number is unique. Now, we can attach each of these enrollment 
+numbers with course codes.
+Courses:
+These 2 tables together provide us with the exact same information as our original table.
+Keys in Database
+The keys in the database play a vital role in identifying the data present in it. Using keys, you 
+can find any data from the table quickly and easily. The large tables are divided into smaller 
+ones, and keys are used to connect the smaller tables.
+Let us see the different types of keys used in the DBMS.
+1.Primary Key:
+The primary key is an attribute of the table that identifies any row or tuple uniquely. You must 
+choose the primary key that will uniquely find any data from the table.
+Consider a relation Employee. It has attributes like Emp_ID, Emp_Name, Emp_Add, 
+Passport_Number, and License_Number. 
+The primary key of the Employee relation will be the Emp_ID, as it will uniquely identify 
+every employee’s data. Additionally, the Passport_Number and License_Number can also 
+serve as primary keys as they are unique for every employee.
+
+2.Candidate Key:
+The candidate key of any table is a set of minimal attributes and can identify any row uniquely 
+in the relation. There can be single or more candidate keys for a single relation.
+Consider the above relation of Employee. We saw that the primary key is the Emp_ID, which 
+is unique and non-repetitive for every employee. The other two attributes, Passport_Number 
+and License_Number, are also non-repetitive. So, they both can serve as candidate keys.
+3.Super Key:
+As the primary key and candidate key identifies every tuple uniquely, the super key also 
+helps find the table’s unique tuple. The candidate key is the subset of the super key. There can 
+be one or many super keys.
+We shall use the same Employee relation to have a clear idea about the super key. The Emp_ID 
+attribute can uniquely find out any employee’s data. The Emp_Name attribute cannot be used 
+as the primary key, as two employees can have the same name. But, the combination of the 
+Emp_ID and Emp_Name can find employee’s data uniquely. So, (Epm_ID, Emp_Name)
+serves as super keys for the Employee relation.
+The Passprt_Number and License_Number are also super keys of the Employee relation.
+4.Foreign Key:
+The foreign key is quite different from the above three keys. It is used to establish a connection 
+between two relations. Consider two relations A and B. Suppose any attribute in the relation A 
+is the primary key of the relation B; that attribute is referred to as the foreign key. 
+We shall look at the simple example to understand the foreign key concept. Let us take the 
+example of employees in the company. Every employee is assigned to different departments. 
+Hence, we use two relations, Employee and Department.
+We define Employee relations as Employee (Emp_ID, Emp_Name, Passport_Number, 
+License_Number, Dept_ID), and Department relation as Department (Dept_ID, 
+Dept_Name).
+In the Employee relation, Emp_ID is the primary key, whereas Dept_ID is the department 
+relation’s primary key. The attribute Dept_Id is one attribute in the Employee relation, which 
+is the primary key in the Department relation. Hence, the Dept_ID serves as the foreign key.
+
+5.Composite Key:
+A composite key is a group of attributes that uniquely finds very employee’s data from the 
+relation. The composite key is the combination of two and more than two attributes. 
+From the above Employee relation Emp (Emp_ID, Emp_Name, Passport_Number, 
+License_Number), the composite key is (Emp_name, Emp_ID).
+Other References
+• DBMS 1NF - javatpoint
+• Normalization in DBMS: 1NF, 2NF, 3NF and BCNF with Examples (hackr.io)
+• Introduction to Database Normalization (softwaretesttips.com)
+• Normalization in DBMS: 1NF, 2NF, 3NF and BCNF in Database (beginnersbook.com)
+Suggested Book References
+1. J. Date, “An Introduction to Database Systems”,Addison Wesley.
+2. Navathe,“Fundamentals of Database System”, The Benjamin / Cummings Publishing 
+Co.
+
+UNIT-2
+CHAPTER	2.1.2
+(Introduction	to	Normalization	and	1NF)
+Normalization
+● Normalization is a process of organizing the data in the database.
+● It is a systematic approach of decomposing tables to eliminate data redundancy.
+● It was developed by E. F. Codd.
+● Normalization is a multi-step process that puts the data into a tabular form by removing 
+the duplicate data from the relation tables.
+● It is a step by step decomposition of complex records into simple records.
+● It is also called as Canonical Synthesis.
+● It is the technique of building database structures to store data.
+Definition of Normalization
+“Normalization is a process of designing a consistent database by minimizing redundancy and 
+ensuring data integrity through decomposition which is lossless.”
+If a database design is not perfect, it may contain anomalies, which are like a bad dream for 
+any database administrator. Managing a database with anomalies is next to impossible.
+● Update anomalies − If data items are scattered and are not linked to each other 
+properly, then it could lead to strange situations. For example, when we try to update 
+one data item having its copies scattered over several places, a few instances get 
+updated properly while a few others are left with old values. Such instances leave the 
+database in an inconsistent state.
+● Deletion anomalies − We tried to delete a record, but parts of it was left undeleted 
+because of unawareness, the data is also saved somewhere else.
+● Insert anomalies − We tried to insert data in a record that does not exist at all.
+Normalization is a method to remove all these anomalies and bring the database to a consistent 
+state.
+
+Features of Normalization
+● Normalization avoids the data redundancy.
+● It is a formal process of developing data structures.
+● It promotes the data integrity.
+● It ensures data dependencies make sense that means data is logically stored.
+● It eliminates the undesirable characteristic
+How Does Normalization work in DBMS?
+The normalization in the DBMS can be defined as a technique to design the schema of a 
+database and this is done by modifying the existing schema which also reduces the redundancy 
+and dependency of the data. So with Normalization, the unwanted duplication in data is 
+removed along with the anomalies. In insert anomaly, the values such as null are not allowed 
+to be inserted for a column.
+In update anomaly, the data cannot be updated correctly because the same values occur multiple 
+times in a column and in delete anomaly the deletion of a record creates inconsistency as it gets 
+deleted from more than one row. So the aim of normalization is to remove redundant data as 
+well as storing only related data in the table. This decreases the database size and the data gets 
+logically stored in the database.
+Type of Normalization
+● First Normal Form (1NF)
+● Second Normal Form (2NF)
+● Third Normal Form (3NF)
+● Boyce-Codd Normal Form (BCNF)
+● Fourth Normal Form(4NF)
+● Fifth Normal Form(5NF)
+First Normal Form (1NF)
+● A relation will be 1NF if it contains an atomic value.
+
+● It states that an attribute of a table cannot hold multiple values. It must hold only singlevalued attributes.
+● First normal form disallows the multi-valued attribute, composite attribute, and their 
+combinations.
+Example 1: Relation EMPLOYEE is not in 1NF because of multi-valued attribute 
+EMP_PHONE.
+EMPLOYEE table:
+The decomposition of the EMPLOYEE table into 1NF has been shown below:
+Example 2:
+First Normal Form is defined in the definition of relations (tables) itself. This rule defines that 
+all the attributes in a relation must have atomic domains. The values in an atomic domain are 
+indivisible units.
+We re-arrange the relation (table) as below, to convert it to First Normal Form.
+Each attribute must contain only a single value from its pre-defined domain.
+
+Other References
+• Normalization in DBMS | 4 Useful Types of Normalization In DBMS (educba.com)
+• DBMS 1NF - javatpoint
+• Normalization in DBMS: 1NF, 2NF, 3NF and BCNF with Examples (hackr.io)
+Suggested Book References
+1. J. Date, “An Introduction to Database Systems”,Addison Wesley.
+2. Navathe,“Fundamentals of Database System”, The Benjamin / Cummings Publishing 
+Co.
+
+UNIT-2
+CHAPTER	2.1.1
+(Functional	dependencies	)
+What is Functional Dependency?
+Functional dependency in DBMS, as the name suggests is a relationship between attributes of 
+a table dependent on each other. Introduced by E. F. Codd, it helps in preventing data 
+redundancy and gets to know about bad designs.
+To understand the concept thoroughly, let us consider P is a relation with attributes A and B. 
+Functional Dependency is represented by -> (arrow sign)
+Then the following will represent the functional dependency between attributes with an arrow 
+sign −
+A -> B
+A functional dependency is a constraint between two sets of attributes from the database. 
+Suppose that our relational database schema has n attributes A1, A2, ..., An. If we think of the 
+whole database as being described by a single universal relation schema R = {A1, A2, ... , An}.
+A functional dependency, denoted by X ->Y, between two sets of attributes X and Y that are 
+subsets of R, such that any two tuples t1 and t2 in r that have t1[X] = t2[X], they must also 
+have t1[Y] = t2[Y].
+This means that the values of the Y component of a tuple in r depend on, or are determined by, 
+the values of the X component; We say that the values of the X component of a tuple uniquely 
+(or functionally) determine the values of the Y component. We say that there is a functional 
+dependency from X to Y, or that Y is functionally dependent on X.
+Example
+The following is an example that would make it easier to understand functional dependency −
+We have a <Department> table with two attributes − DeptId and DeptName.
+DeptId = Department ID
+DeptName = Department Name
+
+The DeptId is our primary key. Here, DeptId uniquely identifies the DeptName attribute. 
+This is because if you want to know the department name, then at first you need to have 
+the DeptId.
+DeptId DeptName
+001 Finance
+002 Marketing
+003 HR
+Therefore, the above functional dependency between DeptId and DeptName can be 
+determined as DeptId is functionally dependent on DeptName −
+DeptId -> DeptName
+Advantages of Functional Dependency
+● Functional Dependency avoids data redundancy. Therefore same data do not repeat at 
+multiple locations in that database
+● It helps you to maintain the quality of data in the database
+● It helps you to defined meanings and constraints of databases
+● It helps you to identify bad designs
+● It helps you to find the facts regarding the database design
+Types of Functional Dependency
+Functional Dependency has three forms −
+● Trivial Functional Dependency
+● Non-Trivial Functional Dependency
+● Completely Non-Trivial Functional Dependency
+Trivial Functional Dependency
+It occurs when B is a subset of A in −
+A ->B
+
+Example
+We are considering the same <Department> table with two attributes to understand the 
+concept of trivial dependency.
+The following is a trivial functional dependency since DeptId is a subset 
+of DeptId and DeptName
+{ DeptId, DeptName } -> Dept Id
+Non –Trivial Functional Dependency
+It occurs when B is not a subset of A in −
+A ->B
+Example
+DeptId -> DeptName
+The above is a non-trivial functional dependency since DeptName is a not a subset of DeptId.
+Completely Non - Trivial Functional Dependency
+It occurs when A intersection B is null in −
+A ->B
+Armstrong’s Axioms Property of Functional Dependency
+Armstrong’s Axioms property was developed by William Armstrong in 1974 to reason about 
+functional dependencies.
+The property suggests rules that hold true if the following are satisfied:
+● Transitivity
+● If A->B and B->C, then A->C i.e. a transitive relation.
+● Reflexivity
+● A-> B, if B is a subset of A.
+● Augmentation
+● The last rule suggests: AC->BC, if A->B
+
+Transitive dependency
+A functional dependency is said to be transitive if it is indirectly formed by two functional 
+dependencies.
+For e.g.
+X -> Z is a transitive dependency if the following three functional dependencies hold true:
+● X->Y
+● Y does not ->X
+● Y->Z
+Note: A transitive dependency can only occur in a relation of three of more attributes. This 
+dependency helps us normalizing the database in 3NF (3rd Normal Form).
+Example: Let’s take an example to understand it better:
+Book Author Author_age
+Game of Thrones George R. R. Martin 66
+Harry Potter J. K. Rowling 49
+Dying of the Light George R. R. Martin 66
+{Book} ->{Author} (if we know the book, we knows the author name)
+{Author} does not ->{Book}
+{Author} -> {Author_age}
+Therefore as per the rule of transitive dependency: {Book} -> {Author_age} should hold, 
+that makes sense because if we know the book name we can know the author’s age.
+Join Dependency
+If a table can be recreated by joining multiple tables and each of this table have a subset of the 
+attributes of the table, then the table is in Join Dependency. It is a generalization of Multivalued 
+Dependency
+Join Dependency can be related to 5NF, wherein a relation is in 5NF, only if it is already in 
+4NF and it cannot be decomposed further.
+
+Example
+<Employee>
+EmpName EmpSkills EmpJob (Assigned Work)
+Tom Networking EJ001
+Harry Web Development EJ002
+Katie Programming EJ002
+The above table can be decomposed into the following three tables; therefore it is not in 5NF:
+<EmployeeSkills>
+EmpName EmpSkills
+Tom Networking
+Harry Web Development
+Katie Programming
+<EmployeeJob>
+EmpName EmpJob
+Tom EJ001
+Harry EJ002
+Katie EJ002
+<JobSkills>
+EmpSkills EmpJob
+Networking EJ001
+Web Development EJ002
+Programming EJ002
+Our Join Dependency −
+{(EmpName, EmpSkills ), ( EmpName, EmpJob), (EmpSkills, EmpJob)}
+The above relations have join dependency, so they are not in 5NF. That would mean that a join 
+relation of the above three relations is equal to our original relation <Employee>
+
+Multi-valued dependency
+When existence of one or more rows in a table implies one or more other rows in the same 
+table, then the Multi-valued dependencies occur.
+If a table has attributes P, Q and R, then Q and R are multi-valued facts of P.
+It is represented by double arrow −
+->->
+For our example:
+P->->QP->->R
+In the above case, Multivalued Dependency exists only if Q and R are independent attributes.
+A table with multivalued dependency violates the 4NF.
+Example
+Let us see an example &mins;
+<Student>
+StudentName CourseDiscipline Activities
+Amit Mathematics Singing
+Amit Mathematics Dancing
+Yuvraj Computers Cricket
+Akash Literature Dancing
+Akash Literature Cricket
+Akash Literature Singing
+In the above table, we can see Students Amit and Akash have interest in more than one 
+activity.
+This is multivalued dependency because CourseDiscipline of a student are independent of 
+Activities, but are dependent on the student.
+Therefore, multivalued dependency −
+StudentName ->-> CourseDisciplineStudentName ->-> Activities
+The above relation violates Fourth Normal Form in Normalization.
+
+To correct it, divide the table into two separate tables and break Multivalued Dependency −
+<StudentCourse>
+StudentName CourseDiscipline
+Amit Mathematics
+Amit Mathematics
+Yuvraj Computers
+Akash Literature
+Akash Literature
+Akash Literature
+<StudentActivities>
+StudentName Activities
+Amit Singing
+Amit Dancing
+Yuvraj Cricket
+Akash Dancing
+Akash Cricket
+Akash Singing
+This breaks the multivalued dependency and now we have two functional dependencies −
+StudentName -> CourseDisciplineStudentName - > Activities
+
+Other References
+• Transitive dependency in DBMS (beginnersbook.com)
+• Functional dependency in DBMS (tutorialspoint.com)
+• Join dependency in DBMS (tutorialspoint.com)
+• Multivalued dependency in DBMS (tutorialspoint.com)
+Suggested Book References
+1. J. Date, “An Introduction to Database Systems”,Addison Wesley.
+2. Navathe,“Fundamentals of Database System”, The Benjamin / Cummings Publishing 
+Co.

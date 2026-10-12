@@ -1,0 +1,622 @@
+<!-- ==================== PART 2 DIVIDER ==================== -->
+<section class="partdiv" id="part2">
+  <div class="plabel">Part 2</div>
+  <div class="prule"></div>
+  <h1>Functional Dependencies</h1>
+  <div class="psub">What a dependency asserts · determinants and dependents · trivial, non-trivial and
+  completely non-trivial · Armstrong's axioms and closure · transitive, multivalued and join dependencies</div>
+  <div class="pfoot">Source: UNIT 2, Chapter 2.1.1 (Functional dependencies) — the Department example, the
+  three forms of dependency, Armstrong's axioms, the Book/Author example, and the Employee join-dependency
+  and Student multivalued-dependency tables.</div>
+</section>
+
+<!-- ==================== CHAPTER 3 ==================== -->
+<section>
+<h1 class="chap" id="c3">3. Functional Dependencies: Meaning and Notation</h1>
+<div class="chapmeta">Part 2 &nbsp;•&nbsp; the single idea that makes normalization possible</div>
+<div class="chaprule"></div>
+
+<p>Normalization is not a set of arbitrary rules. It is a set of <em>tests applied to functional
+dependencies</em>. If you cannot see the dependencies hiding in a table, you cannot normalize it — you can
+only memorise the steps. This chapter builds the ability to see them.</p>
+
+<h2 id="c3-1">3.1 What a Functional Dependency Says</h2>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>A <b>functional dependency</b> (FD) is a constraint between two sets of attributes of a relation. If
+<em>X</em> and <em>Y</em> are sets of attributes of relation R, then <b>X → Y</b> (“X determines Y”, or “Y is
+functionally dependent on X”) means that any two tuples that agree on X must also agree on Y.</p>
+<p>Formally, as the source states it: for any two tuples <em>t1</em> and <em>t2</em> in R, if
+<em>t1[X] = t2[X]</em> then <em>t1[Y] = t2[Y]</em>.</p>
+</div>
+
+<p>Read that sentence slowly, because it is the whole subject. The arrow does <b>not</b> mean “causes”, it does
+not mean “is calculated from”, and it does not mean “appears to the left”. It means: <em>in every legal state
+of this relation, the same X value cannot be paired with two different Y values.</em></p>
+
+<p>The source's own example is the smallest possible one. Consider a <span class="kv">Department</span>
+relation with attributes <span class="kv">DeptId</span> and <span class="kv">DeptName</span>, where
+<span class="kv">DeptId</span> is the primary key:</p>
+
+<table class="rel">
+<caption>Table 3.1 — The source's Department relation.</caption>
+<thead><tr><th class="mono">DeptId</th><th class="mono">DeptName</th></tr></thead>
+<tbody>
+<tr><td class="mono pk">001</td><td class="mono">Finance</td></tr>
+<tr><td class="mono pk">002</td><td class="mono">Marketing</td></tr>
+<tr><td class="mono pk">003</td><td class="mono">HR</td></tr>
+</tbody>
+</table>
+
+<p>Because <span class="kv">DeptId</span> uniquely identifies the department, it also uniquely determines the
+department name. The dependency is</p>
+<p style="text-align:center"><span class="kv" style="font-size:11pt">DeptId → DeptName</span></p>
+<p>The source phrases the justification memorably: <em>if you want to know the department name, then at first
+you need to have the DeptId.</em> That “you must know X first” test is a reliable practical way to spot a
+dependency in a table.</p>
+
+<div class="box violet"><span class="tag">From the source — a wording slip</span>
+<p>The source then writes “<em>DeptId is functionally dependent on DeptName</em>” and still labels the
+dependency <span class="kv">DeptId → DeptName</span>. The sentence is backwards: in
+<span class="kv">DeptId → DeptName</span> it is <b>DeptName</b> that is functionally dependent on
+<b>DeptId</b>, not the other way round. The notation in the source is correct and is the one used throughout
+these notes; only that one explanatory sentence is inverted.</p>
+</div>
+
+<h2 id="c3-2">3.2 Determinant and Dependent</h2>
+
+<p>Every dependency has two named parts, and using the names correctly makes dependency reasoning far easier.</p>
+
+<figure>
+<svg viewBox="0 0 500 120" width="500" height="120" role="img"
+     aria-label="Anatomy of a functional dependency X determines Y">
+  <rect x="30" y="40" width="120" height="44" rx="4" fill="#1f4fbf"/>
+  <text x="46" y="59" font-family="DejaVu Sans Mono" font-size="12" fill="#fff" font-weight="bold">X</text>
+  <text x="46" y="76" font-family="DejaVu Sans" font-size="7.5" fill="#dbe6f3">determinant</text>
+
+  <path d="M150,62 L176,62" stroke="#0e7c86" stroke-width="1.6"/>
+  <path d="M172,58 L182,62 L172,66 z" fill="#0e7c86"/>
+
+  <rect x="176" y="40" width="130" height="44" rx="4" fill="#a0522d"/>
+  <text x="196" y="59" font-family="DejaVu Sans Mono" font-size="12" fill="#fff" font-weight="bold">Y</text>
+  <text x="196" y="76" font-family="DejaVu Sans" font-size="7.5" fill="#fbf4ec">dependent attribute(s)</text>
+
+  <rect x="322" y="28" width="164" height="68" rx="4" fill="#eef7f8" stroke="#0e7c86"/>
+  <text x="332" y="46" font-family="DejaVu Sans" font-size="8.6" fill="#0e7c86" font-weight="bold">THE TEST</text>
+  <text x="332" y="62" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">Same X in two rows?</text>
+  <text x="332" y="76" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">Then Y must also be</text>
+  <text x="332" y="90" font-family="DejaVu Sans" font-size="8.4" fill="#1c2833">the same in both rows.</text>
+
+  <text x="30" y="22" font-family="DejaVu Sans" font-size="9" fill="#12294b" font-weight="bold">A FUNCTIONAL DEPENDENCY</text>
+  <text x="30" y="106" font-family="DejaVu Sans" font-size="8" fill="#5d6d7e">Written  X → Y ; read “X determines Y” or “Y is functionally dependent on X”.</text>
+</svg>
+<figcaption class="figcap"><b>Figure 3.1</b> — X is the determinant, Y is the determined set. The dependency is a
+statement about every legal state of the relation, not about the rows you happen to see.</figcaption>
+</figure>
+
+<table>
+<caption>Table 3.2 — The vocabulary of dependencies.</caption>
+<thead><tr><th>Term</th><th>Meaning</th><th>In <span class="mono">DeptId → DeptName</span></th></tr></thead>
+<tbody>
+<tr><td>Determinant</td><td>The left-hand set X</td><td class="mono">DeptId</td></tr>
+<tr><td>Dependent</td><td>The right-hand set Y</td><td class="mono">DeptName</td></tr>
+<tr><td>Functional dependency</td><td>The constraint X → Y</td><td>DeptId determines DeptName</td></tr>
+<tr><td>Determines</td><td>Verb for the left-hand set</td><td>DeptId determines DeptName</td></tr>
+<tr><td>Is determined by</td><td>Verb for the right-hand set</td><td>DeptName is determined by DeptId</td></tr>
+</tbody>
+</table>
+
+<h2 id="c3-3">3.3 Reading a Dependency Correctly</h2>
+
+<div class="box warn"><span class="tag">Common mistake</span>
+<p>Reading the arrow as a causal or computational relation. A dependency is a <b>constraint on allowed data</b>.
+The table below shows sentences people write, and which of them are correct.</p>
+</div>
+
+<table>
+<caption>Table 3.3 — Correct and incorrect readings of X → Y.</caption>
+<thead><tr><th>Sentence</th><th>Verdict</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>“X determines Y.”</td><td class="ok">Correct</td><td>Standard reading of the arrow.</td></tr>
+<tr><td>“Y is functionally dependent on X.”</td><td class="ok">Correct</td><td>Standard reading of the arrow.</td></tr>
+<tr><td>“X depends on Y.”</td><td class="no">Wrong</td><td>Reverses the direction. X is the determinant.</td></tr>
+<tr><td>“Y causes X.”</td><td class="no">Wrong</td><td>The arrow is a data constraint, not causation.</td></tr>
+<tr><td>“X is computed from Y.”</td><td class="no">Wrong</td><td>Computation is irrelevant to the constraint.</td></tr>
+</tbody>
+</table>
+
+<h2 id="c3-4">3.4 Finding Dependencies in a Table</h2>
+
+<p>Given only a table of rows, a dependency can be <b>disproved</b> but never <b>proved</b> — the rows you can
+see are a sample of all legal states. The practical procedure is to look for two rows with the same X and
+different Y; if they exist, X → Y is false.</p>
+
+<div class="box amber"><span class="tag">Worked step — disproving a dependency</span>
+<p>Take the source's Book relation (used again in Section 5.1):</p>
+<table class="rel">
+<thead><tr><th class="mono">Book</th><th class="mono">Author</th><th class="mono">Author_age</th></tr></thead>
+<tbody>
+<tr><td class="mono">Game of Thrones</td><td class="mono">George R. R. Martin</td><td class="mono">66</td></tr>
+<tr><td class="mono">Harry Potter</td><td class="mono">J. K. Rowling</td><td class="mono">49</td></tr>
+<tr><td class="mono">Dying of the Light</td><td class="mono">George R. R. Martin</td><td class="mono">66</td></tr>
+</tbody>
+</table>
+<p><b>Claim:</b> <span class="kv">Author → Book</span>. <b>Test:</b> look for two rows with the same
+<em>Author</em> and different <em>Book</em>. Rows 1 and 3 both have author “George R. R. Martin” but different
+books. The claim is <b>false</b>. This is exactly the step that makes
+<span class="kv">Book → Author_age</span> a <em>transitive</em> dependency later in Section 5.1, and
+transitive dependencies are what 3NF removes.</p>
+</div>
+
+<h2 id="c3-5">3.5 Trivial, Non-Trivial and Completely Non-Trivial</h2>
+
+<p>The source gives three forms of functional dependency. The distinction looks pedantic until you write an
+exam answer about BCNF, where the words “trivial” and “non-trivial” decide whether a dependency violates the
+form.</p>
+
+<div class="box def"><span class="tag">Definitions — the three forms</span>
+<p><b>Trivial:</b> for <span class="kv">A → B</span>, B is a <b>subset of</b> A. The dependency tells you
+nothing new.</p>
+<p><b>Non-trivial:</b> for <span class="kv">A → B</span>, B is <b>not a subset of</b> A.</p>
+<p><b>Completely non-trivial:</b> for <span class="kv">A → B</span>, A ∩ B is <b>empty</b> (the two sides
+share no attribute at all).</p>
+</div>
+
+<figure>
+<svg viewBox="0 0 520 200" width="520" height="200" role="img"
+     aria-label="Venn-style illustration of trivial, non-trivial and completely non-trivial dependencies">
+  <circle cx="76" cy="70" r="40" fill="#e8f1fb" stroke="#1f4fbf" stroke-width="1.4"/>
+  <circle cx="60" cy="70" r="20" fill="#1f4fbf" opacity="0.55"/>
+  <text x="86" y="74" font-family="DejaVu Sans Mono" font-size="9" fill="#1f4fbf">B</text>
+  <text x="44" y="74" font-family="DejaVu Sans Mono" font-size="9" fill="#fff">A</text>
+  <text x="40" y="126" font-family="DejaVu Sans" font-size="9" fill="#1f4fbf" font-weight="bold">TRIVIAL</text>
+  <text x="20" y="140" font-family="DejaVu Sans Mono" font-size="8" fill="#1c2833">B ⊆ A</text>
+  <text x="16" y="154" font-family="DejaVu Sans" font-size="7.6" fill="#5d6d7e">{DeptId,DeptName}→DeptId</text>
+
+  <circle cx="266" cy="70" r="40" fill="#fbf4ec" stroke="#a0522d" stroke-width="1.4"/>
+  <circle cx="292" cy="70" r="20" fill="#a0522d" opacity="0.5"/>
+  <text x="248" y="74" font-family="DejaVu Sans Mono" font-size="9" fill="#a0522d">A</text>
+  <text x="288" y="74" font-family="DejaVu Sans Mono" font-size="9" fill="#7a2e10">B</text>
+  <text x="228" y="126" font-family="DejaVu Sans" font-size="9" fill="#a0522d" font-weight="bold">NON-TRIVIAL</text>
+  <text x="212" y="140" font-family="DejaVu Sans Mono" font-size="8" fill="#1c2833">B ⊄ A,  A∩B ≠ ∅</text>
+  <text x="216" y="154" font-family="DejaVu Sans" font-size="7.6" fill="#5d6d7e">DeptId → DeptName</text>
+
+  <circle cx="456" cy="70" r="40" fill="#f2f8ee" stroke="#4f8a37" stroke-width="1.4"/>
+  <circle cx="490" cy="70" r="20" fill="#4f8a37" opacity="0.5"/>
+  <text x="436" y="74" font-family="DejaVu Sans Mono" font-size="9" fill="#4f8a37">A</text>
+  <text x="486" y="74" font-family="DejaVu Sans Mono" font-size="9" fill="#2f5f22">B</text>
+  <text x="386" y="126" font-family="DejaVu Sans" font-size="8.4" fill="#4f8a37" font-weight="bold">COMPLETELY</text>
+  <text x="392" y="138" font-family="DejaVu Sans" font-size="8.4" fill="#4f8a37" font-weight="bold">NON-TRIVIAL</text>
+  <text x="392" y="152" font-family="DejaVu Sans Mono" font-size="8" fill="#1c2833">A ∩ B = ∅</text>
+
+  <text x="20" y="26" font-family="DejaVu Sans" font-size="9" fill="#12294b" font-weight="bold">A → B : how much does the dependency tell you?</text>
+  <text x="20" y="186" font-family="DejaVu Sans" font-size="8" fill="#5d6d7e">Trivial dependencies are always true and carry no information; only non-trivial ones constrain the data or matter for BCNF.</text>
+</svg>
+<figcaption class="figcap"><b>Figure 3.2</b> — The three forms of functional dependency, drawn as set
+relationships. Note that every completely non-trivial dependency is also non-trivial.</figcaption>
+</figure>
+
+<h3>Source examples, checked</h3>
+<table>
+<caption>Table 3.4 — The source's examples for each form.</caption>
+<thead><tr><th>Form</th><th>Example</th><th>Why it has that form</th></tr></thead>
+<tbody>
+<tr><td>Trivial</td><td class="mono">{ DeptId, DeptName } → DeptId</td><td>The right side <em>DeptId</em> is a subset of the left side, so it is trivially satisfied.</td></tr>
+<tr><td>Non-trivial</td><td class="mono">DeptId → DeptName</td><td><em>DeptName</em> is not a subset of <em>DeptId</em>, so the dependency genuinely constrains the data.</td></tr>
+<tr><td>Completely non-trivial</td><td class="mono">DeptId → DeptName</td><td>The same dependency also has empty intersection between its sides, so it is completely non-trivial as well.</td></tr>
+</tbody>
+</table>
+
+<div class="box note"><span class="tag">Explanation — the nesting to remember</span>
+<p>The three classes are nested, not separate categories. The example
+<span class="kv">DeptId → DeptName</span> is simultaneously non-trivial <em>and</em> completely non-trivial,
+because its two sides share no attribute. A dependency such as <span class="kv">{A, B} → {B, C}</span> is
+non-trivial (C is not in the left side) but <b>not</b> completely non-trivial, because the left and right
+sides share B.</p>
+</div>
+
+<h2 id="c3-6">3.6 Why Functional Dependencies Matter</h2>
+
+<p>The source lists five advantages of knowing about functional dependencies, and each one points at a later
+chapter of these notes.</p>
+
+<table>
+<caption>Table 3.5 — Advantages of functional dependencies, with the chapter where each is used.</caption>
+<thead><tr><th>Advantage (source)</th><th>What it means in practice</th><th>Used in</th></tr></thead>
+<tbody>
+<tr><td>Avoids data redundancy</td><td>The same fact is not repeated at multiple locations</td><td>Ch. 6, 8</td></tr>
+<tr><td>Maintains data quality</td><td>Constraints prevent contradictory states</td><td>Ch. 6</td></tr>
+<tr><td>Defines meaning and constraints</td><td>The FDs are the business rules of the schema</td><td>Ch. 4</td></tr>
+<tr><td>Identifies bad designs</td><td>Anomaly-prone tables reveal themselves as odd FDs</td><td>Ch. 7, 9</td></tr>
+<tr><td>Reveals facts about the design</td><td>Closure and keys can be derived, not guessed</td><td>Ch. 4</td></tr>
+</tbody>
+</table>
+</section>
+
+<!-- ==================== CHAPTER 4 ==================== -->
+<section>
+<h1 class="chap" id="c4">4. Armstrong's Axioms and Reasoning with Dependencies</h1>
+<div class="chapmeta">Part 2 &nbsp;•&nbsp; a small set of rules from which every valid dependency can be derived</div>
+<div class="chaprule"></div>
+
+<p>A set F of functional dependencies that you write down for a schema is never the whole truth: it implies
+others. Armstrong's axioms are the inference rules that let you compute those implied dependencies. They were
+developed by <b>William Armstrong in 1974</b>, as the source notes.</p>
+
+<h2 id="c4-1">4.1 The Three Primary Axioms</h2>
+
+<div class="box def"><span class="tag">Armstrong's three axioms</span>
+<p><b>Reflexivity.</b> If Y is a subset of X, then X → Y. The source states it as “A → B, if B is a subset of
+A”. This is the rule that makes trivial dependencies true.</p>
+<p><b>Augmentation.</b> If X → Y, then XZ → YZ for any set of attributes Z. The source writes it as
+“AC → BC, if A → B”. Adding the same attributes to both sides preserves the dependency.</p>
+<p><b>Transitivity.</b> If X → Y and Y → Z, then X → Z. The source gives it as “If A → B and B → C, then A → C,
+i.e. a transitive relation”.</p>
+</div>
+
+<figure>
+<svg viewBox="0 0 520 220" width="520" height="220" role="img"
+     aria-label="The three Armstrong axioms illustrated with attribute sets">
+  <rect x="14" y="30" width="156" height="76" rx="4" fill="#e8f1fb" stroke="#1f4fbf"/>
+  <text x="24" y="46" font-family="DejaVu Sans" font-size="9" fill="#1f4fbf" font-weight="bold">REFLEXIVITY</text>
+  <text x="24" y="64" font-family="DejaVu Sans Mono" font-size="8.6" fill="#1c2833">Y ⊆ X  ⇒  X → Y</text>
+  <text x="24" y="80" font-family="DejaVu Sans Mono" font-size="8" fill="#5d6d7e">{A,B,C} → {A,B}</text>
+  <text x="24" y="96" font-family="DejaVu Sans" font-size="7.6" fill="#1f4fbf">gives trivial dependencies</text>
+
+  <rect x="182" y="30" width="156" height="76" rx="4" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="192" y="46" font-family="DejaVu Sans" font-size="9" fill="#a0522d" font-weight="bold">AUGMENTATION</text>
+  <text x="192" y="64" font-family="DejaVu Sans Mono" font-size="8.6" fill="#1c2833">X → Y ⇒ XZ → YZ</text>
+  <text x="192" y="80" font-family="DejaVu Sans Mono" font-size="8" fill="#5d6d7e">A → B  ⇒  AC → BC</text>
+  <text x="192" y="96" font-family="DejaVu Sans" font-size="7.6" fill="#a0522d">add the same to both sides</text>
+
+  <rect x="350" y="30" width="156" height="76" rx="4" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="360" y="46" font-family="DejaVu Sans" font-size="9" fill="#4f8a37" font-weight="bold">TRANSITIVITY</text>
+  <text x="360" y="64" font-family="DejaVu Sans Mono" font-size="8.6" fill="#1c2833">X→Y, Y→Z ⇒ X→Z</text>
+  <text x="360" y="80" font-family="DejaVu Sans Mono" font-size="8" fill="#5d6d7e">A→B, B→C ⇒ A→C</text>
+  <text x="360" y="96" font-family="DejaVu Sans" font-size="7.6" fill="#4f8a37">chains dependencies</text>
+
+  <text x="14" y="136" font-family="DejaVu Sans" font-size="9" fill="#12294b" font-weight="bold">TRANSITIVITY IN A CHAIN</text>
+  <rect x="30" y="148" width="86" height="30" rx="3" fill="#1f4fbf"/>
+  <text x="68" y="168" font-family="DejaVu Sans Mono" font-size="11" fill="#fff" font-weight="bold">A</text>
+  <path d="M116,163 L168,163" stroke="#0e7c86" stroke-width="1.6"/><path d="M164,158 L176,163 L164,168 z" fill="#0e7c86"/>
+  <rect x="176" y="148" width="86" height="30" rx="3" fill="#1b6e8a"/>
+  <text x="214" y="168" font-family="DejaVu Sans Mono" font-size="11" fill="#fff" font-weight="bold">B</text>
+  <path d="M262,163 L314,163" stroke="#0e7c86" stroke-width="1.6"/><path d="M310,158 L322,163 L310,168 z" fill="#0e7c86"/>
+  <rect x="322" y="148" width="86" height="30" rx="3" fill="#a0522d"/>
+  <text x="360" y="168" font-family="DejaVu Sans Mono" font-size="11" fill="#fff" font-weight="bold">C</text>
+  <path d="M48,178 C120,206 340,206 384,178" fill="none" stroke="#4f8a37" stroke-width="1.6" stroke-dasharray="4 3"/>
+  <text x="196" y="216" font-family="DejaVu Sans" font-size="8.5" fill="#4f8a37">A → C is implied, so A → C also holds</text>
+</svg>
+<figcaption class="figcap"><b>Figure 4.1</b> — Armstrong's three primary axioms. From these three, all further
+rules (Section 4.2) can be derived.</figcaption>
+</figure>
+
+<h2 id="c4-2">4.2 Derived Rules</h2>
+
+<p>Three further rules are commonly used because they shorten derivations. They are <em>derived</em>, not
+assumed: each can be proved from the three axioms.</p>
+
+<table>
+<caption>Table 4.1 — Derived rules, all provable from reflexivity, augmentation and transitivity.</caption>
+<thead><tr><th>Rule</th><th>Statement</th><th>Derivation sketch</th></tr></thead>
+<tbody>
+<tr><td>Union (additivity)</td><td>If X → Y and X → Z, then X → YZ</td><td>Augment X → Y to X → XY; augment X → Z to XY → YZ; transitivity gives X → YZ.</td></tr>
+<tr><td>Decomposition (projectivity)</td><td>If X → YZ, then X → Y and X → Z</td><td>Y ⊆ YZ, so by reflexivity YZ → Y; transitivity with X → YZ gives X → Y.</td></tr>
+<tr><td>Pseudotransitivity</td><td>If X → Y and WY → Z, then WX → Z</td><td>Augment X → Y to WX → WY; transitivity with WY → Z gives WX → Z.</td></tr>
+</tbody>
+</table>
+
+<div class="box warn"><span class="tag">Common mistake — decomposition is one-way</span>
+<p><b>Decomposition works on the right side, never on the left.</b> From <span class="kv">A → BC</span> you
+may conclude <span class="kv">A → B</span> and <span class="kv">A → C</span>. But from
+<span class="kv">AB → C</span> you may <b>not</b> conclude <span class="kv">A → C</span> or
+<span class="kv">B → C</span>. Splitting the left side is an invalid inference, and it is one of the most
+frequent mistakes in normalization answers.</p>
+</div>
+
+<h2 id="c4-3">4.3 Closure of a Set of Attributes</h2>
+
+<p>To decide whether a given set of attributes is a candidate key, you need to know everything it can
+determine. That is its <b>closure</b>.</p>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>The <b>closure</b> of a set of attributes X under a set of dependencies F, written <b>X⁺</b>, is the set of
+all attributes that can be functionally determined by X using the axioms. If X⁺ contains every attribute of
+the relation, then X is a super key; if X is also minimal, X is a candidate key.</p>
+</div>
+
+<div class="box amber"><span class="tag">Algorithm — computing X⁺</span>
+<p><b>1.</b> Start with the result set = X.<br>
+<b>2.</b> Scan the dependencies in F. If the left side of a dependency is already contained in the result
+set, add its right side to the result set.<br>
+<b>3.</b> Repeat step 2 until no new attribute is added.<br>
+<b>4.</b> The final result set is X⁺.</p>
+</div>
+
+<h2 id="c4-4">4.4 Worked Closure Computations</h2>
+
+<div class="box amber"><span class="tag">Worked step — a full closure</span>
+<p><b>Relation</b> R(A, B, C, D, E) with dependencies:</p>
+<pre>F = { A → B,  B → C,  CD → E }</pre>
+<p><b>Task:</b> compute A⁺ and decide whether A is a candidate key.</p>
+<table>
+<thead><tr><th>Pass</th><th>Result set</th><th>Dependency used</th><th>Reason</th></tr></thead>
+<tbody>
+<tr><td>start</td><td class="mono">{A}</td><td>—</td><td>Initialise with A</td></tr>
+<tr><td>1</td><td class="mono">{A, B}</td><td>A → B</td><td>Left side {A} ⊆ result</td></tr>
+<tr><td>2</td><td class="mono">{A, B, C}</td><td>B → C</td><td>Left side {B} ⊆ result</td></tr>
+<tr><td>3</td><td class="mono">{A, B, C}</td><td>CD → E</td><td>Left side {C,D} ⊄ result (D missing)</td></tr>
+<tr><td>stop</td><td class="mono">{A, B, C}</td><td>—</td><td>No new attribute added</td></tr>
+</tbody>
+</table>
+<p><b>Result:</b> A⁺ = {A, B, C}. Since D and E are missing, <b>A is not a super key</b> and therefore not a
+candidate key.</p>
+</div>
+
+<div class="box amber"><span class="tag">Worked step — finding a candidate key by closure</span>
+<p>Same relation R(A, B, C, D, E) with F = { A → B, B → C, CD → E }.</p>
+<p><b>Task:</b> test <span class="kv">{A, D}</span>.</p>
+<table>
+<thead><tr><th>Pass</th><th>Result set</th><th>Dependency used</th></tr></thead>
+<tbody>
+<tr><td>start</td><td class="mono">{A, D}</td><td>—</td></tr>
+<tr><td>1</td><td class="mono">{A, D, B}</td><td>A → B</td></tr>
+<tr><td>2</td><td class="mono">{A, D, B, C}</td><td>B → C</td></tr>
+<tr><td>3</td><td class="mono">{A, D, B, C, E}</td><td>CD → E</td></tr>
+</tbody>
+</table>
+<p><b>Result:</b> (AD)⁺ = {A, B, C, D, E} — every attribute. So <span class="kv">{A, D}</span> is a super key.
+Is it minimal? Test the proper subsets: A⁺ = {A, B, C} (missing D, E) and D⁺ = {D} (missing A, B, C, E).
+Neither subset determines everything, so <span class="kv">{A, D}</span> is a <b>candidate key</b>.</p>
+</div>
+
+<div class="box tip"><span class="tag">Correct result — the shortcut</span>
+<p>Attributes that appear on the <b>right side only</b> can never be part of a candidate key. Attributes that
+appear on the <b>left side</b> (or nowhere) must be part of every candidate key. Here E appears only on the
+right, so E is excluded from keys; A and D appear on the left, so both must be present. Starting with {A, D}
+is therefore the right first guess — and the closure above confirms it.</p>
+</div>
+
+<h2 id="c4-5">4.5 Equivalence of Dependency Sets</h2>
+
+<p>Two dependency sets F and G are <b>equivalent</b> when every dependency in F is implied by G and every
+dependency in G is implied by F. Equivalence is what lets a designer replace a messy set of dependencies with
+a cleaner, smaller one without changing the meaning of the schema — and it is the theoretical justification
+for a lossless decomposition, covered in Chapter 12.</p>
+
+<div class="box note"><span class="tag">Explanation — why this is worth knowing</span>
+<p>When you decompose a table in Part 3, the projections of the original dependencies onto the new tables form
+a new set G. If F and G are equivalent, the decomposition has preserved every constraint. If they are not,
+the decomposition has quietly lost a business rule — a fact worth stating in an exam answer.</p>
+</div>
+</section>
+
+<!-- ==================== CHAPTER 5 ==================== -->
+<section>
+<h1 class="chap" id="c5">5. Special Dependencies: Transitive, Multivalued and Join</h1>
+<div class="chapmeta">Part 2 &nbsp;•&nbsp; the three dependency types that drive 3NF, 4NF and 5NF</div>
+<div class="chaprule"></div>
+
+<p>Ordinary functional dependencies are not the only constraint a table can violate. Three richer kinds of
+dependency each have a normal form aimed at them. Understanding them here makes Part 3 read as one connected
+argument rather than six unrelated definitions.</p>
+
+<h2 id="c5-1">5.1 Transitive Dependency</h2>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>A functional dependency is <b>transitive</b> when it is formed indirectly by two other dependencies. The
+source's precise statement: <span class="kv">X → Z</span> is transitive if all three of the following hold:</p>
+<ul>
+<li><span class="kv">X → Y</span></li>
+<li><span class="kv">Y does not → X</span> &nbsp;(so Y is not itself a determinant of X)</li>
+<li><span class="kv">Y → Z</span></li>
+</ul>
+</div>
+
+<p>The source adds a useful scope note: <em>a transitive dependency can only occur in a relation of three or
+more attributes</em>, and it is the dependency that 3NF removes.</p>
+
+<h3>The source's Book example</h3>
+<table class="rel">
+<caption>Table 5.1 — The source's transitive-dependency example.</caption>
+<thead><tr><th class="mono">Book</th><th class="mono">Author</th><th class="mono">Author_age</th></tr></thead>
+<tbody>
+<tr><td class="mono">Game of Thrones</td><td class="mono">George R. R. Martin</td><td class="mono">66</td></tr>
+<tr><td class="mono">Harry Potter</td><td class="mono">J. K. Rowling</td><td class="mono">49</td></tr>
+<tr><td class="mono">Dying of the Light</td><td class="mono">George R. R. Martin</td><td class="mono">66</td></tr>
+</tbody>
+</table>
+
+<p>Check the three conditions:</p>
+<ol>
+<li><span class="kv">{Book} → {Author}</span> — knowing the book tells you the author. ✔</li>
+<li><span class="kv">{Author} does not → {Book}</span> — an author may write many books. ✔</li>
+<li><span class="kv">{Author} → {Author_age}</span> — knowing the author tells you the age. ✔</li>
+</ol>
+<p>Therefore, by transitivity, <span class="kv">{Book} → {Author_age}</span> holds: if you know the book name,
+you can know the author's age. That indirect dependency is a transitive dependency, and it is exactly the kind
+of dependency 3NF breaks.</p>
+
+<figure>
+<svg viewBox="0 0 520 150" width="520" height="150" role="img"
+     aria-label="Transitive dependency Book determines Author determines Author_age">
+  <rect x="24" y="46" width="106" height="40" rx="4" fill="#1f4fbf"/>
+  <text x="50" y="71" font-family="DejaVu Sans Mono" font-size="11" fill="#fff" font-weight="bold">Book</text>
+  <path d="M130,66 L208,66" stroke="#0e7c86" stroke-width="1.7"/><path d="M204,61 L216,66 L204,71 z" fill="#0e7c86"/>
+  <rect x="216" y="46" width="106" height="40" rx="4" fill="#1b6e8a"/>
+  <text x="240" y="71" font-family="DejaVu Sans Mono" font-size="11" fill="#fff" font-weight="bold">Author</text>
+  <path d="M322,66 L400,66" stroke="#0e7c86" stroke-width="1.7"/><path d="M396,61 L408,66 L396,71 z" fill="#0e7c86"/>
+  <rect x="408" y="46" width="98" height="40" rx="4" fill="#a0522d"/>
+  <text x="420" y="71" font-family="DejaVu Sans Mono" font-size="10" fill="#fff" font-weight="bold">Author_age</text>
+
+  <path d="M77,88 C120,126 400,126 457,88" fill="none" stroke="#4f8a37" stroke-width="1.7" stroke-dasharray="5 3"/>
+  <text x="192" y="142" font-family="DejaVu Sans" font-size="8.6" fill="#4f8a37">implied transitive dependency:  Book → Author_age</text>
+
+  <text x="152" y="38" font-family="DejaVu Sans" font-size="8" fill="#0e7c86">Author ⇏ Book  (an author may write many books)</text>
+</svg>
+<figcaption class="figcap"><b>Figure 5.1</b> — A transitive dependency is a two-hop chain. It is harmless
+informationally but dangerous in a stored table, because the same author's age is repeated for every book.</figcaption>
+</figure>
+
+<div class="box warn"><span class="tag">Common mistake</span>
+<p>Calling <em>any</em> two-dependency chain “transitive”. The middle condition matters. If
+<span class="kv">Y → X</span> also held, then X and Y would determine each other and the chain would simply be
+a pair of equivalent determinants, not a transitive dependency in the 3NF sense.</p>
+</div>
+
+<h2 id="c5-2">5.2 Multivalued Dependency</h2>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>A <b>multivalued dependency</b> (MVD) occurs when the existence of one or more rows in a table implies the
+existence of one or more other rows in the same table. If a table has attributes P, Q and R, and Q and R are
+two <em>independent</em> multivalued facts about P, we write <span class="kv">P →→ Q</span> and
+<span class="kv">P →→ R</span>.</p>
+</div>
+
+<p>The source states the three conditions for a table to have a multivalued dependency, and they are worth
+listing exactly as given:</p>
+<ol>
+<li>For a dependency <span class="kv">A → B</span>, if for a single value of A multiple values of B exist,
+then the table may have a multivalued dependency.</li>
+<li>The table must have <b>at least three columns</b> for a multivalued dependency to exist.</li>
+<li>For a relation R(A, B, C), if there is a multivalued dependency between A and B, then <b>B and C must be
+independent of each other</b>.</li>
+</ol>
+
+<h3>The source's Student example</h3>
+<table class="rel">
+<caption>Table 5.2 — The source's multivalued-dependency example (as given).</caption>
+<thead><tr><th class="mono">StudentName</th><th class="mono">CourseDiscipline</th><th class="mono">Activities</th></tr></thead>
+<tbody>
+<tr><td class="mono">Amit</td><td class="mono">Mathematics</td><td class="mono">Singing</td></tr>
+<tr><td class="mono">Amit</td><td class="mono">Mathematics</td><td class="mono">Dancing</td></tr>
+<tr><td class="mono">Yuvraj</td><td class="mono">Computers</td><td class="mono">Cricket</td></tr>
+<tr><td class="mono">Akash</td><td class="mono">Literature</td><td class="mono">Dancing</td></tr>
+<tr><td class="mono">Akash</td><td class="mono">Literature</td><td class="mono">Cricket</td></tr>
+<tr><td class="mono">Akash</td><td class="mono">Literature</td><td class="mono">Singing</td></tr>
+</tbody>
+</table>
+
+<p>Amit takes Mathematics and has two activities; Akash takes Literature and has three. The courses and the
+activities are two independent lists about the same student — a course choice does not depend on an activity
+choice. So <span class="kv">StudentName →→ CourseDiscipline</span> and
+<span class="kv">StudentName →→ Activities</span> both hold. This relation violates 4NF, and the fix
+(decomposing into <span class="kv">StudentCourse</span> and <span class="kv">StudentActivities</span>) is
+worked in Section 10.3.</p>
+
+<div class="box violet"><span class="tag">From the source — a repeated-row defect</span>
+<p>In the source's <em>corrected</em> tables, the row “Amit / Mathematics” is listed twice in
+<span class="kv">StudentCourse</span>, and “Akash / Literature” appears three times. In a true relation the rows
+of a table form a <b>set</b>, so duplicate tuples cannot exist: the correct decomposition is
+<span class="kv">StudentCourse = { (Amit, Mathematics), (Yuvraj, Computers), (Akash, Literature) }</span> and
+<span class="kv">StudentActivities = { (Amit, Singing), (Amit, Dancing), (Yuvraj, Cricket), (Akash, Dancing),
+(Akash, Cricket), (Akash, Singing) }</span>. The duplicates in the source appear to be a display artefact of the
+slide. The corrected version is used in Chapter 10.</p>
+</div>
+
+<h2 id="c5-3">5.3 Join Dependency</h2>
+
+<div class="box def"><span class="tag">Definition</span>
+<p>A table is in <b>join dependency</b> if it can be recreated by joining multiple tables, each of which holds
+a subset of its attributes. A join dependency is a generalisation of a multivalued dependency, and it is the
+dependency that 5NF addresses: a relation is in 5NF only if it is already in 4NF and cannot be decomposed
+further without losing information.</p>
+</div>
+
+<h3>The source's Employee example</h3>
+<table class="rel">
+<caption>Table 5.3 — The source's join-dependency example.</caption>
+<thead><tr><th class="mono">EmpName</th><th class="mono">EmpSkills</th><th class="mono">EmpJob (Assigned Work)</th></tr></thead>
+<tbody>
+<tr><td class="mono">Tom</td><td class="mono">Networking</td><td class="mono">EJ001</td></tr>
+<tr><td class="mono">Harry</td><td class="mono">Web Development</td><td class="mono">EJ002</td></tr>
+<tr><td class="mono">Katie</td><td class="mono">Programming</td><td class="mono">EJ002</td></tr>
+</tbody>
+</table>
+
+<p>The source shows that this table can be decomposed into three tables — <span class="kv">EmployeeSkills</span>
+(EmpName, EmpSkills), <span class="kv">EmployeeJob</span> (EmpName, EmpJob) and <span class="kv">JobSkills</span>
+(EmpSkills, EmpJob) — and that joining those three reproduces the original table. The join dependency is</p>
+<p style="text-align:center"><span class="kv">{ (EmpName, EmpSkills), (EmpName, EmpJob), (EmpSkills, EmpJob) }</span></p>
+
+<div class="box violet"><span class="tag">From the source — an important qualification</span>
+<p>The source says of this three-table decomposition “<em>therefore it is not in 5NF</em>”. Taken literally
+that is too strong: the three-table decomposition of <em>this particular data</em> happens to join back
+losslessly, but a table is only genuinely in violation of 5NF when the join dependency is <b>not</b> implied by
+the candidate keys — that is, when the constraint is a real business rule of the schema, not an accident of
+the rows shown. The source itself makes exactly this point in its 5NF chapter, where it distinguishes the
+version of the table that obeyed the tuple-formation rule (which was in 5NF) from the version that did not
+(which was not). These notes present the source's example as an illustration of what a join dependency
+<em>is</em>, and explain the key-implied test properly in Section 11.1.</p>
+</div>
+
+<h2 id="c5-4">5.4 Dependency Types and the Normal Forms They Drive</h2>
+
+<figure>
+<svg viewBox="0 0 540 244" width="540" height="244" role="img"
+     aria-label="Mapping of dependency types to normal forms">
+  <text x="14" y="16" font-family="DejaVu Sans" font-size="10" fill="#12294b" font-weight="bold">DEPENDENCY TYPE → THE NORMAL FORM THAT REMOVES IT</text>
+  <line x1="14" y1="22" x2="526" y2="22" stroke="#0e7c86" stroke-width="1.5"/>
+
+  <rect x="14" y="34" width="240" height="34" rx="3" fill="#e8f1fb" stroke="#1f4fbf"/>
+  <text x="24" y="55" font-family="DejaVu Sans" font-size="8.8" fill="#1f4fbf" font-weight="bold">Partial dependency</text>
+  <text x="150" y="55" font-family="DejaVu Sans" font-size="8.2" fill="#5d6d7e">non-prime ← part of key</text>
+  <path d="M254,51 L296,51" stroke="#0e7c86" stroke-width="1.4"/><path d="M292,47 L302,51 L292,55 z" fill="#0e7c86"/>
+  <rect x="302" y="34" width="224" height="34" rx="3" fill="#1f4fbf"/>
+  <text x="314" y="55" font-family="DejaVu Sans" font-size="9.4" fill="#fff" font-weight="bold">2NF</text>
+  <text x="352" y="55" font-family="DejaVu Sans" font-size="8.6" fill="#dbe6f3">removes partial dependency</text>
+
+  <rect x="14" y="80" width="240" height="34" rx="3" fill="#fbf4ec" stroke="#a0522d"/>
+  <text x="24" y="101" font-family="DejaVu Sans" font-size="8.8" fill="#a0522d" font-weight="bold">Transitive dependency</text>
+  <text x="160" y="101" font-family="DejaVu Sans" font-size="8.2" fill="#5d6d7e">non-prime ← non-prime</text>
+  <path d="M254,97 L296,97" stroke="#0e7c86" stroke-width="1.4"/><path d="M292,93 L302,97 L292,101 z" fill="#0e7c86"/>
+  <rect x="302" y="80" width="224" height="34" rx="3" fill="#a0522d"/>
+  <text x="314" y="101" font-family="DejaVu Sans" font-size="9.4" fill="#fff" font-weight="bold">3NF</text>
+  <text x="352" y="101" font-family="DejaVu Sans" font-size="8.6" fill="#fbf4ec">removes transitive dependency</text>
+
+  <rect x="14" y="126" width="240" height="34" rx="3" fill="#f6f0fa" stroke="#7a3e9d"/>
+  <text x="24" y="147" font-family="DejaVu Sans" font-size="8.8" fill="#7a3e9d" font-weight="bold">Overlapping key determinant</text>
+  <text x="176" y="147" font-family="DejaVu Sans" font-size="8.2" fill="#5d6d7e">X → A, X not a super key</text>
+  <path d="M254,143 L296,143" stroke="#0e7c86" stroke-width="1.4"/><path d="M292,139 L302,143 L292,147 z" fill="#0e7c86"/>
+  <rect x="302" y="126" width="224" height="34" rx="3" fill="#7a3e9d"/>
+  <text x="314" y="147" font-family="DejaVu Sans" font-size="9.4" fill="#fff" font-weight="bold">BCNF</text>
+  <text x="366" y="147" font-family="DejaVu Sans" font-size="8.6" fill="#e8ddf2">strictest functional form</text>
+
+  <rect x="14" y="172" width="240" height="34" rx="3" fill="#eef7f8" stroke="#0e7c86"/>
+  <text x="24" y="193" font-family="DejaVu Sans" font-size="8.8" fill="#0e7c86" font-weight="bold">Multivalued dependency</text>
+  <text x="164" y="193" font-family="DejaVu Sans" font-size="8.2" fill="#5d6d7e">P →→ Q, P →→ R</text>
+  <path d="M254,189 L296,189" stroke="#0e7c86" stroke-width="1.4"/><path d="M292,185 L302,189 L292,193 z" fill="#0e7c86"/>
+  <rect x="302" y="172" width="224" height="34" rx="3" fill="#0e7c86"/>
+  <text x="314" y="193" font-family="DejaVu Sans" font-size="9.4" fill="#fff" font-weight="bold">4NF</text>
+  <text x="352" y="193" font-family="DejaVu Sans" font-size="8.6" fill="#d6eef1">removes multivalued dependency</text>
+
+  <rect x="14" y="218" width="240" height="26" rx="3" fill="#f2f8ee" stroke="#4f8a37"/>
+  <text x="24" y="235" font-family="DejaVu Sans" font-size="8.8" fill="#4f8a37" font-weight="bold">Join dependency</text>
+  <text x="120" y="235" font-family="DejaVu Sans" font-size="8.2" fill="#5d6d7e">not implied by candidate keys</text>
+  <path d="M254,231 L296,231" stroke="#0e7c86" stroke-width="1.4"/><path d="M292,227 L302,231 L292,235 z" fill="#0e7c86"/>
+  <rect x="302" y="218" width="224" height="26" rx="3" fill="#4f8a37"/>
+  <text x="314" y="235" font-family="DejaVu Sans" font-size="9.4" fill="#fff" font-weight="bold">5NF</text>
+  <text x="352" y="235" font-family="DejaVu Sans" font-size="8.6" fill="#e3f0dc">project–join normal form</text>
+</svg>
+<figcaption class="figcap"><b>Figure 5.2</b> — Each normal form exists to remove one specific kind of dependency.
+The ladder is cumulative: 3NF requires 2NF, BCNF requires 3NF, and so on.</figcaption>
+</figure>
+
+<h2>Chapter summary</h2>
+<div class="box tip"><span class="tag">Summary — Part 2</span>
+<ul>
+<li><span class="kv">X → Y</span> means equal X forces equal Y, in every legal state. X is the determinant,
+Y is the dependent set.</li>
+<li>Trivial: B ⊆ A. Non-trivial: B ⊄ A. Completely non-trivial: A ∩ B = ∅.</li>
+<li>Armstrong's three axioms are reflexivity, augmentation and transitivity; union, decomposition and
+pseudotransitivity are derived from them.</li>
+<li>Closure X⁺ is computed by repeatedly adding right sides whose left sides are already contained; if
+X⁺ is everything and X is minimal, X is a candidate key.</li>
+<li>A <b>transitive</b> dependency is a chain X → Y → Z where Y ⇏ X. It is removed by 3NF.</li>
+<li>A <b>multivalued</b> dependency <span class="kv">P →→ Q</span> exists when two independent multi-valued
+facts sit in one table. It is removed by 4NF.</li>
+<li>A <b>join</b> dependency exists when a table can be losslessly reconstructed from projections. It is
+removed by 5NF when it is not implied by the candidate keys.</li>
+</ul>
+</div>
+</section>
